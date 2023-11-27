@@ -1,0 +1,192 @@
+.container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+
+}
+
+.pageDiv {
+    padding: 1vw 5vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  
+.headerContainer {
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    background-color: #E8E8E8;
+    text-align: center;
+
+  }
+
+/* Add a new rule to override the styles for div.app-shell-app.jsx-1964929281 */
+div.app-shell-app.jsx-1964929281 {
+    /* Your modified styles here */
+    /* For example: */
+    flex: 1 0 auto; /* Change flex-grow to 1 and flex-shrink to 0 */
+    overflow: hidden; /* Change overflow to hidden */
+    height: auto; /* Change height to auto */
+    background-color: aqua;
+}
+
+.buttonMargin *{
+       margin: 2px;
+       background-color: red;
+       float: left;
+
+
+}
+
+.mainSection {
+    width:90%;
+    margin:10px;
+    align-items: center;
+    justify-content: center;
+    /*background-color: grey;*/
+    text-align: center;
+}
+
+.baseMargin {
+ width:100%;
+ /*background-color: blue;*/
+
+}
+
+.pageDiv {
+  padding: 1vw 5vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.newRowBtn {
+  position: fixed !important;
+  bottom: 20px;
+  right: 30px;
+  z-index: 99;
+}
+
+.arrow {
+  box-sizing: border-box;
+  height: 10px;
+  width: 10px;
+  border-style: solid;
+  border-color: black;
+  border-width: 0px 1px 1px 0px;
+  transform: rotate(45deg);
+  transition: border-width 150ms ease-in-out;
+  display: inline-flex;
+  margin: 0px 10px 2px 10px;
+}
+
+.rotate {
+  -ms-transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+
+.arrow:hover {
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+}
+
+.filterInput {
+  margin-right: auto;
+  padding-bottom: 10px;
+}
+
+.dataTable {
+  width: 90vw;
+}
+
+.loaderTd {
+  width: 80px;
+}
+
+.actionTd {
+  width: 15%;
+}
+
+.loaderDiv {
+  height: 50px;
+}
+
+
+.add-appointment .card-body {
+  display: none;
+}
+
+.apt-addheading {
+  cursor: pointer;
+  user-select: none;
+}
+
+.appointment-list {
+  font-size: 1.1em;
+}
+
+.appointment-list .pet-item {
+  border-bottom: 1px dotted gray;
+}
+
+.appointment-list .pet-item:last-child {
+  border-bottom: none;
+}
+
+.appointment-list .pet-name {
+  font-weight: 600;
+  color: #337ab7;
+  font-size: 1.3em;
+  line-height: 100%;
+}
+
+.appointment-list .label-item {
+  font-weight: 600;
+  color: #667b82;
+}
+
+.appointment-list .apt-date {
+  font-style: italic;
+}
+
+.appointment-list .apt-notes {
+  line-height: 120%;
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+  background-color: #a9aeb2;
+}
+
+.leftpanel {
+    display: inline-block;
+    /*background-color: yellow;*/
+    width: 48%;
+}
+.middlepanel {
+    display: inline-block;
+    /*background-color: blue;*/
+    width: 4%;
+}
+.rightpanel {
+    display: inline-block;
+    /*background-color: green;*/
+    width: 48%
+}
+
+.fullpanel {
+    display: inline-block;
+    width: 100%;
+}
+
+.box {
+    border: 1px solid black;
+}
+

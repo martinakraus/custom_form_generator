@@ -1,0 +1,24 @@
+{
+  "name": "custom-form-gen",
+  "version": "1.0.0",
+  "description": "",
+  "license": "BSD-3-Clause",
+  "private": true,
+  "scripts": {
+    "build": "d2-app-scripts build",
+    "start": "d2-app-scripts start",
+    "test": "d2-app-scripts test",
+    "deploy": "d2-app-scripts deploy",
+    "lint": "yarn d2-style check",
+    "lint:staged": "yarn lint --staged",
+    "format": "yarn d2-style apply",
+    "format:staged": "yarn format --staged"
+  },
+  "devDependencies": {
+    "@dhis2/cli-app-scripts": "^10.3.10",
+    "@dhis2/cli-style": "^10.5.1"
+  },
+  "dependencies": {
+    "@dhis2/app-runtime": "^3.9.4"
+  }
+}
