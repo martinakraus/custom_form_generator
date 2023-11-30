@@ -5,7 +5,8 @@ import classes from './App.module.css'
 import { SingleSelect, SingleSelectOption, SingleSelectField  } from '@dhis2-ui/select'
 import { Divider } from '@dhis2-ui/divider'
 import AppGetDEList from './AppGetDEList'
-
+import VerticalCategory from './components/VerticalCategory'
+import HorizontalCategory from './components/HorizontalCategory'
 
 import { DataTable, DataTableRow , DataTableColumnHeader, DataTableCell, TableHead, TableBody   } from '@dhis2-ui/table'
 
@@ -46,23 +47,37 @@ const MyApp = () => {
     {/* declare variable and event methods */}
     const [selectedDataSet,setselectedDataSet] = useState([]);
     const [selectedDataSetName,setselectedDataSetName] = useState([]);
+    const [selectedDataElementId, setSelectedDataElementId] = useState(null);
+    const [selectedDataElement, setSelectedDataElement] = useState(null);
+    const [fileredHorizonatlCatCombo, setfileredHorizonatlCatCombo] = useState([]);
+    const [isDataSetsExpanded, setIsDataSetsExpanded] = useState(false);
+    const [isDataElementExpanded, setIsDataElementExpanded] = useState(false);
+    const [isVerticalCategoryExpanded, setIsVerticalCategoryExpanded] = useState(false);
+    const [isHorizontalCategoryExpanded, setIsHorizontalCategoryExpanded] = useState(false);
 
 
     {/* useDataQuery(query) loader */}
     const { loading: loading1, error: error1, data: data1 } = useDataQuery(query);
 
     const handleDataSetChange = event => {
+        setselectedDataSet(event.selected);
+        setSelectedDataElement('');
+        setSelectedDataElementId('');
+        setfileredHorizonatlCatCombo([]);
+        {data1.dataSets.dataSets.filter(dataSets => dataSets.id.includes(event.selected)).map(
+        ({ id, displayName }) => (                    
+            setselectedDataSetName({displayName})                   
+                                    )
+        )}
+        // setIsDataSetsExpanded(false); // Collapse the DataSets section after selection
+        // console.log(isDataSetsExpanded);
 
-              setselectedDataSet(event.selected);
+    }
 
-              {data1.dataSets.dataSets.filter(dataSets => dataSets.id.includes(event.selected)).map(
-                ({ id, displayName }) => (                    
-                    setselectedDataSetName({displayName})                   
-                                         )
-                )}               
-
-    };
- 
+    // useEffect(() => {
+    //     console.log('Filtered Horizontal Cat Combo:', fileredHorizonatlCatCombo);
+    //     console.log('Filtered Horizontal lenght', fileredHorizonatlCatCombo.length);
+    //   }, [fileredHorizonatlCatCombo]);
 
     {/*  useDataQuery(query) exceptions */}
     
@@ -79,93 +94,124 @@ const MyApp = () => {
 
 
     }
-  
-
-    {/*  useDataQuery(query) exceptions */}
-
-    {/****
-        if (error2) {
-            return <span>ERROR: {error.message}</span>
-        }
-
-        if (loading2) {
-            return <span>Loading...</span>
-        }
-
-        if (data2) {
-            {console.log(data2)}
-
-        }
-	*****/}
-
     return (
 
         <div className={classes.pageDiv}>
             {/* Header */}
-
         	{ header }
+        <p>
+            This application is used to create custom dhis2 forms automatically to align DATIM design pattern
+        </p>
 
-            <p>
-        This application is used to create custom dhis2 forms automatically to align DATIM design pattern
-      </p>
+        
+        {/* Divider */}
+        <div className={classes.mainSection}>
+            <div className={classes.fullpanel}>
+                <Divider />
+            </div>
+        </div>
+        {/* Select DataSet */}
+        <div className={classes.mainSection}>
+            <button className={classes.collapsible} onClick={() => setIsDataSetsExpanded((prev) => !prev)}>
+                {isDataSetsExpanded ? '-' : '+'} DataSets
+            </button>
+            <div className={classes.content + (isDataSetsExpanded ? ` ${classes.active}` : '')}>
+            <h3></h3>
+                <div className={classes.baseMargin}>
+                    {/* Use a conditional render to show/hide based on isDivExpanded */}
+                    <SingleSelect
+                        className="select"
+                        filterable
+                        noMatchText="No match found"
+                        placeholder="Select dataSet"
+                        selected={selectedDataSet}
+                        value={selectedDataSet}
+                        onChange={handleDataSetChange}
+                    >
+                        {data1.dataSets.dataSets.map(({ id, displayName }) => (
+                        <SingleSelectOption label={displayName} value={id} />
+                        ))}
+                    </SingleSelect>
 
-            {/* Divider */}
-                    <div className={classes.mainSection}>
-                                            <div className={classes.fullpanel}>
-                                                <Divider />
-                                            </div>
-                    </div>
-
-            {/* Select DataSet */}
-        	<div className={classes.mainSection}>
-                               <div className={classes.leftpanel}>
-                                       <div className={classes.baseMargin}>
-                                                                               <SingleSelect className="select"
-                                                                                                        filterable
-                                                                                                        noMatchText="No match found"
-                                                                                                        placeholder="Select dataSet"
-                                                                                                        selected={selectedDataSet}
-                                                                                                        value={selectedDataSet}
-                                                                                                        onChange={handleDataSetChange}
-                                                                                                        >
-                                                                                      {data1.dataSets.dataSets.map(
-                                                                                               ({ id, displayName }) => (
-                                                                                               <SingleSelectOption label={displayName} value={id}/>
-                                                                                                                        )
-                                                                                           )}
-
-                                                                               </SingleSelect>
-
-                                        </div>
-
-
-                            </div>
-
-
-                               <div className={classes.middlepanel}></div>
-                               <div className={classes.leftpanel}>
-                                       <div className={classes.baseMargin}>
-
-                                                {(function() {
-                                                                                        if (typeof selectedDataSet === 'string' && selectedDataSet.length > 0) {
-                                                                                        return <AppGetDEList 
-                                                                                                    selectedDataSet={selectedDataSet} 
-
-                                                                                                />;
-                                                                                        }
-                                                                    })()}
-
-                                        </div>
-                                </div>
-
+                </div>
             </div>
 
-          
 
-        	                        
+         
+            <div className={classes.mainSection}>
+                <div className={classes.fullpanel}>
+                    <Divider />
+                </div>
+            </div>
+            {/* Select DataElement */}
+            <button className={classes.collapsible} onClick={() => 
+                    {
+                        setIsDataElementExpanded((prev) => !prev);
+                        // Set isDataSetsExpanded to false when clicking the data elements button
+                        // setIsDataSetsExpanded(false);
+                    
+                    }                   
+            
+            }>
+                {isDataElementExpanded ? '-' : '+'} DataElements
+            </button>
+            <div className={`${classes.content} ${isDataElementExpanded ? classes.active : ''}`}>
 
+                <h3></h3>
+                {(function() {
+                    if (typeof selectedDataSet === 'string' && selectedDataSet.length > 0) {
+                    return <AppGetDEList
+                    selectedDataSet={selectedDataSet} 
+                    setSelectedDataElementId={setSelectedDataElementId}
+                    selectedDataElement={selectedDataElement}
+                    setSelectedDataElement={setSelectedDataElement}
+                            />;
+                    }
+                })()}
+            </div>
+
+            <div className={classes.mainSection}>
+                <div className={classes.fullpanel}>
+                    <Divider />
+                </div>
+            </div>
+            {/* Select VerticalCategory */}
+
+            <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpanded((prev) => !prev)}>
+                {isVerticalCategoryExpanded ? '-' : '+'} Vertical Category
+            </button>
+            <div className={`${classes.content} ${isVerticalCategoryExpanded ? classes.active : ''}`}>
+            <h3></h3>
+                {(function() {
+                    if (typeof selectedDataElementId === 'string' && selectedDataElementId.length > 0) {
+                    return <VerticalCategory
+                                selectedDataElementId={selectedDataElementId}
+                                setfileredHorizonatlCatCombo={setfileredHorizonatlCatCombo}
+
+                            />;
+                    }
+                })()}            
+            </div>
+
+
+            <div className={classes.mainSection}>
+                <div className={classes.fullpanel}>
+                    <Divider />
+                </div>
+            </div>
+            {/* Select HorizontalCategory */}
+            <button className={classes.collapsible} onClick={() => setIsHorizontalCategoryExpanded((prev) => !prev)}>
+                {isHorizontalCategoryExpanded ? '-' : '+'} Horizontal Category
+            </button>
+            <div className={`${classes.content} ${isHorizontalCategoryExpanded ? classes.active : ''}`}>
+            <h3></h3>
+                {fileredHorizonatlCatCombo.length > 0 && (
+                    <HorizontalCategory fileredHorizonatlCatCombo={fileredHorizonatlCatCombo} />
+                )}            
+            </div>
 
         </div>
+    </div>
     )
 }
 

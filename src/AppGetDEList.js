@@ -16,7 +16,6 @@ const dataSets = {
   }
 
 const AppGetDEList = props => {
-    const [selectedDataElement, setSelectedDataElement] = useState(null);
 
     const { loading: loading, error: error, data: data, refetch: refetch } = useDataQuery(dataSets, {variables: {dataSet: props.selectedDataSet}})
 
@@ -27,7 +26,9 @@ const AppGetDEList = props => {
     }, [props.selectedDataSet]);
 
     const handleDataElementChange = (event) => {
-        setSelectedDataElement(event.selected);
+      props.setSelectedDataElement(event.selected);
+        props.setSelectedDataElementId(event.selected);
+        // props.setfileredHorizonatlCatCombo([]);
       };
 
     if (error) {
@@ -54,8 +55,8 @@ const AppGetDEList = props => {
                             filterable
                             noMatchText="No match found"
                             placeholder="Select DataElement"
-                            selected={selectedDataElement}
-                            value={selectedDataElement}
+                            selected={props.selectedDataElement}
+                            value={props.selectedDataElement}
                             onChange={handleDataElementChange}
                         >
                             {dataElements.map(({ dataElement }) => (
