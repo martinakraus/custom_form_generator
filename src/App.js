@@ -5,8 +5,8 @@ import classes from './App.module.css'
 import { SingleSelect, SingleSelectOption, SingleSelectField  } from '@dhis2-ui/select'
 import { Divider } from '@dhis2-ui/divider'
 import AppGetDEList from './AppGetDEList'
-import VerticalCategory from './components/VerticalCategory'
-import HorizontalCategory from './components/HorizontalCategory'
+import VerticalCategory from './components/verticalCategory'
+import HorizontalCategory from './components/horizontalCategory'
 
 import { DataTable, DataTableRow , DataTableColumnHeader, DataTableCell, TableHead, TableBody   } from '@dhis2-ui/table'
 
@@ -116,7 +116,7 @@ const MyApp = () => {
                 {isDataSetsExpanded ? '-' : '+'} DataSets
             </button>
             <div className={classes.content + (isDataSetsExpanded ? ` ${classes.active}` : '')}>
-            <h3></h3>
+                <h3></h3>
                 <div className={classes.baseMargin}>
                     {/* Use a conditional render to show/hide based on isDivExpanded */}
                     <SingleSelect
@@ -155,19 +155,21 @@ const MyApp = () => {
             }>
                 {isDataElementExpanded ? '-' : '+'} DataElements
             </button>
-            <div className={`${classes.content} ${isDataElementExpanded ? classes.active : ''}`}>
+            <div className={classes.baseMargin}>
+                <div className={`${classes.content} ${isDataElementExpanded ? classes.active : ''}`}>
 
-                <h3></h3>
-                {(function() {
-                    if (typeof selectedDataSet === 'string' && selectedDataSet.length > 0) {
-                    return <AppGetDEList
-                    selectedDataSet={selectedDataSet} 
-                    setSelectedDataElementId={setSelectedDataElementId}
-                    selectedDataElement={selectedDataElement}
-                    setSelectedDataElement={setSelectedDataElement}
-                            />;
-                    }
-                })()}
+                    <h3></h3>
+                    {(function() {
+                        if (typeof selectedDataSet === 'string' && selectedDataSet.length > 0) {
+                        return <AppGetDEList
+                        selectedDataSet={selectedDataSet} 
+                        setSelectedDataElementId={setSelectedDataElementId}
+                        selectedDataElement={selectedDataElement}
+                        setSelectedDataElement={setSelectedDataElement}
+                                />;
+                        }
+                    })()}
+                </div>
             </div>
 
             <div className={classes.mainSection}>
@@ -180,17 +182,19 @@ const MyApp = () => {
             <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpanded((prev) => !prev)}>
                 {isVerticalCategoryExpanded ? '-' : '+'} Vertical Category
             </button>
-            <div className={`${classes.content} ${isVerticalCategoryExpanded ? classes.active : ''}`}>
-            <h3></h3>
-                {(function() {
-                    if (typeof selectedDataElementId === 'string' && selectedDataElementId.length > 0) {
-                    return <VerticalCategory
-                                selectedDataElementId={selectedDataElementId}
-                                setfileredHorizonatlCatCombo={setfileredHorizonatlCatCombo}
+            <div className={classes.baseMargin}>
+                <div className={`${classes.content} ${isVerticalCategoryExpanded ? classes.active : ''}`}>
+                <h3></h3>
+                    {(function() {
+                        if (typeof selectedDataElementId === 'string' && selectedDataElementId.length > 0) {
+                        return <VerticalCategory
+                                    selectedDataElementId={selectedDataElementId}
+                                    setfileredHorizonatlCatCombo={setfileredHorizonatlCatCombo}
 
-                            />;
-                    }
-                })()}            
+                                />;
+                        }
+                    })()}
+                </div>            
             </div>
 
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDataQuery } from '@dhis2/app-runtime';
 import { SingleSelect, SingleSelectOption } from '@dhis2-ui/select';
+import classes from '../App.module.css'
 
 const VerticalCategory = (props) => {
   // State to hold the categories
@@ -56,6 +57,7 @@ const VerticalCategory = (props) => {
       const categories = categoryCombo?.categories || [];
       // Update the state with the category data
       setCategories(categories);
+      console.log(categories);
       // Reset selected category when data changes
       setSelectedCategory(null);
     }
@@ -63,7 +65,7 @@ const VerticalCategory = (props) => {
 
   // Render the component
   return (
-    <div>
+    <div className={classes.baseMargin}>
       {/* Render the SingleSelect component with category options */}
       <SingleSelect
         filterable

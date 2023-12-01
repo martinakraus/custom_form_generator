@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SingleSelect, SingleSelectOption } from '@dhis2-ui/select';
+import classes from '../App.module.css'
 
 const HorizontalCategory = (props) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -14,7 +15,7 @@ const HorizontalCategory = (props) => {
   }, [props.fileredHorizonatlCatCombo]);
 
   return (
-    <div>
+    <div className={classes.baseMargin}>
       <SingleSelect
         filterable
         noMatchText="No categories found"
