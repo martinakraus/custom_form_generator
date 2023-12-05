@@ -44,7 +44,6 @@ const AppGetDEList = props => {
 
     }
 
-    const handlegetDisplaynameChange = event => {}
     const dataElements = data.targetedEntity.dataSets[0]?.dataSetElements || [];
 
     return (

@@ -14,6 +14,12 @@ const HorizontalCategory = (props) => {
     setSelectedCategory(null);
   }, [props.fileredHorizonatlCatCombo]);
 
+  const handleHorizontalCategoryChange = (selected) => {
+    setSelectedCategory(selected)
+    props.setSelectedHorizontalCategoryID(selected)
+    props.setHorinzontalcategoryOptions([])
+  }
+
   return (
     <div className={classes.baseMargin}>
       <SingleSelect
@@ -22,7 +28,7 @@ const HorizontalCategory = (props) => {
         placeholder="Select category"
         selected={selectedCategory}
         value={selectedCategory}
-        onChange={({ selected }) => setSelectedCategory(selected)}
+        onChange={({ selected }) => handleHorizontalCategoryChange(selected)}
       >
         {horizontalCategories.map(category => (
           <SingleSelectOption key={category.id} label={category.name} value={category.id} />

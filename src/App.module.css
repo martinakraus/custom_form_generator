@@ -219,26 +219,21 @@ div.app-shell-app.jsx-1964929281 {
   max-height: 500px; /* Set your desired max height when active */
   transition: max-height 0.2s ease-in;
 }
-/* .collapsible {
-  background-color: #777;
-  color: white;
-  cursor: pointer;
-  padding: 18px;
-  width: 100%;
-  border: none;
-  text-align: left;
-  outline: none;
-  font-size: 15px;
+
+.transferContainer1 {
+  /* display: flex;
+  justify-content: center; */
+
+  /* display: flex;
+  flexDirection: column;
+  alignItems: center;
+  margin: 0 auto */
 }
 
-.active, .collapsible:hover {
-  background-color: #555;
+.transferContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+  margin-bottom: 20px;
 }
-
-.content {
-  padding: 0 18px;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.2s ease-out;
-  background-color: #ae1818;
-} */

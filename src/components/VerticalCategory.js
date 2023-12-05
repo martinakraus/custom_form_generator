@@ -15,7 +15,7 @@ const VerticalCategory = (props) => {
       resource: 'dataElements',
       id: props.selectedDataElementId,
       params: {
-        fields: 'id,categoryCombo[name,id,categories[id,name]]',
+        fields: 'id,categoryCombo[name,id,categories[id,name, categoryOptions[id,name]]]',
       },
     },
   };
@@ -24,6 +24,7 @@ const VerticalCategory = (props) => {
   const handleVerticalCategoryChange = (selected) => {
     // Set the selected category in the state
     setSelectedCategory(selected);
+    props.setSelectedVerticalCategoryID(selected);
 
     // Pass the selected category back to the parent component
     // props.setSelectedVerticalCatCombo(selected);
@@ -31,10 +32,19 @@ const VerticalCategory = (props) => {
     // Add logic here to filter the selected category from the list
     // Assuming each category has a unique id
     const updatedCategories = categories.filter(category => category.id !== selected);
+
+    // Add logic to get the array of the select category
+    const selectedCategory = categories.filter(category => category.id === selected);
     // console.log(updatedCategories)
 
     // Update the state with the filtered categories
+    props.setfileredHorizonatlCatCombo([]);
+    props.setHorinzontalcategoryOptions([]);
+    props.setSelectedHorizontalCategoryID([]);
     props.setfileredHorizonatlCatCombo(updatedCategories);
+    props.setfileredVerticalCatCombo(selectedCategory);
+
+
   };
 
   // Use the useDataQuery hook to fetch data from the DHIS2 API
@@ -57,7 +67,9 @@ const VerticalCategory = (props) => {
       const categories = categoryCombo?.categories || [];
       // Update the state with the category data
       setCategories(categories);
+      console.log('+++++++++++ All Categories +++++++++++')
       console.log(categories);
+      console.log('+++++++++++ All Categories End +++++++++++')
       // Reset selected category when data changes
       setSelectedCategory(null);
     }
@@ -84,23 +96,4 @@ const VerticalCategory = (props) => {
 };
 
 export default VerticalCategory;
-
-
-
-// <div>
-//       <h3>Vertical categories for Selected Data Element</h3>
-//       {/* Render the SingleSelect component with category options */}
-//       <SingleSelect
-//         filterable
-//         noMatchText="No categories found"
-//         placeholder="Select category"
-//         selected={selectedCategory}
-//         value={selectedCategory}
-//         onChange={({ selected }) => setSelectedCategory(selected)}
-//       >
-//         {categories.map(category => (
-//           <SingleSelectOption key={category.id} label={category.name} value={category.id} />
-//         ))}
-//       </SingleSelect>
-//     </div>    
 
