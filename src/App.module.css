@@ -60,6 +60,10 @@ div.app-shell-app.jsx-1964929281 {
 
 }
 
+.hideMetadataSelection {
+  display: none; /* Hide the new section */
+}
+
 .pageDiv {
   padding: 1vw 5vw;
   display: flex;
@@ -220,15 +224,6 @@ div.app-shell-app.jsx-1964929281 {
   transition: max-height 0.2s ease-in;
 }
 
-.transferContainer1 {
-  /* display: flex;
-  justify-content: center; */
-
-  /* display: flex;
-  flexDirection: column;
-  alignItems: center;
-  margin: 0 auto */
-}
 
 .transferContainer {
   display: flex;
@@ -236,4 +231,59 @@ div.app-shell-app.jsx-1964929281 {
   align-items: center;
   margin: 0 auto;
   margin-bottom: 20px;
+}
+
+
+.cardbox {
+  border: 1px solid black; /* Add a border for visualization */
+  padding: 10px; /* Add padding for some spacing */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cardbox:hover {
+  background-color: #2C6693;
+  cursor: pointer; /* Show hand cursor on hover */
+}
+
+
+.flexContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.spaceInBetween {
+  width: 20px; /* Adjust the width of the space in the middle */
+}
+
+.cardContent {
+  text-align: center;
+  padding: 10px; /* Add padding for spacing */
+  cursor: pointer; /* Show hand cursor on hover */
+}
+
+.cardContent:hover {
+  background-color: #2C6693;
+  color: #E8E8E8;
+  cursor: pointer; /* Show hand cursor on hover */
+}
+
+.hideCreateProject {
+  display: none; /* Hide the new section */
+}
+
+/** load project ***/
+.filterInput {
+  margin-right: auto;
+  padding-bottom: 10px;
+}
+.dataTable {
+  width: 90vw;
+}
+
+.buttonContainer {
+  display: flex;
+  gap: 10px; /* Adjust the value as needed to add space between buttons */
 }
