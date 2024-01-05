@@ -36,6 +36,7 @@ const HorizontalTransfer = (props) => {
     } else {
         props.setHorinzontalcategoryOptions([]);
     }
+    console.log(selectedKeys)
     // setCategoryOptions(options);
     setLoading(false)
   }, [props.fileredHorizonatlCatCombo, props.selectedHorizontalCategoryID]);

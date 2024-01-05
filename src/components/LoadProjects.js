@@ -1,5 +1,7 @@
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
 import React, { useState, useEffect } from 'react';
+import ConfigureMetadata from './ConfigureMetadata'
+
 import {
   Table,
   TableHead,
@@ -11,29 +13,26 @@ import {
   InputField,
 } from '@dhis2/ui';
 import { Modal, ModalTitle, ModalContent, ModalActions, ButtonStrip, Button } from '@dhis2/ui';
-import { config, ProjectsFilters } from '../consts'
+import { config, ProjectsFiltersMore } from '../consts'
 import classes from '../App.module.css'
 
 const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects, reloadProjects }) => {
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedDataSet,setselectedDataSet] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showConfigureProject, setShowModalConfigureProject] = useState(false);
+  const [filterText, setFilterText] = useState('');
   
     // Define your data store query
   const dataStoreQuery = {
       dataStore: {
-        resource: `dataStore/${config.dataStoreName}?${ProjectsFilters}`,
+        resource: `dataStore/${config.dataStoreName}?${ProjectsFiltersMore}`,
       },
   }
 
-  const deleteProjectMutation = {
-    resource: `dataStore/${config.dataStoreName}`, // adjust the resource endpoint accordingly
-    type: 'delete',
-    id: ({ id }) => id,
-  };
-
- 
+   
     // Fetch the projects using useDataQuery
   const { loading, error, data, refetch } = useDataQuery(dataStoreQuery);
   if (data) {
@@ -58,6 +57,18 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
     }
   }, [data, reloadProjects, ]);
 
+  const handleFilterChange = (value) => {
+    setFilterText(value);
+  };
+
+  const filteredProjects = filterText
+    ? projects.filter(
+        (project) =>
+          project.projectName.toLowerCase().includes(filterText.toLowerCase()) ||
+          project.id.toLowerCase().includes(filterText.toLowerCase())
+      )
+    : projects;
+
 
   const handleEditProject = (project) => {
     setSelectedProject(project);
@@ -71,6 +82,12 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
     setShowDeleteModal(true)
   };
   const handleConfigureProject = async (project) =>{
+
+    console.log(project.key);
+    setselectedDataSet(project.dataSet.id);
+    // console.log(data);
+
+    setShowModalConfigureProject(true);
 
 
   }
@@ -103,15 +120,15 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
   };
 
   return (
-    <div>
-        <InputField
-          className={classes.filterInput}
-          inputWidth={'20vw'}
-          label="Filter"
-          name="filter"
-          // value={filterText}
-          // onChange={(e) => handleFilterChange(e)}
-        />
+    <div className={classes.tableContainer}>
+      <InputField
+        className={classes.filterInput}
+        inputWidth={'20vw'}
+        label="Filter"
+        name="filter"
+        value={filterText}
+        onChange={(e) => handleFilterChange(e.value)}
+      />
       <Table className={classes.dataTable}>
         <TableHead>
           <TableRowHead>
@@ -121,14 +138,16 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
           </TableRowHead>
         </TableHead>
         <TableBody>
-        {Array.isArray(projects) &&
-            projects.map((project) => (
-              <TableRow key={project.key}>
-                <TableCell>{project.projectName}</TableCell>
-                <TableCell>{project.id}</TableCell>
-                <TableCell className={classes.buttonContainer}>
-                  <Button primary onClick={() => handleConfigureProject(project)}>Configure</Button>
-                  <Button secondary onClick={() => handleEditProject(project)}>Edit</Button>
+        {Array.isArray(filteredProjects) &&
+            filteredProjects.map((project) => (
+              <TableRow className={classes.customTableRow} key={project.key}>
+                <TableCell className={classes.customTableCell}>{project.projectName}</TableCell>
+                <TableCell className={classes.customTableCell}>{project.id}</TableCell>
+                <TableCell className={`${classes.customTableCell}`}>
+                  <Button primary onClick={() => handleConfigureProject(project)}
+                        className={classes.buttonRight}>Configure</Button>
+                  <Button secondary onClick={() => handleEditProject(project)}
+                  className={classes.buttonRight}>Edit</Button>
                   <Button destructive onClick={() => handleDeleteProjectConfirmation(project)}>Delete</Button>
               </TableCell>
               </TableRow>
@@ -177,6 +196,16 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
           </ModalActions>
         </Modal>
       )}
+
+
+            {/* Modal for configuring projects */}
+            {showConfigureProject && 
+                (<ConfigureMetadata 
+                  setShowModalConfigureProject={setShowModalConfigureProject}
+                  selectedDataSet={selectedDataSet}/>                    
+            )}
+
+
     </div>
   );
 };

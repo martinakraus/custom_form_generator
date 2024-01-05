@@ -86,6 +86,7 @@ const VerticalCategory = (props) => {
         selected={selectedCategory}
         value={selectedCategory}
         onChange={({ selected }) => handleVerticalCategoryChange(selected)}
+
       >
         {categories.map(category => (
           <SingleSelectOption key={category.id} label={category.name} value={category.id} />

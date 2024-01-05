@@ -3,3 +3,4 @@ export const config = {
 }
 
 export const ProjectsFilters = 'fields=id,projectName';
+export const ProjectsFiltersMore = 'fields=id,projectName,dataSet';

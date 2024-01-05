@@ -280,10 +280,33 @@ div.app-shell-app.jsx-1964929281 {
   padding-bottom: 10px;
 }
 .dataTable {
-  width: 90vw;
+  width: 50vw;
+
 }
 
-.buttonContainer {
-  display: flex;
-  gap: 10px; /* Adjust the value as needed to add space between buttons */
+.buttonRight {
+  margin-right: 10px; /* Adjust the margin value between buttons */
+
+
+}
+.customTableCell {
+  /* Add margin or padding as needed */
+  margin-bottom: 30px; /* Adjust the margin value */
+
+}
+
+/* Define the custom class for the SingleSelect component */
+.customSelectpanel {
+  min-width: 800px; /* Set the desired input width */
+}
+
+.tableContainer {
+  max-Width: 800px; /* Set the desired maximum width */
+  margin: 0 auto; /* Center the container on the page if needed */
+}
+
+.customTableRow{
+
+min-height: 200px;
+
 }

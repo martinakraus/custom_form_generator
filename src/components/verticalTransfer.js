@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Transfer } from '@dhis2-ui/transfer';
+import classes from '../App.module.css'
 
 const VerticalTransfer = (props) => {
   // State to hold the category options
