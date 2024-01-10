@@ -1,16 +1,20 @@
 import { useDataQuery } from '@dhis2/app-runtime'
 import { SingleSelect, SingleSelectOption  } from '@dhis2-ui/select'
 import React, { useState, useEffect } from 'react';
-import { Transfer } from '@dhis2-ui/transfer';
 import AppGetDEList from '../AppGetDEList'
-import VerticalCategory from './verticalCategory'
-import HorizontalCategory from './horizontalCategory'
-import VerticalTransfer from './verticalTransfer'
-import HorizontalTransfer from './horinzontalTransfer';
+import HorizontalCategory from './HorizontalCategory'
+import VerticalCategoryLevel0 from './VerticalCategoryLevel0'
+import VerticalCategoryLevel1 from './VerticalCategoryLevel1'
+import HorizontalTransfer from './HorizontalTransfer'
+import VerticalTransferLevel0 from './VerticalTransferLevel0';
+import VerticalTransferLevel1 from './VerticalTransferLevel1';
 import MetadateTemplating from './MetadateTemplating';
 import { Modal, ModalTitle, ModalContent, ModalActions, ButtonStrip, Button } from '@dhis2/ui';
 import classes from '../App.module.css'
 import { Divider } from '@dhis2-ui/divider'
+import { config } from '../consts'
+import { generateRandomId } from '../utils';
+
 
 /*  Query Parameters**/
 const query = {
@@ -34,22 +38,45 @@ const query = {
 
 const ConfigureMetadata = (props) => {
 
-  const [selectedDataSet,setselectedDataSet] = useState(props.selectedDataSet);
-  const [selectedDataSetName,setselectedDataSetName] = useState([]);
-  const [selectedDataElementId, setSelectedDataElementId] = useState(null);
-  const [selectedDataElement, setSelectedDataElement] = useState(null);
-  const [fileredHorizonatlCatCombo, setfileredHorizonatlCatCombo] = useState([]);
-  const [fileredVerticalCatCombo, setfileredVerticalCatCombo] = useState([]);
-  const [selectedVerticalCategoryID, setSelectedVerticalCategoryID] = useState(null);
-  const [selectedHorizontalCategoryID, setSelectedHorizontalCategoryID] = useState(null);
-  const [isDataSetsExpanded, setIsDataSetsExpanded] = useState(false);
-  const [isDataElementExpanded, setIsDataElementExpanded] = useState(false);
-  const [isVerticalCategoryExpanded, setIsVerticalCategoryExpanded] = useState(false);
-  const [isHorizontalCategoryExpanded, setIsHorizontalCategoryExpanded] = useState(false);
-  const [showModalMetadataTemplate, setShowModalMetadataTemplate] = useState(false);
+    const [selectedDataSet,setselectedDataSet] = useState(props.selectedDataSet);
+    const [selectedDataSetName,setselectedDataSetName] = useState([]);
+    const [selectedDataElementId, setSelectedDataElementId] = useState(null);
+    const [selectedDataElement, setSelectedDataElement] = useState(null);
+    // New state for template name
+    const [templateName, setTemplateName] = useState('');
+    const [showModalMetadataTemplate, setShowModalMetadataTemplate] = useState(false);
+    const [showTemplateNameModal , setShowTemplateNameModal] = useState(false);
+
+
+  
+    // Constants for Horizontal Variables
+    const [fileredHorizontalCatCombo, setfileredHorizontalCatCombo] = useState([]); //done
+    const [dictfileredHorizontalCatCombo, setdictfileredHorizontalCatCombo] = useState([]); //done
+    const [selectedHorizontalCategoryID, setSelectedHorizontalCategoryID] = useState(null); //done
+    const [isHorizontalCategoryExpanded, setIsHorizontalCategoryExpanded] = useState(false); //done
+
+    // Constants for Vertical Categories (Level 0 Inner)
+    const [dictfileredVerticalCatComboLevel0, setdictfileredVerticalCatComboLevel0] = useState([]);
+    const [selectedVerticalCategoryIDLevel0, setSelectedVerticalCategoryIDLevel0] = useState(null);
+    const [isVerticalCategoryExpandedLevel0, setIsVerticalCategoryExpandedLevel0] = useState(false);
+    const [verticalCategoryOptionsLevel0, setVerticalcategoryOptionsLevel0] = useState([]);
+    const [fileredVerticalCatComboLevel0, setfileredVerticalCatComboLevel0] = useState([]);
+
+    // Constants for Vertical Categories (Level 1 Outer)
+    const [selectedVerticalCategoryIDLevel1, setSelectedVerticalCategoryIDLevel1] = useState(null);
+    const [dictfileredVerticalCatComboLevel1, setdictfileredVerticalCatComboLevel1] = useState([]);
+    const [isVerticalCategoryExpandedlevel1, setIsVerticalCategoryExpandedlevel1] = useState(false);
+    const [horinzontalCategoryOptionsLevel1, setHorinzontalcategoryOptionsLevel1] = useState([]);
+    const [fileredVerticalCatComboLevel1, setfileredVerticalCatComboLevel1] = useState([]);
+
+    const [isDataSetsExpanded, setIsDataSetsExpanded] = useState(false);
+    const [isDataElementExpanded, setIsDataElementExpanded] = useState(false);
+
+
    
-  // State to hold the category options
-  const [horinzontalCategoryOptions, setHorinzontalcategoryOptions] = useState([]);
+    // State to hold the category options
+
+
 
 
     {/* useDataQuery(query) loader */}
@@ -59,8 +86,8 @@ const ConfigureMetadata = (props) => {
         setselectedDataSet(event.selected);
         setSelectedDataElement('');
         setSelectedDataElementId('');
-        setfileredHorizonatlCatCombo([]);
-        setfileredVerticalCatCombo([]);
+        setfileredVerticalCatComboLevel0([]);
+        setfileredHorizontalCatCombo([]);
         {data1.dataSets.dataSets.filter(dataSets => dataSets.id.includes(event.selected)).map(
         ({ id, displayName }) => (                    
             setselectedDataSetName({displayName})                   
@@ -68,14 +95,116 @@ const ConfigureMetadata = (props) => {
         )}
     }
 
-    const handleAddToConfiguration = event =>{
+    /** Prepare data to Update DHIS2 Object */
+    const handleSaveToConfiguration = async (action, templateName = '') => {
+        if (selectedDataElementId !== null 
+            && selectedDataElement !== null) {
+
+                const projectData = {
+                    "dataElements":[        
+                        {
+                        "id":selectedDataElementId, 
+                        "name":selectedDataElement,
+                        "Horizontal": 
+                            dictfileredHorizontalCatCombo
+                        ,
+                        "verticalLevel0": 
+                            dictfileredVerticalCatComboLevel0
+                        ,
+                        "verticalLevel1": 
+                            dictfileredVerticalCatComboLevel1
+                        ,
+                        }
+                    ]
+                }
+                console.log(props.selectedProject);
+                // Merge the objects using the spread operator
+                const mergedObject = {
+                    ...props.selectedProject,
+                    ...projectData
+                };
+                try {
+                    await props.engine.mutate({
+                      resource: `dataStore/${config.dataStoreName}/${mergedObject.key}`,
+                      type: 'update',
+                      data: mergedObject,
+                    });
+
+        
+                  } catch (error) {
+                    // Handle error (log, show alert, etc.)
+                    console.error('Error updating project:', error);
+                  }
+                if (action === 'saveTemplate'){    
+                    const Templateid = generateRandomId();  
+                            // Remove spaces from projectName
+                    const trimmedTemplateName = templateName.replace(/\s+/g, '');
+        
+                    const TemplateData =  {
+                        "Templates":[  
+                            {
+                            "id":Templateid, 
+                            "name":templateName,                    
+                            "Horizontal": 
+                                    dictfileredHorizontalCatCombo
+                                ,
+                                "verticalLevel0": 
+                                    dictfileredVerticalCatComboLevel0
+                                ,
+                                "verticalLevel1": 
+                                    dictfileredVerticalCatComboLevel1
+                                ,                    
+                        }
+                        ]
+                    }
+        
+                    try {
+                        await props.engine.mutate({
+                          resource: `dataStore/${config.dataStoreTemplates}/${trimmedTemplateName}-${Templateid}`,
+                          type: 'create',
+                          data: TemplateData,
+                        });  
+
+                      } catch (error) {
+                        // Handle error (log, show alert, etc.)
+                        console.error('Error saving Template:', error);
+                      }      
+        
+                }
+                                
+                    // Close the modal or perform any other actions upon success
+                    handleCloseModal();
+        }else{
+
+            console.log('No record was saved. No DataElement Selected')
+
+        }
+        
 
     }
+
+    // Function to update template name
+    const handleTemplateNameChange = (event) => {
+            setTemplateName(event.target.value);
+    };
+
+    // Function to reset template name and close the modal
+    const handleCloseTemplateNameModal = () => {
+        setTemplateName('');
+        setShowTemplateNameModal(false);
+    };
+    // Function to handle "Save and Make Template" button click
+    const handleSaveTemplate = () => {
+            // Open the modal for entering the template name
+        setShowTemplateNameModal(true);
+    };
+
 
     const handleCloseModal = () => {
       props.setShowModalConfigureProject(false)      
 
     };
+
 
     {/*  useDataQuery(query) exceptions */}
     
@@ -138,8 +267,6 @@ const ConfigureMetadata = (props) => {
                         <button className={classes.collapsible} onClick={() => 
                                 {
                                     setIsDataElementExpanded((prev) => !prev);
-                                    // Set isDataSetsExpanded to false when clicking the data elements button
-                                    // setIsDataSetsExpanded(false);
                                 
                                 }                   
                         
@@ -156,6 +283,7 @@ const ConfigureMetadata = (props) => {
                                     selectedDataSet={selectedDataSet} 
                                     setSelectedDataElementId={setSelectedDataElementId}
                                     selectedDataElement={selectedDataElement}
+                                    selectedDataElementId={selectedDataElementId}
                                     setSelectedDataElement={setSelectedDataElement}
                                             />;
                                     }
@@ -178,32 +306,36 @@ const ConfigureMetadata = (props) => {
                                 <Divider />
                             </div>
                         </div>
-                        {/* Select VerticalCategory */}
+                        {/* Select HorizontalCategory */}
 
-                        <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpanded((prev) => !prev)}>
-                            {isVerticalCategoryExpanded ? '-' : '+'} Vertical Category
+                        <button className={classes.collapsible} onClick={() => setIsHorizontalCategoryExpanded((prev) => !prev)}>
+                            {isHorizontalCategoryExpanded ? '-' : '+'} Horizontal Category
                         </button>
                         <div className={classes.baseMargin}>
-                            <div className={`${classes.content} ${isVerticalCategoryExpanded ? classes.active : ''}`}>
+                            <div className={`${classes.content} ${isHorizontalCategoryExpanded ? classes.active : ''}`}>
                                 <h3></h3>
                                 {(function() {
                                     if (typeof selectedDataElementId === 'string' && selectedDataElementId.length > 0) {
-                                    return <VerticalCategory
+                                    return <HorizontalCategory
                                                 selectedDataElementId={selectedDataElementId}
-                                                setfileredHorizonatlCatCombo={setfileredHorizonatlCatCombo}
-                                                setSelectedVerticalCategoryID={setSelectedVerticalCategoryID}
-                                                setfileredVerticalCatCombo={setfileredVerticalCatCombo}
+                                                setfileredVerticalCatComboLevel0={setfileredVerticalCatComboLevel0}
+                                                setfileredVerticalCatComboLevel1={setfileredVerticalCatComboLevel1}
                                                 setSelectedHorizontalCategoryID={setSelectedHorizontalCategoryID}
-                                                setHorinzontalcategoryOptions={setHorinzontalcategoryOptions}
+                                                setfileredHorizontalCatCombo={setfileredHorizontalCatCombo}
+                                                setSelectedVerticalCategoryIDLevel0={setSelectedVerticalCategoryIDLevel0}
+                                                setSelectedVerticalCategoryIDLevel1={setSelectedVerticalCategoryIDLevel1}
+                                                setVerticalcategoryOptionsLevel0={setVerticalcategoryOptionsLevel0}
+                                                setHorinzontalcategoryOptionsLevel1={setHorinzontalcategoryOptionsLevel1} 
 
                                             />;
                                     }
                                 })()}
 
                                 <div className={classes.transferContainer}>
-                                    <VerticalTransfer 
-                                    selectedVerticalCategoryID={selectedVerticalCategoryID}
-                                    fileredVerticalCatCombo={fileredVerticalCatCombo}
+                                    <HorizontalTransfer 
+                                    selectedHorizontalCategoryID={selectedHorizontalCategoryID}
+                                    fileredHorizontalCatCombo={fileredHorizontalCatCombo}
+                                    setdictfileredHorizontalCatCombo={setdictfileredHorizontalCatCombo}
                                     
                                     />
                                 </div>
@@ -218,27 +350,32 @@ const ConfigureMetadata = (props) => {
                                 <Divider />
                             </div>
                         </div>
-                        {/* Select HorizontalCategory */}
-                        <button className={classes.collapsible} onClick={() => setIsHorizontalCategoryExpanded((prev) => !prev)}>
-                            {isHorizontalCategoryExpanded ? '-' : '+'} Horizontal Category
+                        {/* Select VerticalCategoryLevel0 */}
+                        <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedLevel0((prev) => !prev)}>
+                            {isVerticalCategoryExpandedLevel0 ? '-' : '+'} Vertical Category (Inner)
                         </button>
                         <div className={classes.baseMargin}>
-                            <div className={`${classes.content} ${isHorizontalCategoryExpanded ? classes.active : ''}`}>
+                            <div className={`${classes.content} ${isVerticalCategoryExpandedLevel0 ? classes.active : ''}`}>
                                 <h3></h3>
-                                {fileredHorizonatlCatCombo.length > 0 && (
-                                    <HorizontalCategory 
-                                    fileredHorizonatlCatCombo={fileredHorizonatlCatCombo} 
-                                    setSelectedHorizontalCategoryID={setSelectedHorizontalCategoryID}
-                                    setHorinzontalcategoryOptions={setHorinzontalcategoryOptions}
+                                {fileredVerticalCatComboLevel0.length > 0 && (
+                                    <VerticalCategoryLevel0 
+                                    fileredVerticalCatComboLevel0={fileredVerticalCatComboLevel0} 
+                                    setSelectedVerticalCategoryIDLevel0={setSelectedVerticalCategoryIDLevel0}
+                                    setVerticalcategoryOptionsLevel0={setVerticalcategoryOptionsLevel0}
+                                    setfileredVerticalCatComboLevel1={setfileredVerticalCatComboLevel1}
+                                    fileredVerticalCatComboLevel1={fileredVerticalCatComboLevel1}
+                                    setHorinzontalcategoryOptionsLevel1={setHorinzontalcategoryOptionsLevel1}
+
                                     />
                                 )}
-                                {typeof selectedHorizontalCategoryID === 'string' && selectedHorizontalCategoryID.length >0 && (
+                                {typeof selectedVerticalCategoryIDLevel0 === 'string' && selectedVerticalCategoryIDLevel0.length >0 && (
                                 <div className={classes.transferContainer}>
-                                    <HorizontalTransfer 
-                                        fileredHorizonatlCatCombo={fileredHorizonatlCatCombo}     
-                                        selectedHorizontalCategoryID={selectedHorizontalCategoryID}
-                                        setHorinzontalcategoryOptions={setHorinzontalcategoryOptions}
-                                        horinzontalCategoryOptions={horinzontalCategoryOptions}                   
+                                    <VerticalTransferLevel0 
+                                        fileredVerticalCatComboLevel0={fileredVerticalCatComboLevel0}     
+                                        selectedVerticalCategoryIDLevel0={selectedVerticalCategoryIDLevel0}
+                                        setVerticalcategoryOptionsLevel0={setVerticalcategoryOptionsLevel0}
+                                        verticalCategoryOptionsLevel0={verticalCategoryOptionsLevel0}
+                                        setdictfileredVerticalCatComboLevel0={setdictfileredVerticalCatComboLevel0}                   
                                     />
                                 </div> 
 
@@ -246,21 +383,86 @@ const ConfigureMetadata = (props) => {
                             </div>
                         </div>
 
+                        {/* Select HorizontalCategoryLevel1 */}
+                        <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel1((prev) => !prev)}>
+                            {isVerticalCategoryExpandedlevel1 ? '-' : '+'} Vertical Category (Outer)
+                        </button>
+                        <div className={classes.baseMargin}>
+                            <div className={`${classes.content} ${isVerticalCategoryExpandedlevel1 ? classes.active : ''}`}>
+                                <h3></h3>
+                                {/* <HorizontalCategoryLevel1 
+                                    fileredHorizonatlCatComboLevel1={fileredHorizonatlCatComboLevel1} 
+                                    setSelectedHorizontalCategoryIDLevel1={setSelectedHorizontalCategoryIDLevel1}
+                                    setHorinzontalcategoryOptionsLevel1={setHorinzontalcategoryOptionsLevel1}
+                                    /> */}
+                                {fileredVerticalCatComboLevel1.length > 0 && (
+                                    <VerticalCategoryLevel1
+                                    fileredVerticalCatComboLevel1={fileredVerticalCatComboLevel1} 
+                                    setSelectedVerticalCategoryIDLevel1={setSelectedVerticalCategoryIDLevel1}
+                                    setHorinzontalcategoryOptionsLevel1={setHorinzontalcategoryOptionsLevel1}
+                                    />
+                                )}
+                                {typeof selectedVerticalCategoryIDLevel1 === 'string' && selectedVerticalCategoryIDLevel1.length >0 && (
+                                <div className={classes.transferContainer}>
+                                    <VerticalTransferLevel1
+                                        fileredVerticalCatComboLevel1={fileredVerticalCatComboLevel1}     
+                                        selectedVerticalCategoryIDLevel1={selectedVerticalCategoryIDLevel1}
+                                        setHorinzontalcategoryOptionsLevel1={setHorinzontalcategoryOptionsLevel1}
+                                        horinzontalCategoryOptionsLevel1={horinzontalCategoryOptionsLevel1}
+                                        setdictfileredVerticalCatComboLevel1={setdictfileredVerticalCatComboLevel1}                   
+                                    />
+                                </div> 
 
+                                )}                             
+                            </div>
+                        </div>
                   </div>
           </ModalContent>
           <ModalActions>
             <ButtonStrip>
               <Button onClick={() => handleCloseModal()}>Close</Button>
-              <Button primary  onClick={() => console.log('Button clicked')}>
+              <Button primary  
+              onClick={() => handleSaveToConfiguration('save')}
+>
                 Save
               </Button>
-              <Button primary  onClick={() => console.log('Button clicked')}>
+              <Button primary  onClick={() => handleSaveTemplate()}>
                 Save and Make Template
               </Button>
             </ButtonStrip>
+            
           </ModalActions>
+                      {/* Modal for entering the template name */}
+            {showTemplateNameModal && (
+                <Modal>
+                    <ModalTitle>Enter Template Name</ModalTitle>
+                    <ModalContent>
+                        <input
+                            type="text"
+                            placeholder="Template Name"
+                            value={templateName}
+                            onChange={handleTemplateNameChange}
+                        />
+                    </ModalContent>
+                    <ModalActions>
+                        <ButtonStrip>
+                            <Button onClick={handleCloseTemplateNameModal}>Cancel</Button>
+                            <Button
+                                primary
+                                onClick={() => {
+                                    handleSaveToConfiguration('saveTemplate', templateName);
+                                    handleCloseTemplateNameModal();
+                                }}
+                            >
+                                Save Template
+                            </Button>
+                        </ButtonStrip>
+                    </ModalActions>
+                </Modal>
+            )}
     </Modal>
+
+    
   );
 };
 

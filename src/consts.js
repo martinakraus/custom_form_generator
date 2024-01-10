@@ -1,5 +1,6 @@
 export const config = {
-    dataStoreName: 'custom-form-generator'
+    dataStoreName: 'custom-form-generator',
+    dataStoreTemplates:'custom-form-generator-templates'
 }
 
 export const ProjectsFilters = 'fields=id,projectName';

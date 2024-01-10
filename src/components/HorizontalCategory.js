@@ -1,36 +1,91 @@
 import React, { useState, useEffect } from 'react';
+import { useDataQuery } from '@dhis2/app-runtime';
 import { SingleSelect, SingleSelectOption } from '@dhis2-ui/select';
 import classes from '../App.module.css'
 
 const HorizontalCategory = (props) => {
+  // State to hold the categories
+  const [categories, setCategories] = useState([]);
+  // State to hold the selected category
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [horizontalCategories, setHorizontalCategories] = useState([]);
 
+  // Query to fetch data elements and their category information
+  const query = {
+    dataElement: {
+      resource: 'dataElements',
+      id: props.selectedDataElementId,
+      params: {
+        fields: 'id,categoryCombo[name,id,categories[id,name, categoryOptions[id,name]]]',
+      },
+    },
+  };
+
+  // Function to handle the change of the selected category
+  const handleVerticalCategoryChange = (selected) => {
+    // Set the selected category in the state
+    setSelectedCategory(selected);
+    props.setSelectedHorizontalCategoryID(selected);
+    // categories not selected
+    const updatedCategories = categories.filter(category => category.id !== selected);
+
+    // Add logic to get the array of the select category
+    const selectedCategory = categories.filter(category => category.id === selected);
+    // console.log(updatedCategories)
+
+    // Update the state with the filtered categories
+    props.setfileredVerticalCatComboLevel0([]);
+    props.setVerticalcategoryOptionsLevel0([]);
+    props.setSelectedVerticalCategoryIDLevel0([]);
+    props.setfileredVerticalCatComboLevel0(updatedCategories);
+    props.setfileredHorizontalCatCombo(selectedCategory);
+
+    // Update the state with the filtered categories
+    props.setfileredVerticalCatComboLevel1([]);
+    props.setHorinzontalcategoryOptionsLevel1([]);
+    props.setSelectedVerticalCategoryIDLevel1([]);
+
+
+  };
+
+  // Use the useDataQuery hook to fetch data from the DHIS2 API
+  const { loading, error, data, refetch } = useDataQuery(query, {
+    lazy: true,
+  });
+
+  // Effect to refetch data when the selectedDataElementId changes
   useEffect(() => {
-    // Filter out the selected vertical category
-    const filteredCategories = props.fileredHorizonatlCatCombo || [];
-    setHorizontalCategories(filteredCategories);
-   // Reset selected category when data changes
-    setSelectedCategory(null);
-  }, [props.fileredHorizonatlCatCombo]);
+    if (props.selectedDataElementId) {
+      refetch();
+    }
+  }, [props.selectedDataElementId, refetch]);
 
-  const handleHorizontalCategoryChange = (selected) => {
-    setSelectedCategory(selected)
-    props.setSelectedHorizontalCategoryID(selected)
-    props.setHorinzontalcategoryOptions([])
-  }
+  // Effect to process data when it is fetched
+  useEffect(() => {
+    if (data && data.dataElement) {
+      // Extract category information from the data
+      const { categoryCombo } = data.dataElement;
+      const categories = categoryCombo?.categories || [];
+      // Update the state with the category data
+      setCategories(categories);
+      // Reset selected category when data changes
+      setSelectedCategory(null);
+    }
+  }, [data]);
 
+  // Render the component
   return (
     <div className={classes.baseMargin}>
+      {/* Render the SingleSelect component with category options */}
       <SingleSelect
         filterable
         noMatchText="No categories found"
         placeholder="Select category"
         selected={selectedCategory}
         value={selectedCategory}
-        onChange={({ selected }) => handleHorizontalCategoryChange(selected)}
+        onChange={({ selected }) => handleVerticalCategoryChange(selected)}
+
       >
-        {horizontalCategories.map(category => (
+        {categories.map(category => (
           <SingleSelectOption key={category.id} label={category.name} value={category.id} />
         ))}
       </SingleSelect>
@@ -39,3 +94,4 @@ const HorizontalCategory = (props) => {
 };
 
 export default HorizontalCategory;
+

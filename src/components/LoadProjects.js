@@ -82,6 +82,8 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
     setShowDeleteModal(true)
   };
   const handleConfigureProject = async (project) =>{
+    // Implement configure project logic here
+    setSelectedProject(project);
 
     console.log(project.key);
     setselectedDataSet(project.dataSet.id);
@@ -201,7 +203,9 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
             {/* Modal for configuring projects */}
             {showConfigureProject && 
                 (<ConfigureMetadata 
+                  engine={engine}
                   setShowModalConfigureProject={setShowModalConfigureProject}
+                  selectedProject={selectedProject}
                   selectedDataSet={selectedDataSet}/>                    
             )}
 
