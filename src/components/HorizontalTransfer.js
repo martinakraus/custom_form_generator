@@ -9,7 +9,7 @@ const HorizontalTransfer = (props) => {
   const [loading, setLoading] = useState(false)
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [filerteredCategoryOptionsSelected, setfilerteredCategoryOptionsSelected] = useState([]);
-  const filteredCategories = props.fileredHorizontalCatCombo || [];
+  const filteredCategories = props.fileredHorizontalCatCombo0 || [];
 
 
 
@@ -25,12 +25,13 @@ const HorizontalTransfer = (props) => {
 
     console.log('*** filerteredCategoryOptionsSelected Start 2 ******')
     console.log(filteredOptionsSelected)
-    props.setdictfileredHorizontalCatCombo(filteredOptionsSelected)
+    props.setdictfileredHorizontalCatCombo0(filteredOptionsSelected)
     console.log('*** filerteredCategoryOptionsSelected End 2 ******')
   }
 
   useEffect(() => {
         setLoading(true)
+
         // Extract categoryOptions from each object
         const categoryOptionsArray = filteredCategories.map(category => category.categoryOptions);
 
@@ -52,11 +53,11 @@ const HorizontalTransfer = (props) => {
         })) || [];
         setCategoryOptions(options);
         setfilerteredCategoryOptionsSelected(options);
-        props.setdictfileredHorizontalCatCombo(options_init);
+        props.setdictfileredHorizontalCatCombo0(options_init);
         setSelectedKeys(options.map(option => option.value)); // Set all options to the right by default
         setLoading(false)
 
-  }, [props.fileredHorizontalCatCombo]);
+  }, [props.fileredHorizontalCatCombo0]);
 
   return (
     <div>

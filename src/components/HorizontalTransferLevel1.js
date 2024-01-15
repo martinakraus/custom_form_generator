@@ -17,17 +17,18 @@ const HorizontalTransferLevel1 = (props) => {
     const filteredOptionsSelected = filerteredCategoryOptionsSelected
         .filter(category => selected.includes(category.value))
         .map(({ value, label }) => ({ id:value, name:label }));
-    props.setdictfileredVerticalCatComboLevel1(filteredOptionsSelected)
+    props.setdictfileredHorizontalCatComboLevel1(filteredOptionsSelected)
+
 
   }
 
 
   useEffect(() => {
     setLoading(true)
-    const filteredCategories = props.fileredVerticalCatComboLevel1 || [];
+    const filteredCategories = props.fileredHorizontalCatComboLevel1 || [];
 
     // Extract horizontal category selected
-    const selectCategory = filteredCategories.filter(category => category.id === props.selectedVerticalCategoryIDLevel1) || [];
+    const selectCategory = filteredCategories.filter(category => category.id === props.selectedHorizontalCategoryIDLevel1) || [];
 
     // Extract categoryOptions from each object
     const categoryOptionsArray = selectCategory.map(category => category.categoryOptions) || [];
@@ -36,9 +37,9 @@ const HorizontalTransferLevel1 = (props) => {
     const allCategoryOptions = [].concat(...categoryOptionsArray);
 
 
-   if (props.selectedVerticalCategoryIDLevel1 !== undefined 
-    && props.selectedVerticalCategoryIDLevel1 !== null 
-    && props.selectedVerticalCategoryIDLevel1 !== '') {
+   if (props.selectedHorizontalCategoryIDLevel1 !== undefined 
+    && props.selectedHorizontalCategoryIDLevel1 !== null 
+    && props.selectedHorizontalCategoryIDLevel1 !== '') {
 
         const options = allCategoryOptions?.map(option => ({
             value: option.id,
@@ -52,17 +53,18 @@ const HorizontalTransferLevel1 = (props) => {
 
         })) || [];
         
-        props.setVerticalCategoryOptionsLevel1(options)
+        props.setHorizontalcategoryOptionsLevel1(options)
         setfilerteredCategoryOptionsSelected(options);
-        props.setdictfileredVerticalCatComboLevel1(options_init); 
+        props.setdictfileredHorizontalCatComboLevel1(options_init);
+
         setSelectedKeys(options.map(option => option.value)); // Set all options to the right by default
     } else {
-        props.setVerticalCategoryOptionsLevel1([]);
+        props.setHorizontalcategoryOptionsLevel1([]);
     }
     console.log(selectedKeys)
     // setCategoryOptions(options);
     setLoading(false)
-  }, [props.fileredVerticalCatComboLevel1, props.selectedVerticalCategoryIDLevel1]);
+  }, [props.fileredHorizontalCatComboLevel1, props.selectedHorizontalCategoryIDLevel1]);
 
   return (
     <div>
@@ -72,7 +74,7 @@ const HorizontalTransferLevel1 = (props) => {
         filterablePicked
         loading={loading}        
         enableOrderChange
-        options={props.verticalCategoryOptionsLevel1}
+        options={props.HorizontalCategoryOptionsLevel1}
         selected={selectedKeys}
         onChange={({ selected }) => {
           handleHorizontalTransferChange(selected);

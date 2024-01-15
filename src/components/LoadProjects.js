@@ -16,9 +16,10 @@ import { Modal, ModalTitle, ModalContent, ModalActions, ButtonStrip, Button } fr
 import { config, ProjectsFiltersMore } from '../consts'
 import classes from '../App.module.css'
 
-const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects, reloadProjects }) => {
+const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects, reloadProjects, setReloadProjects }) => {
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
+
   const [selectedDataSet,setselectedDataSet] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -51,8 +52,6 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
 
           // Check if entries property exists in data.dataStore
         const newProjects = data.dataStore?.entries || [];
-        console.log(newProjects);
-
         setProjects(newProjects);
     }
   }, [data, reloadProjects, ]);
@@ -131,6 +130,7 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
         value={filterText}
         onChange={(e) => handleFilterChange(e.value)}
       />
+      
       <Table className={classes.dataTable}>
         <TableHead>
           <TableRowHead>
@@ -206,7 +206,8 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
                   engine={engine}
                   setShowModalConfigureProject={setShowModalConfigureProject}
                   selectedProject={selectedProject}
-                  selectedDataSet={selectedDataSet}/>                    
+                  selectedDataSet={selectedDataSet}
+                  />                    
             )}
 
 

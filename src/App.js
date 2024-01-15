@@ -81,10 +81,12 @@ const MyApp = () => {
 
             {/* Modal for loading projects */}
             {showModalLoadProjects && 
-                (<LoadProjects engine={engine} 
+                (<LoadProjects 
+                    engine={engine} 
                     setShowModalLoadProjects={setShowModalLoadProjects} 
                     showModalLoadProjects={showModalLoadProjects}
-                    reloadProjects={reloadProjects}/>                    
+                    reloadProjects={reloadProjects}
+                    setReloadProjects={setReloadProjects}/>                    
             )}
 
             {/* Modal for creating a new project */}

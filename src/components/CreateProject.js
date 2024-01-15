@@ -97,7 +97,9 @@ const CreateProject = (props) => {
           projectName: projectName,
           id: id,
           dataSet:{id:selectedDataSet, name:selectedDataSetName.displayName},
-          keyID: `${trimmedProjectName}-${id}`
+          key: `${trimmedProjectName}-${id}`,
+          dataElements:[]
+
         };
         console.log(projectData);
       

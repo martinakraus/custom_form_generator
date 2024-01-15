@@ -24,25 +24,34 @@ const HorizontalCategory = (props) => {
   const handleVerticalCategoryChange = (selected) => {
     // Set the selected category in the state
     setSelectedCategory(selected);
-    props.setSelectedHorizontalCategoryID(selected);
+    props.setControlCategories(selected);
+
+    props.setSelectedHorizontalCategoryID0(selected);
     // categories not selected
     const updatedCategories = categories.filter(category => category.id !== selected);
 
     // Add logic to get the array of the select category
-    const selectedCategory = categories.filter(category => category.id === selected);
+    const selectedCategory1 = categories.filter(category => category.id === selected);
     // console.log(updatedCategories)
 
     // Update the state with the filtered categories
-    props.setfileredVerticalCatComboLevel0([]);
-    props.setVerticalcategoryOptionsLevel0([]);
-    props.setSelectedVerticalCategoryIDLevel0([]);
-    props.setfileredVerticalCatComboLevel0(updatedCategories);
-    props.setfileredHorizontalCatCombo(selectedCategory);
+    props.setfileredHorizontalCatComboLevel1([]);
+    props.setHorizontalcategoryOptionsLevel1([]);
+    props.setSelectedHorizontalCategoryIDLevel1([]);
+    props.setfileredHorizontalCatComboLevel1(updatedCategories);
+    props.setfileredHorizontalCatCombo0(selectedCategory1);
+    props.setSelectedHorizontalCategoryName0(selectedCategory1[0].name)
+
+
+    console.log('******** Start *************')
+    console.log(props.selectedHorizontalCategoryID0)
+    console.log('******** End *************')
 
     // Update the state with the filtered categories
     props.setfileredVerticalCatComboLevel1([]);
-    props.setHorinzontalcategoryOptionsLevel1([]);
+    props.setVerticalCategoryOptionsLevel1([]);
     props.setSelectedVerticalCategoryIDLevel1([]);
+    props.setdictfileredHorizontalCatComboLevel1([]);
 
 
   };
@@ -64,9 +73,10 @@ const HorizontalCategory = (props) => {
     if (data && data.dataElement) {
       // Extract category information from the data
       const { categoryCombo } = data.dataElement;
-      const categories = categoryCombo?.categories || [];
+      const categories1 = categoryCombo?.categories || [];
       // Update the state with the category data
-      setCategories(categories);
+      setCategories(categories1);
+      props.setControlCategories(null);
       // Reset selected category when data changes
       setSelectedCategory(null);
     }
@@ -80,8 +90,8 @@ const HorizontalCategory = (props) => {
         filterable
         noMatchText="No categories found"
         placeholder="Select category"
-        selected={selectedCategory}
-        value={selectedCategory}
+        selected={props.controlCategories}
+        value={props.controlCategories}
         onChange={({ selected }) => handleVerticalCategoryChange(selected)}
 
       >

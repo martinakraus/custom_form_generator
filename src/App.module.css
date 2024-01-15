@@ -305,8 +305,20 @@ div.app-shell-app.jsx-1964929281 {
   margin: 0 auto; /* Center the container on the page if needed */
 }
 
+.tableContainer_dataElements {
+  max-height: 400px; /* Set the maximum height as needed */
+  overflow-y: auto; /* Enable vertical scroll */
+}
+
 .customTableRow{
 
 min-height: 200px;
 
+}
+
+.closeButton {
+  background-color: red; 
+  color: white; 
+  border: none; 
+  cursor: pointer; 
 }

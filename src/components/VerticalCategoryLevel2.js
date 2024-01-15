@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { SingleSelect, SingleSelectOption } from '@dhis2-ui/select';
 import classes from '../App.module.css'
 
-const VerticalCategoryLevel1 = (props) => {
+const VerticalCategoryLevel2 = (props) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [horizontalCategories, setHorizontalCategories] = useState([]);
-  const filteredCategories = props.fileredVerticalCatComboLevel1 || [];
+  const filteredCategories = props.fileredVerticalCatComboLevel2 || [];
 
   useEffect(() => {
     // Filter out the selected vertical category
@@ -14,17 +14,14 @@ const VerticalCategoryLevel1 = (props) => {
 
    // Reset selected category when data changes
     setSelectedCategory(null);
-  }, [props.fileredVerticalCatComboLevel1]);
+  }, [props.fileredVerticalCatComboLevel1, props.selectedVerticalCategoryIDLevel1]);
 
   const handleHorizontalCategoryChange = (selected) => {
     setSelectedCategory(selected)
-    props.setSelectedVerticalCategoryIDLevel1(selected)
-    const notSelectedCategories = filteredCategories.filter(category => category.id !== selected);
-    props.setfileredVerticalCatComboLevel2(notSelectedCategories)
+    props.setSelectedVerticalCategoryIDLevel2(selected)
     const SelectedCategories = filteredCategories.filter(category => category.id === selected);
-    props.setSelectedVerticalCategoryNameLevel1(SelectedCategories[0].name)
-    props.setVerticalCategoryOptionsLevel1([])
-    props.setdictfileredVerticalCatComboLevel2([])
+    props.setSelectedVerticalCategoryNameLevel2(SelectedCategories[0].name || '')
+    props.setVerticalCategoryOptionsLevel2([])
   }
 
   return (
@@ -45,4 +42,4 @@ const VerticalCategoryLevel1 = (props) => {
   );
 };
 
-export default VerticalCategoryLevel1;
+export default VerticalCategoryLevel2;
