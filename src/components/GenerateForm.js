@@ -75,7 +75,7 @@ const GenerateForm = (props) => {
 
 
         // Create a Blob containing the HTML content
-        const blob = new Blob([template], {type: 'text/html'});
+        const blob = new Blob([htmlContent], { type: 'text/html' });
 
         // Create a download link
         const link = document.createElement('a');
@@ -94,30 +94,30 @@ const GenerateForm = (props) => {
         document.body.removeChild(link);
         handleCloseModal();
     };
-
+    
     const handleCloseModal = () => {
-        props.setShowGenerateForm(false)
+        props.setShowGenerateForm(false)      
 
     };
 
     return (
         <Modal>
-            <ModalTitle>
-                Generate Form
-
-            </ModalTitle>
+        <ModalTitle>
+          Generate Form
+  
+          </ModalTitle>
             <ModalContent>
                 <p>This might take some time. Please do not navigate away from the page after clicking to proceed</p>
 
-            </ModalContent>
-            <ModalActions>
-                <ButtonStrip>
-                    <Button onClick={() => handleCloseModal()}>Close</Button>
-                    <Button onClick={handleGenerateHTMLTemplate}>Proceed</Button>
+        </ModalContent>
+          <ModalActions>
+            <ButtonStrip>
+              <Button onClick={() => handleCloseModal()}>Close</Button>
+              <Button onClick={handleGenerateHTMLTemplate}>Proceed</Button>
 
-                </ButtonStrip>
-            </ModalActions>
-        </Modal>
+            </ButtonStrip>
+          </ModalActions>
+    </Modal>
     );
 }
 
