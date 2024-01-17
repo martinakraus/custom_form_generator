@@ -7,39 +7,27 @@ const isEqual = (a, b) => JSON.stringify(a.sort()) === JSON.stringify(b.sort());
 const GenerateForm = (props) => {
     /**generate Template */
     const query = {
-        categoryOptionCombos: {
+        dataElements: {
             resource: 'dataElements',
             params: ({dataElements}) => ({
-                fields: ['valueType,categoryCombo[categoryOptionCombos[id,categoryOptions[id]]]'],
-                filter: `id:in:${dataElements}`,
+                fields: ['valueType,categoryCombo[categoryOptionCombos[id,name,categoryOptions[id,name]]]'],
+                filter: `id:in:[${dataElements}]`,
+                paging: false
             }),
         },
     }
 
     const [categoryOptionCombos, setCategoryOptionCombos] = useState([]);
 
-    const {data} = useDataQuery(query, {variables: {dataElements: props.dataElements.map(de => de.id)}});
+    const {data} = useDataQuery(query, {variables: {dataElements: props.selectedDataElement.map(de => de.id).join(',')}});
 
     useEffect(() => {
         if (data && data.dataElements) {
-            const {categoryOptionCombos} = data.dataElements.categoryCombo.categoryOptionCombos;
-            setCategoryOptionCombos(categoryOptionCombos);
+            const categoryOptionCombos = data.dataElements.dataElements.map(de => de.categoryCombo);
+            setCategoryOptionCombos(categoryOptionCombos[0].categoryOptionCombos);
         }
     }, [data]);
     const handleGenerateHTMLTemplate = () => {
-        // Your HTML content
-
-        console.log('********** dictfileredHorizontalCatCombo0 **************')
-        console.log(props.dictfileredHorizontalCatCombo0)
-
-        console.log('********** dictfileredHorizontalCatComboLevel1 **************')
-        console.log(props.dictfileredHorizontalCatComboLevel1)
-
-        console.log('********** dictfileredVerticalCatComboLevel1 **************')
-        console.log(props.dictfileredVerticalCatComboLevel1)
-
-        console.log('********** dictfileredVerticalCatComboLevel2 **************')
-        console.log(props.dictfileredVerticalCatComboLevel2)
 
         let template = '<table border="0" cellpadding="0" cellspacing="0" style="width: 100%"><tbody>';
         let headers = 1;
@@ -65,21 +53,26 @@ const GenerateForm = (props) => {
             }
             template += `</tr>`
         }
-        let levels = 2;
+        //Levels should be dynamic based on the number of options in a given categoryOptionCombo
+        let levels = 3;
         //Setup dataElements: Missing in props
-        for (let i = 0; i < props.dataElements; i++) {
-            template += `<tr><td colspan="3">${props.dataElements[i].name}</td>`
-            for (let l = 0; i < props.dictfileredHorizontalCatCombo0.length; i++) {
-                for (let j = 0; j < props.dictfileredHorizontalCatComboLevel1.length; j++) {
-                    let coc = categoryOptionCombos.map(c => categoryOptions).find(c => {
-                        return c.length = levels && isEqual(c, [props.dictfileredHorizontalCatCombo0[l].id, props.dictfileredHorizontalCatComboLevel1[j]])
+        //console.log('2 Level combos', categoryOptionCombos.filter(c=>c.categoryOptions.length === 3))
+
+        for (let i = 0; i < props.selectedDataElement.length; i++) {
+            template += `<tr><td colspan="3">${props.selectedDataElement[i].name}</td>`
+           for (let j = 0; j < props.dictfileredHorizontalCatCombo0.length; j++) {
+                for (let k = 0; k < props.dictfileredHorizontalCatComboLevel1.length; k++) {
+                    let coc = categoryOptionCombos.find(c => {
+                        console.log(c.categoryOptions.length, props.dictfileredHorizontalCatCombo0[j].id, props.dictfileredHorizontalCatComboLevel1[k].id)
+                        return c.categoryOptions.length === levels && isEqual(c.categoryOptions, [props.dictfileredHorizontalCatCombo0[j].id, props.dictfileredHorizontalCatComboLevel1[k].id])
                     })?.id;
-                    template += `<td align="center"><input id="${props.dataElements[i].id}-${coc}-val" name="entryfield" style="width:5em;text-align:center;//" title="${props.dataElements[j].name}" value="[ ${props.dataElements[j].name} ]"></td>`
+                    template += `<td align="center"><input id="${props.selectedDataElement[i].id}-${coc?.id}-val" name="entryfield" style="width:5em;text-align:center;//" title="${coc.name}" value="[ ${coc.name} ]"></td>`
                 }
             }
             template += '</tr>'
         }
         template += '</tbody></table>'
+
 
         // Create a Blob containing the HTML content
         const blob = new Blob([template], {type: 'text/html'});

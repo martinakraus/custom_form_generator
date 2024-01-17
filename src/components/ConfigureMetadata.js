@@ -853,8 +853,7 @@ const ConfigureMetadata = (props) => {
             {showGenerateForm && 
                 (<GenerateForm 
                     engine={props.engine}
-                    selectedDataElementId={selectedDataElementId}
-                    selectedDataElement={selectedDataElement}
+                    selectedDataElement={[{name:selectedDataElement, id:selectedDataElementId}]}
                     dictfileredHorizontalCatCombo0={dictfileredHorizontalCatCombo0} 
                     dictfileredHorizontalCatComboLevel1={dictfileredHorizontalCatComboLevel1} 
                     dictfileredVerticalCatComboLevel1={dictfileredVerticalCatComboLevel1}
