@@ -8,17 +8,8 @@ const GenerateForm = (props) => {
     const handleGenerateHTMLTemplate = () => {
         // Your HTML content
 
-        console.log('********** dictfileredHorizontalCatCombo0 **************')
-        console.log(props.dictfileredHorizontalCatCombo0)
-
-        console.log('********** dictfileredHorizontalCatComboLevel1 **************')
-        console.log(props.dictfileredHorizontalCatComboLevel1)
-
-        console.log('********** dictfileredVerticalCatComboLevel1 **************')
-        console.log(props.dictfileredVerticalCatComboLevel1)
-
-        console.log('********** dictfileredVerticalCatComboLevel2 **************')
-        console.log(props.dictfileredVerticalCatComboLevel2)
+        console.log('********** DataSet Object **************')
+        console.log(props.loadedProject)
 
         const htmlContent = '<html><head><title>Hello World</title></head><body><h1>Hello World!</h1></body></html>';
 

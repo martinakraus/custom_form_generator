@@ -84,6 +84,7 @@ const ConfigureMetadata = (props) => {
             resource: `dataStore/${config.dataStoreName}/${props.selectedProject.key}`
         }
     }
+    const [newProjects, setNewProjects] = useState([]);
 
     const [loadedProject, setLoadedProject] = useState(props.selectedProject || []);
     const [isAferProjectSave, AferProjectSave] = useState(false);
@@ -406,6 +407,12 @@ const ConfigureMetadata = (props) => {
         
 
     }
+
+    // Function to update template name
+    const GenerateHTMLHandler  = () => {
+            refetch() 
+            setShowGenerateForm(true)
+    };
 
     // Function to update template name
     const handleTemplateNameChange = (event) => {
@@ -810,7 +817,10 @@ const ConfigureMetadata = (props) => {
                     <Button primary  onClick={() => handleSaveTemplate()}>
                         Save and Make Template
                     </Button>
-                    <Button onClick={() => setShowGenerateForm(true)}>Generate HTML Template</Button>
+                    <Button onClick={() =>{
+                        GenerateHTMLHandler();
+                        }
+                        }>Generate HTML Template</Button>
                     </ButtonStrip>
 
 
@@ -853,12 +863,7 @@ const ConfigureMetadata = (props) => {
             {showGenerateForm && 
                 (<GenerateForm 
                     engine={props.engine}
-                    selectedDataElementId={selectedDataElementId}
-                    selectedDataElement={selectedDataElement}
-                    dictfileredHorizontalCatCombo0={dictfileredHorizontalCatCombo0} 
-                    dictfileredHorizontalCatComboLevel1={dictfileredHorizontalCatComboLevel1} 
-                    dictfileredVerticalCatComboLevel1={dictfileredVerticalCatComboLevel1}
-                    dictfileredVerticalCatComboLevel2={dictfileredVerticalCatComboLevel2} 
+                    loadedProject={loadedProject}
                     setShowGenerateForm={setShowGenerateForm}
                     />                    
             )}
