@@ -852,6 +852,9 @@ const ConfigureMetadata = (props) => {
                         {/* Modal for creating a new project */}
             {showGenerateForm && 
                 (<GenerateForm 
+                    engine={props.engine}
+                    selectedDataElementId={selectedDataElementId}
+                    selectedDataElement={selectedDataElement}
                     dictfileredHorizontalCatCombo0={dictfileredHorizontalCatCombo0} 
                     dictfileredHorizontalCatComboLevel1={dictfileredHorizontalCatComboLevel1} 
                     dictfileredVerticalCatComboLevel1={dictfileredVerticalCatComboLevel1}
