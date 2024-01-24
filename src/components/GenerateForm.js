@@ -723,32 +723,34 @@ const GenerateForm = (props) => {
 
         const combos = generateAllCombinations(categoryOptions);*/
         const idMap = new Map();
-        for (let i = 0; i < props.dataElements; i++) {
+        for (let i = 0; i < dataElements.length; i++) {
             dataElements[i].categoryCombo.categoryOptionCombos.forEach(coc => {
                 const combi = JSON.stringify(coc.categoryOptions.map(co => co.id).sort());
                 idMap.set(combi, {name: coc.name, id: coc.id})
             })
         }
 
+        const data = props.loadedProject.dataElements[0];
+
         //First vertical level Navigation
         template += `
         <div class="ui-tabs-vertical ui-helper-clearfix ui-widget ui-widget-content ui-corner-all" id="INFOLINK_Tabs_vertical">
             <ul class="ui-helper-hidden">`;
-        for (let i = 0; i < props.loadedProject.dictfileredVerticalCatComboLevel0.length; i++) {
-            template += `<li class="ui-corner-left"><a href="#INFOLINK_Tabs_vertical_${i}">{props.loadedProject.dictfileredVerticalCatComboLevel0[i].name}</a></li>`;
+        for (let i = 0; i < data.HorizontalLevel0.metadata.length; i++) {
+            template += `<li class="ui-corner-left"><a href="#INFOLINK_Tabs_vertical_${i}">${data.HorizontalLevel0.metadata[i].name}</a></li>`;
         }
         template += '</ul>';
-        for (let i = 0; i < props.loadedProject.dictfileredVerticalCatComboLevel0.length; i++) {
+        for (let i = 0; i < data.HorizontalLevel0.metadata.length; i++) {
             //Second vertical level Navigation
             template += `
                 <div id="INFOLINK_Tabs_vertical_${i}">
                     <div id="INFOLINK_Tabs_h_${i}">
                         <ul class="ui-helper-hidden">`;
-            for (let j = 0; j < props.loadedProject.dictfileredVerticalCatComboLevel1.length; j++) {
-                template += `<li><a href="#INFOLINK_Form_${j}">${props.loadedProject.dictfileredVerticalCatComboLevel1[j].name}</a></li>`;
+            for (let j = 0; j < data.HorizontalLevel1.metadata.length; j++) {
+                template += `<li><a href="#INFOLINK_Form_${j}">${data.HorizontalLevel1.metadata[j].name}</a></li>`;
             }
             template += '</ul>';
-            for (let j = 0; j < props.loadedProject.dictfileredVerticalCatComboLevel1.length; j++) {
+            for (let j = 0; j < data.HorizontalLevel1.metadata.length; j++) {
                 template += `
                     <div id="INFOLINK_Form_${j}">
                         <p class="INFOLINK_Form_ShowHide">&nbsp;</p>
@@ -759,14 +761,15 @@ const GenerateForm = (props) => {
                         <div class="INFOLINK_Form_Collapse">`;
 
                 //Data Elements
-                for (let k = 0; k < props.dataElements.length; k++) {
+                for (let k = 0; k < props.loadedProject.dataElements.length; k++) {
+                    const dataElement =  props.loadedProject.dataElements[k];
                     template += `
                         <div class="si_JPFY6dsd">
                             <div>
                                 <div class="INFOLINK_Form_Priority_Container_Outer">
                                     <div class="INFOLINK_Form_Priority_Container_Inner INFOLINK_Form_Priority_required">
                                         <div class="INFOLINK_Form_Priority">&nbsp;</div>
-                                        <div class="INFOLINK_Form_Description">${props.dataElements[k].name}&nbsp;</div>
+                                        <div class="INFOLINK_Form_Description">${dataElement.name}&nbsp;</div>
                                     </div>
                                 </div>
 
@@ -774,27 +777,32 @@ const GenerateForm = (props) => {
                                     <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;</div>
                                 </div>
                     `;
-                    for (let l = 0; l < props.loadedProject.dictfileredHorizontalCatComboLevel0.length; l++) {
+                    for (let l = 0; l < data.verticalLevel1.metadata.length; l++) {
                         template += `
                         <div class="INFOLINK_Form_Container">
-                            <div class="INFOLINK_Form_EntryName">${props.loadedProject.dictfileredHorizontalCatComboLevel0[l].name}</div>
+                            <div class="INFOLINK_Form_EntryName">${data.verticalLevel1.metadata[l].name}</div>
                         </div>`;
+                    }
+                    for (let l = 0; l < data.verticalLevel2.metadata.length; l++) {
+                        template += `
+                             <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br />${data.verticalLevel2.metadata[l].name}</div>
+                            `;
                     }
                     template += `
                         </div>
                         <div class="si_JPFY6dsd"><!-- expandable starts -->
                             <div>
                     `;
-                    for (let l = 0; l < props.loadedProject.dictfileredHorizontalCatComboLevel0.length; l++) {
+                    for (let l = 0; l < data.verticalLevel1.metadata.length; l++) {
                         template += `
                             <div class="INFOLINK_Form_Container">
-                                    <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br />${props.loadedProject.dictfileredHorizontalCatComboLevel1[l].name}</div>
+                                    <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br />${data.verticalLevel1.metadata[l].name}</div>
                                     <div class="INFOLINK_Form_Container">
                             `;
 
-                        for (let m = 0; m < props.loadedProject.dictfileredHorizontalCatComboLevel1.length; m++) {
-                            const coc = idMap.get(JSON.stringify([props.loadedProject.dictfileredVerticalCatComboLevel0[i].id, props.loadedProject.dictfileredVerticalCatComboLevel1[j].id, props.loadedProject.dictfileredHorizontalCatComboLevel0[l].id, props.loadedProject.dictfileredHorizontalCatComboLevel1[m].id].sort()));
-                            template += `<div class="INFOLINK_Form_EntryField"><input id="${props.dataElements[k].id}-${coc?.id}-val" name="entryfield" title="${props.dataElements[k].name} ${coc?.name}" value="[ ${props.dataElements[k].name} ${coc?.name} ]" /></div>`
+                        for (let m = 0; m < data.verticalLevel2.metadata.length; m++) {
+                            const coc = idMap.get(JSON.stringify([data.HorizontalLevel0.metadata[i].id, data.HorizontalLevel1.metadata[j].id, data.verticalLevel1.metadata[l].id, data.verticalLevel2.metadata[m].id].sort()));
+                            template += `<div class="INFOLINK_Form_EntryField"><input id="${dataElement.id}-${coc?.id}-val" name="entryfield" title="${dataElement.name} ${coc?.name}" value="[ ${dataElement.name} ${coc?.name} ]" /></div>`
                         }
 
                         template += `</div>`;
