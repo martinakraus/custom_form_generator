@@ -704,7 +704,7 @@ const GenerateForm = (props) => {
                             //#formReady#
                     });
             })();
-        </script`;
+        </script>`;
 
         //Build category option combo map
         /*const categoryOptions = [];
@@ -731,38 +731,46 @@ const GenerateForm = (props) => {
         }
 
         const data = props.loadedProject.dataElements[0];
-
+        const group = props.loadedProject.dataElements[0].name || '';
+        const idx = group.indexOf(':');
+        data['groupings'] = [group.substring(0, idx)]
         //First vertical level Navigation
         template += `
         <div class="ui-tabs-vertical ui-helper-clearfix ui-widget ui-widget-content ui-corner-all" id="INFOLINK_Tabs_vertical">
             <ul class="ui-helper-hidden">`;
-        for (let i = 0; i < data.HorizontalLevel0.metadata.length; i++) {
-            template += `<li class="ui-corner-left"><a href="#INFOLINK_Tabs_vertical_${i}">${data.HorizontalLevel0.metadata[i].name}</a></li>`;
+        if (data.sections) {
+            for (let i = 0; i < data.sections.metadata.length; i++) {
+                template += `<li class="ui-corner-left"><a href="#INFOLINK_Tabs_vertical_${i}">${data.sections.metadata[i].name}</a></li>`;
+            }
+        } else {
+            template += `<li class="ui-corner-left"><a href="#INFOLINK_Tabs_vertical_0"></a></li>`;
         }
         template += '</ul>';
-        for (let i = 0; i < data.HorizontalLevel0.metadata.length; i++) {
+        for (let h = 0; h < (data.sections?.metadata?.length || 1); h++) {
             //Second vertical level Navigation
             template += `
-                <div id="INFOLINK_Tabs_vertical_${i}">
-                    <div id="INFOLINK_Tabs_h_${i}">
+                <div id="INFOLINK_Tabs_vertical_${h}">
+                    <div id="INFOLINK_Tabs_h_${h}">
                         <ul class="ui-helper-hidden">`;
-            for (let j = 0; j < data.HorizontalLevel1.metadata.length; j++) {
-                template += `<li><a href="#INFOLINK_Form_${j}">${data.HorizontalLevel1.metadata[j].name}</a></li>`;
+            for (let j = 0; j < data.HorizontalLevel0.metadata.length; j++) {
+                template += `<li><a href="#INFOLINK_Form_${j}">${data.HorizontalLevel0.metadata[j].name}</a></li>`;
             }
             template += '</ul>';
-            for (let j = 0; j < data.HorizontalLevel1.metadata.length; j++) {
+            for (let j = 0; j < data.HorizontalLevel0.metadata.length; j++) {
                 template += `
                     <div id="INFOLINK_Form_${j}">
                         <p class="INFOLINK_Form_ShowHide">&nbsp;</p>
                             <div class="INFOLINK_Form">
                 `;
                 template += `
-                    <div class="INFOLINK_Form">
+                    <div class="INFOLINK_Form">`
+                    for (let a = 0; a < data.groupings.length; a++) {
+                        template += `<div class="INFOLINK_Form_Container INFOLINK_Form_Title INFOLINK_Form_Title_Quarterly">${data.groupings[a]}</div>
                         <div class="INFOLINK_Form_Collapse">`;
 
                 //Data Elements
                 for (let k = 0; k < props.loadedProject.dataElements.length; k++) {
-                    const dataElement =  props.loadedProject.dataElements[k];
+                    const dataElement = props.loadedProject.dataElements[k];
                     template += `
                         <div class="si_JPFY6dsd">
                             <div>
@@ -772,51 +780,36 @@ const GenerateForm = (props) => {
                                         <div class="INFOLINK_Form_Description">${dataElement.name}&nbsp;</div>
                                     </div>
                                 </div>
-
-                                <div class="INFOLINK_Form_Container">
-                                    <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;</div>
-                                </div>
                     `;
-                    for (let l = 0; l < data.verticalLevel1.metadata.length; l++) {
+                    for (let h = 0; h < data.verticalLevel1.metadata.length; h++) {
                         template += `
                         <div class="INFOLINK_Form_Container">
-                            <div class="INFOLINK_Form_EntryName">${data.verticalLevel1.metadata[l].name}</div>
-                        </div>`;
-                    }
-                    for (let l = 0; l < data.verticalLevel2.metadata.length; l++) {
-                        template += `
-                             <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br />${data.verticalLevel2.metadata[l].name}</div>
-                            `;
-                    }
-                    template += `
-                        </div>
-                        <div class="si_JPFY6dsd"><!-- expandable starts -->
-                            <div>
-                    `;
-                    for (let l = 0; l < data.verticalLevel1.metadata.length; l++) {
-                        template += `
-                            <div class="INFOLINK_Form_Container">
-                                    <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br />${data.verticalLevel1.metadata[l].name}</div>
-                                    <div class="INFOLINK_Form_Container">
-                            `;
-
+                            <div class="INFOLINK_Form_EntryName bold" style="padding-bottom:0;">${data.verticalLevel1.metadata[h].name}</div>`
                         for (let m = 0; m < data.verticalLevel2.metadata.length; m++) {
-                            const coc = idMap.get(JSON.stringify([data.HorizontalLevel0.metadata[i].id, data.HorizontalLevel1.metadata[j].id, data.verticalLevel1.metadata[l].id, data.verticalLevel2.metadata[m].id].sort()));
-                            template += `<div class="INFOLINK_Form_EntryField"><input id="${dataElement.id}-${coc?.id}-val" name="entryfield" title="${dataElement.name} ${coc?.name}" value="[ ${dataElement.name} ${coc?.name} ]" /></div>`
+                            template += `
+                             <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;${data.verticalLevel2.metadata[m].name}</div>
+                            `;
                         }
+                        template += `</div>`;
 
+                        for (let l = 0; l < data.HorizontalLevel1.metadata.length; l++) {
+                            template += `
+                            <div class="INFOLINK_Form_Container">
+                                    <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">${data.HorizontalLevel1.metadata[l].name}</div>  
+                            `;
+                            for (let m = 0; m < data.verticalLevel2.metadata.length; m++) {
+                                const coc = idMap.get(JSON.stringify([data.verticalLevel1.metadata[h].id, data.HorizontalLevel0.metadata[j].id, data.HorizontalLevel1.metadata[l].id, data.verticalLevel2.metadata[m].id].sort()));
+                                template += `<div class="INFOLINK_Form_EntryField"><input id="${dataElement.id}-${coc?.id}-val" name="entryfield" title="${dataElement.name} ${coc?.name}" value="[ ${dataElement.name} ${coc?.name} ]" /></div>`
+                            }
+
+                            template += `</div>`;
+                        }
                         template += `</div>`;
                     }
                 }
-                template += `
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `
             }
+            }
+            template += `</div></div></div>`;
         }
 
 
