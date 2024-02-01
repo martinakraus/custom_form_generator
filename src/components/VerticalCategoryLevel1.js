@@ -9,12 +9,30 @@ const VerticalCategoryLevel1 = (props) => {
 
   useEffect(() => {
     // Filter out the selected vertical category
-
+    // console.log(filteredCategories)
     setHorizontalCategories(filteredCategories);
+    if (props.editMode){
+      const updatedDataElementsLevel1 = props.loadedProject.dataElements.filter(
+        (element) => element.id === props.selectedDataElementId
+      );
+      const VerticalCategoryObject = filteredCategories.filter(
+      (element) => element.id === updatedDataElementsLevel1[0]?.verticalLevel1?.id
+      ) || [];
 
+      const savedCategory = VerticalCategoryObject[0]?.id
+      if (savedCategory){
+        const notSelectedCategories = filteredCategories.filter(category => category.id !== savedCategory);
+        props.setfileredVerticalCatComboLevel2(notSelectedCategories)
+
+        const SelectedCategories = filteredCategories.filter(category => category.id === savedCategory);
+        props.setSelectedVerticalCategoryNameLevel1(SelectedCategories[0].name)
+        props.setSelectedVerticalCategoryIDLevel1(savedCategory)
+        setSelectedCategory(savedCategory)
+      }
+    }
    // Reset selected category when data changes
-    setSelectedCategory(null);
-  }, [props.fileredVerticalCatComboLevel1]);
+    // suspended setSelectedCategory(null);
+  }, [props.fileredVerticalCatComboLevel1, props.isVerticalCategoryExpandedlevel1]);
 
   const handleHorizontalCategoryChange = (selected) => {
     setSelectedCategory(selected)
@@ -33,8 +51,8 @@ const VerticalCategoryLevel1 = (props) => {
         filterable
         noMatchText="No categories found"
         placeholder="Select category"
-        selected={selectedCategory}
-        value={selectedCategory}
+        selected={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : null}
+        value={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : null}
         onChange={({ selected }) => handleHorizontalCategoryChange(selected)}
       >
         {horizontalCategories.map(category => (

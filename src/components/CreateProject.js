@@ -5,7 +5,7 @@ import React, { useState, useEffect  } from 'react';
 import { Input } from '@dhis2-ui/input'
 import classes from '../App.module.css'
 import { config, ProjectsFilters} from '../consts'
-import { generateRandomId } from '../utils';
+import { generateRandomId, modifiedDate } from '../utils';
 
 /*  Query Parameters**/
 const query = {
@@ -98,7 +98,8 @@ const CreateProject = (props) => {
           id: id,
           dataSet:{id:selectedDataSet, name:selectedDataSetName.displayName},
           key: `${trimmedProjectName}-${id}`,
-          dataElements:[]
+          dataElements:[],
+          modifiedDate:modifiedDate(),
 
         };
         console.log(projectData);
@@ -121,6 +122,7 @@ const CreateProject = (props) => {
     
 
     const handleCloseModal = () => {
+        setProjectName('')
         props.setShowModalCreateProject(false);
     };
 

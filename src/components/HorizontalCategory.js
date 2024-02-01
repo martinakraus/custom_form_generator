@@ -20,11 +20,17 @@ const HorizontalCategory = (props) => {
     },
   };
 
+  // Use the useDataQuery hook to fetch data from the DHIS2 API
+  const { loading, error, data, refetch } = useDataQuery(query);
+  
+
+
   // Function to handle the change of the selected category
   const handleVerticalCategoryChange = (selected) => {
     // Set the selected category in the state
     setSelectedCategory(selected);
-    props.setControlCategories(selected);
+
+
 
     props.setSelectedHorizontalCategoryID0(selected);
     // categories not selected
@@ -42,47 +48,102 @@ const HorizontalCategory = (props) => {
     props.setfileredHorizontalCatCombo0(selectedCategory1);
     props.setSelectedHorizontalCategoryName0(selectedCategory1[0].name)
 
-
-    console.log('******** Start *************')
-    console.log(props.selectedHorizontalCategoryID0)
-    console.log('******** End *************')
-
     // Update the state with the filtered categories
     props.setfileredVerticalCatComboLevel1([]);
     props.setVerticalCategoryOptionsLevel1([]);
     props.setSelectedVerticalCategoryIDLevel1([]);
-    props.setdictfileredHorizontalCatComboLevel1([]);
+    props.setdictfileredHorizontalCatComboLevel1([])
 
 
+    console.log('***** Testing 3 *******')
+    console.log(selectedCategory)
   };
 
-  // Use the useDataQuery hook to fetch data from the DHIS2 API
-  const { loading, error, data, refetch } = useDataQuery(query, {
-    lazy: true,
-  });
+  // implement componet core logic
+  const loader = () => {
 
+    if (props.editMode){        
+      if (data){
+        // the selected dataElement with the specified ID
+        if (props.loadedProject.dataElements){
+          const updatedDataElements = props.loadedProject.dataElements.filter(
+                (element) => element.id === props.selectedDataElementId
+            );
+    
+          const { categoryCombo } = data.dataElement;
+          const categories1 = categoryCombo?.categories || [];
+          const HorizontalCategoryObject = categories1.filter(
+            (element) => element.id === updatedDataElements[0].HorizontalLevel0.id
+          ) || [];
+    
+          //if (intialselectedCategoryControl === 0){
+                    // Update the state with the category data
+            setCategories(categories1);
+            const savedCategory = HorizontalCategoryObject[0].id
+            props.setSelectedHorizontalCategoryID0(savedCategory);
+            const updatedCategories = categories1.filter(category => category.id !== savedCategory);
+            // Add logic to get the array of the select category
+            const selectedCategory1 = categories1.filter(category => category.id === savedCategory);
+            // console.log(updatedCategories)
+            setSelectedCategory(savedCategory);
+            // Use the state updater function to ensure you have the latest state
+            props.setfileredHorizontalCatComboLevel1([])
+            props.setfileredHorizontalCatComboLevel1(updatedCategories);
+            props.setfileredHorizontalCatCombo0(selectedCategory1);
+            props.setSelectedHorizontalCategoryName0(selectedCategory1[0].name)
+          //}
+        }    
+      }
+    }
+  }
+
+    // Effect to process data when it is fetched
+  useEffect(() => {
+    if (!props.editMode){
+      if (data && data.dataElement) {
+        console.log(data)
+        const { categoryCombo } = data.dataElement;
+        const categories1 = categoryCombo?.categories || [];
+        // Update the state with the category data
+        setCategories(categories1);
+
+      }
+      loader()
+    }
+
+  }, [data]);
+    
+  // Run on expand
+  useEffect(() => {
+
+    loader()
+
+
+  },[props.isHorizontalCategoryExpanded0])
+
+
+  
   // Effect to refetch data when the selectedDataElementId changes
   useEffect(() => {
     if (props.selectedDataElementId) {
       refetch();
     }
-  }, [props.selectedDataElementId, refetch]);
+    if (!props.editMode){ 
 
-  // Effect to process data when it is fetched
-  useEffect(() => {
-    if (data && data.dataElement) {
-      // Extract category information from the data
-      const { categoryCombo } = data.dataElement;
-      const categories1 = categoryCombo?.categories || [];
-      // Update the state with the category data
-      setCategories(categories1);
-      props.setControlCategories(null);
-      // Reset selected category when data changes
       setSelectedCategory(null);
     }
-  }, [data]);
+
+  }, [props.selectedDataElementId, refetch]);
 
   // Render the component
+
+  if (error) {
+    return <span>ERROR: {error.message}</span>
+  }
+
+  if (loading) {
+      return <span>Loading...</span>
+  }
   return (
     <div className={classes.baseMargin}>
       {/* Render the SingleSelect component with category options */}
@@ -90,14 +151,16 @@ const HorizontalCategory = (props) => {
         filterable
         noMatchText="No categories found"
         placeholder="Select category"
-        selected={props.controlCategories}
-        value={props.controlCategories}
+        selected={categories.some(category => category.id === selectedCategory) ? selectedCategory : null}
+        value={categories.some(category => category.id === selectedCategory) ? selectedCategory : null}
         onChange={({ selected }) => handleVerticalCategoryChange(selected)}
 
       >
         {categories.map(category => (
           <SingleSelectOption key={category.id} label={category.name} value={category.id} />
         ))}
+
+
       </SingleSelect>
     </div>
   );

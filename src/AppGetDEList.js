@@ -16,13 +16,24 @@ const dataSets = {
   }
 
 const AppGetDEList = props => {
+    const [disabled, setDisable] = useState(false)
     const { loading: loading, error: error, data: data, refetch: refetch } = useDataQuery(dataSets, {variables: {dataSet: props.selectedDataSet}})
 
     useEffect(() => {
+
         refetch({dataSet: props.selectedDataSet})
         // setdataElementList(data.targetedEntity.dataSets[0]?.dataSetElements || []);
         // console.log('Use Effect Running Once')
-    }, [props.selectedDataSet]);
+        if (props.editMode){
+          setDisable(!!props.selectedDataElementId);
+          console.log('******** Loaded Project **********')
+          props.setSelectFormComponents(props.loadedProject.dataElements[0].formComponent)
+          props.setSelectSideNavigation(props.loadedProject.dataElements[0].sideNavigation)
+        }
+        // console.log(props.selectedDataElementId)
+        
+    }, [props.selectedDataSet, props.selectedDataElementId]);
+
 
     const handleDataElementChange = (selected) => {
 
@@ -33,9 +44,13 @@ const AppGetDEList = props => {
         const selectedDataElement = dataElements.find(dataElement => dataElement.dataElement.id === selected);
           
         //Selected data element
+        // Check if selectedDataElement has a value, and set disabled accordingly
+
+        if (props.editMode){
+          setDisable(!!selectedDataElement);
+        }
         
-        if (selectedDataElement) {
-          
+        if (selectedDataElement) {         
           props.setSelectedDataElement(selectedDataElement.dataElement.displayName);
 
         } else {
@@ -82,6 +97,7 @@ const AppGetDEList = props => {
 
     }
 
+
     const dataElements = data.targetedEntity.dataSets[0]?.dataSetElements || [];
 
     return (
@@ -96,6 +112,7 @@ const AppGetDEList = props => {
                             value={props.selectedDataElementId}
                             // onChange={handleDataElementChange}
                             onChange={({ selected }) => handleDataElementChange(selected)}
+                            disabled={disabled}
                         >
                             {dataElements.map(({ dataElement }) => (
                             <SingleSelectOption
