@@ -136,13 +136,13 @@ const GenerateForm = (props) => {
             .INFOLINK_reporting_legend {
                     text-align: right;
                     display: block;
-                    margin: 10
+                    margin: 10px
             }
             
             .INFOLINK_Form_Title {
                     background-color: #1f497d;
                     color: #ffffff;
-                    font-size: 20;
+                    font-size: 20px;
                     padding: 4px 8px 4px 8px;
                     cursor: pointer;
                     border: none;
@@ -319,8 +319,8 @@ const GenerateForm = (props) => {
             .INFOLINK_Form_EntryName_Wide,
             .INFOLINK_Form_EntryName_Wide_b {
                     float: left;
-                    min-width: 220;
-                    max-width: 220;
+                    min-width: 220px;
+                    max-width: 220px;
                     display: inline;
                     padding: 8px;
                     text-align: right;
@@ -329,8 +329,8 @@ const GenerateForm = (props) => {
             .INFOLINK_Form_EntryName_extraWide,
             .INFOLINK_Form_EntryName__extraWide_b {
                     float: left;
-                    min-width: 300;
-                    max-width: 300;
+                    min-width: 300px;
+                    max-width: 300px;
                     display: inline;
                     padding: 8px;
                     text-align: right;
@@ -339,8 +339,8 @@ const GenerateForm = (props) => {
             .INFOLINK_Form_EntryName_Thin,
             .INFOLINK_Form_EntryName_Thin_b {
                     float: left;
-                    min-width: 70;
-                    max-width: 70;
+                    min-width: 70px;
+                    max-width: 70px;
                     display: inline;
                     padding: 8px;
                     text-align: right;
@@ -379,8 +379,8 @@ const GenerateForm = (props) => {
             .INFOLINK_Form_Narrative {
                     display: inline;
                     padding: 8px 4px 8px 4px;
-                    min-width: 580;
-                    max-width: 840;
+                    min-width: 580px;
+                    max-width: 840px;
                     float: left;
                     text-align: left;
             }
@@ -416,16 +416,16 @@ const GenerateForm = (props) => {
             }
             
             .INFOLINK_Form_EntryField_input {
-                    width: 40;
+                    width: 40px;
                     height: 22px;
                     padding: 2px !important;
                     text-align: center;
             }
             
             .INFOLINK_Form_EntryField_narrative {
-                    min-width: 580;
-                    max-width: 840;
-                    height: 90;
+                    min-width: 580px;
+                    max-width: 840px;
+                    height: 90px;
                     padding: 2px !important;
             }
             
@@ -504,7 +504,7 @@ const GenerateForm = (props) => {
             .ui-tabs-vertical .ui-tabs-panel {
                     display: block;
                     border-width: 0;
-                    padding: 16px 20;
+                    padding: 16px 20px;
                     background: none;
             }
             
@@ -512,7 +512,7 @@ const GenerateForm = (props) => {
             
             .ui-tabs-vertical {
                     width: 100%;
-                    min-width: 200;
+                    min-width: 200px;
             }
             
             .ui-tabs-vertical .ui-tabs-nav {
@@ -568,7 +568,7 @@ const GenerateForm = (props) => {
                     padding: 0em !important;
                     float: left;
                     width: 78%;
-                    min-width: 800;
+                    min-width: 800px;
             }
             
             .ui-tabs .ui-tabs-panel {
@@ -596,7 +596,7 @@ const GenerateForm = (props) => {
                     height: 19px;
                     border: 1px solid #aaa;
                     background: #ddd;
-                    width: 40;
+                    width: 40px;
                     display: inline-block;
                     font-size: 12px;
             }
@@ -733,14 +733,17 @@ const GenerateForm = (props) => {
         const data = props.loadedProject.dataElements[0];
         const group = props.loadedProject.dataElements[0].name || '';
         const idx = group.indexOf(':');
-        data['groupings'] = [group.substring(0, idx)]
+        data['groupings'] = ['TX_NEW'];
+        //data['groupings'] = [group.substring(0, idx)];
+        data['sections'] = [{name: 'Treatment'}];
+
         //First vertical level Navigation
         template += `
         <div class="ui-tabs-vertical ui-helper-clearfix ui-widget ui-widget-content ui-corner-all" id="INFOLINK_Tabs_vertical">
             <ul class="ui-helper-hidden">`;
         if (data.sections) {
-            for (let i = 0; i < data.sections.metadata.length; i++) {
-                template += `<li class="ui-corner-left"><a href="#INFOLINK_Tabs_vertical_${i}">${data.sections.metadata[i].name}</a></li>`;
+            for (let i = 0; i < data.sections.length; i++) {
+                template += `<li class="ui-corner-left"><a href="#INFOLINK_Tabs_vertical_${i}">${data.sections[i].name}</a></li>`;
             }
         } else {
             template += `<li class="ui-corner-left"><a href="#INFOLINK_Tabs_vertical_0"></a></li>`;
@@ -761,17 +764,15 @@ const GenerateForm = (props) => {
                     <div id="INFOLINK_Form_${j}">
                         <p class="INFOLINK_Form_ShowHide">&nbsp;</p>
                             <div class="INFOLINK_Form">
-                `;
-                template += `
-                    <div class="INFOLINK_Form">`
-                    for (let a = 0; a < data.groupings.length; a++) {
-                        template += `<div class="INFOLINK_Form_Container INFOLINK_Form_Title INFOLINK_Form_Title_Quarterly">${data.groupings[a]}</div>
+                                <div class="INFOLINK_Form">`
+                for (let a = 0; a < data.groupings.length; a++) {
+                    template += `<div class="INFOLINK_Form_Container INFOLINK_Form_Title INFOLINK_Form_Title_Quarterly">${data.groupings[a]}</div>
                         <div class="INFOLINK_Form_Collapse">`;
 
-                //Data Elements
-                for (let k = 0; k < props.loadedProject.dataElements.length; k++) {
-                    const dataElement = props.loadedProject.dataElements[k];
-                    template += `
+                    //Data Elements
+                    for (let k = 0; k < props.loadedProject.dataElements.length; k++) {
+                        const dataElement = props.loadedProject.dataElements[k];
+                        template += `
                         <div class="si_JPFY6dsd">
                             <div>
                                 <div class="INFOLINK_Form_Priority_Container_Outer">
@@ -780,34 +781,33 @@ const GenerateForm = (props) => {
                                         <div class="INFOLINK_Form_Description">${dataElement.name}&nbsp;</div>
                                     </div>
                                 </div>
-                    `;
-                    for (let h = 0; h < data.verticalLevel1.metadata.length; h++) {
-                        template += `
-                        <div class="INFOLINK_Form_Container">
-                            <div class="INFOLINK_Form_EntryName bold" style="padding-bottom:0;">${data.verticalLevel1.metadata[h].name}</div>`
-                        for (let m = 0; m < data.verticalLevel2.metadata.length; m++) {
-                            template += `
-                             <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;${data.verticalLevel2.metadata[m].name}</div>
-                            `;
-                        }
-                        template += `</div>`;
-
-                        for (let l = 0; l < data.HorizontalLevel1.metadata.length; l++) {
+                        `;
+                        for (let h = 0; h < data.verticalLevel1.metadata.length; h++) {
                             template += `
                             <div class="INFOLINK_Form_Container">
-                                    <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">${data.HorizontalLevel1.metadata[l].name}</div>  
-                            `;
-                            for (let m = 0; m < data.verticalLevel2.metadata.length; m++) {
-                                const coc = idMap.get(JSON.stringify([data.verticalLevel1.metadata[h].id, data.HorizontalLevel0.metadata[j].id, data.HorizontalLevel1.metadata[l].id, data.verticalLevel2.metadata[m].id].sort()));
-                                template += `<div class="INFOLINK_Form_EntryField"><input id="${dataElement.id}-${coc?.id}-val" name="entryfield" title="${dataElement.name} ${coc?.name}" value="[ ${dataElement.name} ${coc?.name} ]" /></div>`
-                            }
-
+                                <div class="INFOLINK_Form_EntryName bold" style="padding-bottom:0;">${data.verticalLevel1.metadata[h].name}</div>`
+                                for (let m = 0; m < data.verticalLevel2.metadata.length; m++) {
+                                    template += `
+                                        <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br>${data.verticalLevel2.metadata[m].name.replace(' Years', '')}</div>`;
+                                }
                             template += `</div>`;
+                                for (let l = 0; l < data.HorizontalLevel1.metadata.length; l++) {
+                                    template += `
+                                        <div class="INFOLINK_Form_Container">
+                                            <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">${data.HorizontalLevel1.metadata[l].name}</div>`;
+                                    for (let m = 0; m < data.verticalLevel2.metadata.length; m++) {
+                                        const coc = idMap.get(JSON.stringify([data.verticalLevel1.metadata[h].id, data.HorizontalLevel0.metadata[j].id, data.HorizontalLevel1.metadata[l].id, data.verticalLevel2.metadata[m].id].sort()));
+                                        template += `<div class="INFOLINK_Form_EntryField"><input id="${dataElement.id}-${coc?.id}-val" name="entryfield" title="${dataElement.name} ${coc?.name}" value="[ ${dataElement.name} ${coc?.name} ]" /></div>`
+                                    }
+
+                                template += `</div>`;
+                            }
                         }
-                        template += `</div>`;
+                        template += `</div></div>`;
                     }
+                    template += `</div>`;
                 }
-            }
+                template += '</div></div></div>'
             }
             template += `</div></div></div>`;
         }
