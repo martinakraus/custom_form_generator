@@ -3,8 +3,14 @@ import React from 'react'
 import { SingleSelect, SingleSelectOption  } from '@dhis2-ui/select'
 
 
-const FormComponentSelection = props => {
-    const initialSelectedformComponent= props.loadedProject.dataElements[0].formComponent === 'Default' ? null : props.loadedProject.dataElements[0].formComponent;
+const FormComponentSelection = props => {  
+    const selectedDataElement = props.loadedProject.dataElements.find(dataElement => dataElement.id === props.selectedDataElementId);
+    // const initialSelectedSideNavigation = props.loadedProject.dataElements[0].sideNavigation === 'Default' ? null : props.loadedProject.dataElements[0].sideNavigation;
+    const initialSelectedformComponent = selectedDataElement.formComponent === 'Default' ? null : selectedDataElement.formComponent;
+    console.log(initialSelectedformComponent)
+    console.log(props.selectedDataElementId)
+
+
     const [selectedFormComponents,setSelectFormComponents] = useState(initialSelectedformComponent);
 
     useEffect(() => {

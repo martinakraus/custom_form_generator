@@ -221,11 +221,45 @@ const ConfigureMetadata = (props) => {
     }, [editMode]);
 
     const clearConstants = () =>{
+        
         setSelectedDataElement('');
         setSelectedDataElementId('');
         handleDataElementChange()
         setEditMode(false)
         setSelectedDataElementsDict(null)
+        setSelectSideNavigation(null);
+        setSelectFormComponents(null);
+
+        /**  New entries* */
+
+        setfileredHorizontalCatCombo0([]);
+        setdictfileredHorizontalCatCombo0([]); 
+        setSelectedHorizontalCategoryID0(null); 
+        setSelectedHorizontalCategoryName0(null); 
+        setIsHorizontalCategoryExpanded0(false); 
+    
+        setdictfileredHorizontalCatComboLevel1([]);
+        setSelectedHorizontalCategoryIDLevel1(null);
+        setIsHorizontalCategoryExpandedLevel1(false);
+        setHorizontalcategoryOptionsLevel1([]);
+        setfileredHorizontalCatComboLevel1([]);
+    
+        // Constants for Vertical Categories (Level 1 Outer)
+        setSelectedVerticalCategoryIDLevel1(null);
+        setSelectedVerticalCategoryNameLevel1(null);
+        setdictfileredVerticalCatComboLevel1([]);
+        setIsVerticalCategoryExpandedlevel1(false);
+        setVerticalCategoryOptionsLevel1([]);
+        setfileredVerticalCatComboLevel1([]);
+        
+        // Constants for Vertical Categories (Level 1 Outer)
+        setSelectedVerticalCategoryIDLevel2(null);
+        setSelectedVerticalCategoryNameLevel2(null);
+        setdictfileredVerticalCatComboLevel2([]);
+        setIsVerticalCategoryExpandedlevel2(false);
+        setVerticalCategoryOptionsLevel2([]);
+        setfileredVerticalCatComboLevel2([]);
+
         setSelectSideNavigation(null);
         setSelectFormComponents(null);
 
@@ -527,6 +561,12 @@ const ConfigureMetadata = (props) => {
         
                 }
                 AferProjectSave((prev) => !prev);
+
+                setSelectedTab('dataElemenent-configuration');
+                setEditMode(false)
+                setDirectClickTabDE(1);
+                setSelectSideNavigation(null);
+                setSelectFormComponents(null);
                                 
                     // Close the modal or perform any other actions upon success
                     //handleCloseModal();
@@ -910,6 +950,7 @@ const ConfigureMetadata = (props) => {
                                 SideNavigationQueryData={SideNavigationQueryData}
                                 loadedProject={loadedProject}
                                 setSelectSideNavigation={setSelectSideNavigation}
+                                selectedDataElementId={selectedDataElementId}
                                 editMode={editMode}
                                 
                                 />
@@ -923,6 +964,7 @@ const ConfigureMetadata = (props) => {
                                 FormComponentQueryData={FormComponentQueryData}
                                 loadedProject={loadedProject}
                                 setSelectFormComponents={setSelectFormComponents}
+                                selectedDataElementId={selectedDataElementId}
                                 editMode={editMode}
                                 
                                 />

@@ -4,8 +4,14 @@ import { SingleSelect, SingleSelectOption  } from '@dhis2-ui/select'
 
 
 const SideNavigation = props => {
-    
-    const initialSelectedSideNavigation = props.loadedProject.dataElements[0].sideNavigation === 'Default' ? null : props.loadedProject.dataElements[0].sideNavigation;
+
+
+    const selectedDataElement = props.loadedProject.dataElements.find(dataElement => dataElement.id === props.selectedDataElementId);
+
+    // const initialSelectedSideNavigation = props.loadedProject.dataElements[0].sideNavigation === 'Default' ? null : props.loadedProject.dataElements[0].sideNavigation;
+    const initialSelectedSideNavigation = selectedDataElement.sideNavigation === 'Default' ? null : selectedDataElement.sideNavigation;
+    console.log(initialSelectedSideNavigation)
+    console.log(props.selectedDataElementId)
 
     const [selectedSideNavigation, setSelectSideNavigation] = useState(initialSelectedSideNavigation);
 

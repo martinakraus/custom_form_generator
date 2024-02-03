@@ -19,6 +19,7 @@ const AppGetDEList = props => {
     const [disabled, setDisable] = useState(false)
     const { loading: loading, error: error, data: data, refetch: refetch } = useDataQuery(dataSets, {variables: {dataSet: props.selectedDataSet}})
 
+
     useEffect(() => {
 
         refetch({dataSet: props.selectedDataSet})
@@ -26,9 +27,10 @@ const AppGetDEList = props => {
         // console.log('Use Effect Running Once')
         if (props.editMode){
           setDisable(!!props.selectedDataElementId);
-          console.log('******** Loaded Project **********')
-          props.setSelectFormComponents(props.loadedProject.dataElements[0].formComponent)
-          props.setSelectSideNavigation(props.loadedProject.dataElements[0].sideNavigation)
+          // console.log('******** Loaded Project **********')
+          // const selectedDataElement = props.loadedProject.dataElements.find(dataElement => dataElement.dataElement.id === props.selectedDataElementId);
+          // props.setSelectFormComponents(selectedDataElement.dataElement.displayName.formComponent)
+          // props.setSelectSideNavigation(selectedDataElement.dataElement.displayName.sideNavigation)
         }
         // console.log(props.selectedDataElementId)
         
@@ -96,7 +98,6 @@ const AppGetDEList = props => {
     //    console.log(data.targetedEntity.dataSets);
 
     }
-
 
     const dataElements = data.targetedEntity.dataSets[0]?.dataSetElements || [];
 
