@@ -11,3 +11,10 @@ export const generateRandomId = () => {
   
     return randomId;
   };
+
+  
+export const modifiedDate = () => {
+  const now = new Date();
+
+  return now.toISOString();
+};

@@ -12,7 +12,13 @@ import VerticalTransferLevel1 from './VerticalTransferLevel1';
 import VerticalTransferLevel2 from './VerticalTransferLevel2';
 import MetadateTemplating from './MetadateTemplating';
 import GenerateForm from './GenerateForm';
-import { IconEdit16, IconDelete16 } from '@dhis2/ui-icons';
+import TooltipComponent from './TooltipComponent'
+import { Input } from '@dhis2-ui/input'
+import { IconEdit16, IconDelete16, IconAddCircle24} from '@dhis2/ui-icons';
+import { modifiedDate } from '../utils';
+import SideNavigation from './SideNavigationSelection';
+import FormComponentSelection from './FormComponentSelection';
+
 
 
 
@@ -39,44 +45,29 @@ import {
 import { TabBar , Tab} from '@dhis2-ui/tab'
 import classes from '../App.module.css'
 import { Divider } from '@dhis2-ui/divider'
-import { config, ProjectsFiltersMore} from '../consts'
+import { config, sideNavigationFilter, formComponentFilter} from '../consts'
 import { generateRandomId } from '../utils';
 
-
-/*  Query Parameters**/
-const query = {
-  dataSets: {
-      resource: 'dataSets',
-      params: {
-          fields: ['id', 'displayName'],
-      },
-  },
-
-  dataElements: {
-      resource: 'dataElements',
-      params: {
-        fields: ['id', 'displayName'],
-      },
-    },
-    
-
-
-}
-
-
-// const dataStoreQuery = {
-//     dataStore: {
-//       resource: `dataStore/${config.dataStoreName}?${ProjectsFiltersMore}`,
-//       params: ({dataStoreKey})=>({
-//         key: `${dataStoreKey}` // This is the variable placeholder
-//     }),
-// }
-// }
-
   
-     
 
 const ConfigureMetadata = (props) => {
+
+    /*  Query Parameters**/
+    const query = {
+        dataSets: {
+            resource: 'dataSets',
+            params: {
+                fields: ['id', 'displayName'],
+            },
+        },
+    
+        dataElements: {
+            resource: 'dataElements',
+            params: {
+            fields: ['id', 'displayName'],
+            },
+        },   
+    }
 
     // Define your data store query
     const dataStoreQuery = {
@@ -84,22 +75,60 @@ const ConfigureMetadata = (props) => {
             resource: `dataStore/${config.dataStoreName}/${props.selectedProject.key}`
         }
     }
-    const [newProjects, setNewProjects] = useState([]);
 
+    // Define your data store query
+    const SideNavigationQuery = {
+        dataStore: {
+        resource: `dataStore/${config.dataStoreSideNavigations}?${sideNavigationFilter}`,
+        },
+    }
+
+    // Define your data store query
+    const FormComponentQuery = {
+        dataStore: {
+        resource: `dataStore/${config.dataStoreFormComponents}?${formComponentFilter}`,
+        },
+    }
+        
+    // To hold pre-loaded data from dataStore
     const [loadedProject, setLoadedProject] = useState(props.selectedProject || []);
+
+    // for data control
     const [isAferProjectSave, AferProjectSave] = useState(false);
 
+    // dataElement refresh button
+    const [refreshing, setRefreshing] = useState(true);
+
+    // Saving data to dataStore
+    const [mergedObject, setmergedObject] = useState([])
+
+    // State control variables
     const [selectedDataSet,setselectedDataSet] = useState(props.selectedDataSet);
     const [selectedDataSetName,setselectedDataSetName] = useState([]);
     const [selectedDataElementId, setSelectedDataElementId] = useState(null);
     const [selectedDataElement, setSelectedDataElement] = useState(null);
+    const [selectedDataElementsDict, setSelectedDataElementsDict] = useState(null);
     
     // State to hold tabs state
     const [selectedTab, setSelectedTab] = useState('dataElemenents-table');
+    const [selectedDirectClickTabDE, setDirectClickTabDE] = useState(0);
     
-    // State to hold the categories within H1
-    const [controlCategories, setControlCategories] = useState([]);
+    // To generate form
     const [showGenerateForm, setShowGenerateForm] = useState(false);
+
+    // To Side Nagivation
+    const [showSideNavigationForm, setSideNavigationForm] = useState(false);
+    const [sideNavigationName, setSideNavigationName] = useState('');
+    const [existingSideNavigation, setExistingSideNavigation] = useState(false);
+
+
+    // To form Components
+    const [showFormComponents, setFormComponents] = useState(false);
+    const [formComponentName, setFormComponentName] = useState('');
+    const [existingFormComponent, setExistingFormComponent] = useState(false);
+
+    // Edit mode
+    const [editMode, setEditMode] = useState(false);
 
 
     // New state for template name
@@ -132,7 +161,7 @@ const ConfigureMetadata = (props) => {
     const [verticalCategoryOptionsLevel1, setVerticalCategoryOptionsLevel1] = useState([]);
     const [fileredVerticalCatComboLevel1, setfileredVerticalCatComboLevel1] = useState([]);
 
-        // Constants for Vertical Categories (Level 1 Outer)
+    // Constants for Vertical Categories (Level 1 Outer)
     const [selectedVerticalCategoryIDLevel2, setSelectedVerticalCategoryIDLevel2] = useState(null);
     const [selectedVerticalCategoryNameLevel2, setSelectedVerticalCategoryNameLevel2] = useState(null);
     const [dictfileredVerticalCatComboLevel2, setdictfileredVerticalCatComboLevel2] = useState([]);
@@ -142,37 +171,30 @@ const ConfigureMetadata = (props) => {
 
     const [isDataSetsExpanded, setIsDataSetsExpanded] = useState(false);
     const [isDataElementExpanded, setIsDataElementExpanded] = useState(false);
-
-
    
-    // State to hold the category options
-
-
-
+    
+    const [selectedSideNavigation,setSelectSideNavigation] = useState(null);
+    const [selectedFormComponents,setSelectFormComponents] = useState(loadedProject.formComponent);
 
     {/* useDataQuery(query) loader */}
     const { loading: loading1, error: error1, data: data1 } = useDataQuery(query);
-    const { loading: loadingAfterSave, error: ErrorAfterSave, data: dataAfterSave, refetch} = useDataQuery(dataStoreQuery); 
+    const { loading: loadingAfterSave, error: ErrorAfterSave, data: dataAfterSave, refetch} = useDataQuery(dataStoreQuery);     
+    const { data: SideNavigationQueryData, refetch:SideNavigationQueryrefetch } = useDataQuery(SideNavigationQuery); // Use separate hook for dataStoreQuery
+    const { data: FormComponentQueryData, refetch:FormComponentQueryrefetch } = useDataQuery(FormComponentQuery); // Use separate hook for dataStoreQuery
 
     useEffect(() => {
         refetch();
-    }, [isAferProjectSave, refetch]);
+    }, [isAferProjectSave, refetch, refreshing]);
 
     useEffect(() => {
         if (dataAfterSave) {
 
             const newProjects = dataAfterSave?.dataStore || [];
-            // console.log(newProjects)
             setLoadedProject(newProjects)
-
-            console.log('********* 1 Start *******************')
-            console.log(newProjects)
-            console.log('********* 1 End *******************')
-
-
+            // setSelectSideNavigation(newProjects.sideNavigation)
+            // setSelectFormComponents(newProjects.formComponent)
         }        
     }, [dataAfterSave, isAferProjectSave]);
-
 
     if (ErrorAfterSave){
 
@@ -192,9 +214,24 @@ const ConfigureMetadata = (props) => {
         )}
     }
 
-    useEffect(() => {
+    useEffect(() => {  
+        if(!editMode){
+            clearConstants()
+        }  
+    }, [editMode]);
 
-        setControlCategories([]);
+    const clearConstants = () =>{
+        
+        setSelectedDataElement('');
+        setSelectedDataElementId('');
+        handleDataElementChange()
+        setEditMode(false)
+        setSelectedDataElementsDict(null)
+        setSelectSideNavigation(null);
+        setSelectFormComponents(null);
+
+        /**  New entries* */
+
         setfileredHorizontalCatCombo0([]);
         setdictfileredHorizontalCatCombo0([]); 
         setSelectedHorizontalCategoryID0(null); 
@@ -223,6 +260,50 @@ const ConfigureMetadata = (props) => {
         setVerticalCategoryOptionsLevel2([]);
         setfileredVerticalCatComboLevel2([]);
 
+        setSelectSideNavigation(null);
+        setSelectFormComponents(null);
+
+    }
+
+    const handleDataElementChange = () => {
+
+        setfileredHorizontalCatCombo0([]);
+        setdictfileredHorizontalCatCombo0([]); 
+        setSelectedHorizontalCategoryID0(null); 
+        setSelectedHorizontalCategoryName0(null); 
+        setIsHorizontalCategoryExpanded0(false); 
+    
+        setdictfileredHorizontalCatComboLevel1([]);
+        setSelectedHorizontalCategoryIDLevel1(null);
+        setIsHorizontalCategoryExpandedLevel1(false);
+        setHorizontalcategoryOptionsLevel1([]);
+        setfileredHorizontalCatComboLevel1([]);
+    
+        // Constants for Vertical Categories (Level 1 Outer)
+        setSelectedVerticalCategoryIDLevel1(null);
+        setSelectedVerticalCategoryNameLevel1(null);
+        setdictfileredVerticalCatComboLevel1([]);
+        setIsVerticalCategoryExpandedlevel1(false);
+        setVerticalCategoryOptionsLevel1([]);
+        setfileredVerticalCatComboLevel1([]);
+        
+        // Constants for Vertical Categories (Level 1 Outer)
+        setSelectedVerticalCategoryIDLevel2(null);
+        setSelectedVerticalCategoryNameLevel2(null);
+        setdictfileredVerticalCatComboLevel2([]);
+        setIsVerticalCategoryExpandedlevel2(false);
+        setVerticalCategoryOptionsLevel2([]);
+        setfileredVerticalCatComboLevel2([]);
+
+        setSelectSideNavigation(null);
+        setSelectFormComponents(null);
+
+
+    }
+
+    useEffect(() => {
+
+        handleDataElementChange()
 
     }, [selectedDataElementId]);
 
@@ -287,17 +368,91 @@ const ConfigureMetadata = (props) => {
 
     },[selectedVerticalCategoryIDLevel1])
 
+
+
+
+    useEffect(() => {
+        if (SideNavigationQueryData?.dataStore) {
+              // Now you can safely access dataStoreData.dataStore
+
+
+              if (SideNavigationQueryData?.dataStore?.entries){
     
+
+    
+                const navigationExists = (navigationToCheck) => {
+                    const sideNavigationNameArray = SideNavigationQueryData.dataStore?.entries || [];
+                    
+                    return sideNavigationNameArray.some(navigation => 
+                        navigation.sideNavName.toLowerCase() === navigationToCheck.toLowerCase() &&
+                        navigation.projectID.toLowerCase() === loadedProject.id.toLowerCase()
+                    );
+                };
+                
+                setExistingSideNavigation(navigationExists(sideNavigationName))
+                // console.log(existingProject);
+              }
+    
+            } else {
+              // Handle the case where dataStoreData or dataStoreData.dataStore is undefined
+              console.error('Data structure does not match the expected format');
+            }
+    }, [sideNavigationName]);
+
+    useEffect(() => {
+            if (FormComponentQueryData?.dataStore) {   
+    
+                  if (FormComponentQueryData?.dataStore?.entries){
+        
+
+                    const formComponentExists = (FormComponentToCheck) => {
+                        const formComponentNameArray = FormComponentQueryData.dataStore?.entries || [];
+                        
+                        return formComponentNameArray.some(form_component => 
+                            form_component.formComponentName.toLowerCase() === FormComponentToCheck.toLowerCase() &&
+                            form_component.projectID.toLowerCase() === loadedProject.id.toLowerCase()
+                        );
+                    };
+                    setExistingFormComponent(formComponentExists(formComponentName))
+                  }
+        
+                } else {
+                  console.error('Data structure does not match the expected format');
+                }
+    }, [formComponentName]);
+
+
+
+
+    const updateDataStore = async (postObject) =>{
+
+        try {
+            await props.engine.mutate({
+              resource: `dataStore/${config.dataStoreName}/${postObject.key}`,
+              type: 'update',
+              data: postObject,
+            });
+
+
+          } catch (error) {
+            // Handle error (log, show alert, etc.)
+            console.error('Error updating project:', error);
+          }
+
+    }
     /** Prepare data to Update DHIS2 Object */
     const handleSaveToConfiguration = async (action, templateName = '') => {
         if (selectedDataElementId !== null 
-            && selectedDataElement !== null) {
+            && selectedDataElement !== null
+            && selectedHorizontalCategoryID0 !== null) {
 
                 const projectData = {
                     "dataElements":[        
                         {
                         "id":selectedDataElementId, 
                         "name":selectedDataElement,
+                        "sideNavigation": selectedSideNavigation || 'Default',
+                        "formComponent":selectedFormComponents || 'Default',
                         "HorizontalLevel0": {                                
                                 "id":selectedHorizontalCategoryID0, 
                                 "name":selectedHorizontalCategoryName0,
@@ -322,31 +477,39 @@ const ConfigureMetadata = (props) => {
                     ]
                 }
 
-                const newDataElements = [...loadedProject.dataElements, ...projectData.dataElements];
+                // Check if 'modifiedDate' exists in loadedProject
+                if (!loadedProject.hasOwnProperty('modifiedDate')) {
+                    // If it doesn't exist, add it to the object
+                    loadedProject.modifiedDate = modifiedDate();
+                } else {
+                    // If it exists, update its value
+                    loadedProject.modifiedDate = modifiedDate();
+                }
 
-                // console.log(props.selectedProject);
-                // Merge the objects using the spread operator
-                const mergedObject = {
-                    ...loadedProject,
-                    ...projectData,
-                    dataElements: newDataElements,
-                };
-                console.log('***** to Post ******')
- 
-                console.log(mergedObject.key)
-                console.log(mergedObject)
-                try {
-                    await props.engine.mutate({
-                      resource: `dataStore/${config.dataStoreName}/${mergedObject.key}`,
-                      type: 'update',
-                      data: mergedObject,
-                    });
+                
+                // Find the index of the dataElement with the matching id in loadedProject.dataElements
+                const indexToUpdate = loadedProject.dataElements.findIndex(element => element.id === selectedDataElementId);
 
-        
-                  } catch (error) {
-                    // Handle error (log, show alert, etc.)
-                    console.error('Error updating project:', error);
-                  }
+                // If the index is found, replace the object at that index with the corresponding object from projectData.dataElements
+                if (indexToUpdate !== -1) {
+                    const updatedDataElements = [...loadedProject.dataElements];
+                    updatedDataElements[indexToUpdate] = projectData.dataElements.find(element => element.id === selectedDataElementId);
+
+                    updateDataStore({
+                        ...loadedProject,
+                        ...projectData,
+                        dataElements: updatedDataElements,
+                    })
+                } else {
+
+                    updateDataStore({
+                        ...loadedProject,
+                        ...projectData,
+                        dataElements: [...loadedProject.dataElements, ...projectData.dataElements],
+                    })
+
+                }
+
                 if (action === 'saveTemplate'){    
                     const Templateid = generateRandomId();  
                             // Remove spaces from projectName
@@ -357,7 +520,9 @@ const ConfigureMetadata = (props) => {
                         "Templates":[  
                                 {
                                 "id":Templateid, 
-                                "name":templateName,                    
+                                "name":templateName,
+                                "sideNavigation": selectedSideNavigation || 'Default',
+                                "formComponent":selectedFormComponents || 'Default',                    
                                 "HorizontalLevel0": {                                
                                     "id":selectedHorizontalCategoryID0, 
                                     "name":selectedHorizontalCategoryName0,
@@ -396,6 +561,12 @@ const ConfigureMetadata = (props) => {
         
                 }
                 AferProjectSave((prev) => !prev);
+
+                setSelectedTab('dataElemenent-configuration');
+                setEditMode(false)
+                setDirectClickTabDE(1);
+                setSelectSideNavigation(null);
+                setSelectFormComponents(null);
                                 
                     // Close the modal or perform any other actions upon success
                     //handleCloseModal();
@@ -404,8 +575,8 @@ const ConfigureMetadata = (props) => {
             console.log('No record was saved. No DataElement Selected')
 
         }
-        
-
+        // Activate refresh button
+        setRefreshing(false);
     }
 
     // Function to update template name
@@ -419,11 +590,117 @@ const ConfigureMetadata = (props) => {
             setTemplateName(event.target.value);
     };
 
+
+
     // Function to reset template name and close the modal
     const handleCloseTemplateNameModal = () => {
         setTemplateName('');
         setShowTemplateNameModal(false);
     };
+
+    // Function to create Side Navigation and close the modal
+    const handleCloseSideandFormNavigationModal = () => {
+        setSideNavigationName('');
+        setFormComponentName('');
+        setSideNavigationForm(false);
+        setFormComponents(false);
+    }; 
+
+
+    // Function to create Side Navigation
+    const handleCreateSideNavigation = async () => {
+
+        const dataSetName = selectedDataSetName ? true : false;
+
+
+        const componentsID = generateRandomId();  
+        
+        // Remove spaces from const
+        const trimmedSideNavigationName= sideNavigationName.replace(/\s+/g, '');
+        if (!trimmedSideNavigationName.trim() || !dataSetName) {
+            console.log('Please enter a Navigation name or select dataSet');
+            return;
+        }
+
+        if (existingSideNavigation){
+            console.log('Side navigation Name is not Unique');
+            return;
+        }
+
+        const SideNavigationData =  {            
+                    id:componentsID, 
+                    sideNavName:trimmedSideNavigationName,                    
+                    projectID: loadedProject.id,
+                    key: `${trimmedSideNavigationName}-${loadedProject.id}`,           
+            
+        }
+
+        try {
+            await props.engine.mutate({
+              resource: `dataStore/${config.dataStoreSideNavigations}/${trimmedSideNavigationName}-${loadedProject.id}`,
+              type: 'create',
+              data: SideNavigationData,
+            });
+        
+            // Close the modal or perform any other actions upon success
+            handleCloseSideandFormNavigationModal();
+
+          } catch (error) {
+            // Handle error (log, show alert, etc.)
+            console.error('Error saving side navigation:', error);
+          }
+          SideNavigationQueryrefetch()
+
+    }
+
+    // Function to Form Component
+    const handleCreateFormComponent = async () => {
+
+
+        const dataSetName = selectedDataSetName ? true : false;
+
+
+        const componentsID = generateRandomId();  
+        
+        // Remove spaces from const
+        const trimmedFormComponentName= formComponentName.replace(/\s+/g, '');
+        if (!trimmedFormComponentName.trim() || !dataSetName) {
+            console.log('Please enter a Navigation name or select dataSet');
+            return;
+        }
+
+        if (existingFormComponent){
+            console.log('Form Component Name is not Unique');
+            return;
+        }
+
+        const formComponentData =  {            
+                    id:componentsID, 
+                    formComponentName:trimmedFormComponentName,                    
+                    projectID: loadedProject.id,
+                    key: `${trimmedFormComponentName}-${loadedProject.id}`,           
+            
+        }
+
+        try {
+            await props.engine.mutate({
+              resource: `dataStore/${config.dataStoreFormComponents}/${trimmedFormComponentName}-${loadedProject.id}`,
+              type: 'create',
+              data: formComponentData,
+            });
+        
+            // Close the modal or perform any other actions upon success
+            handleCloseSideandFormNavigationModal();
+
+          } catch (error) {
+            // Handle error (log, show alert, etc.)
+            console.error('Error saving side navigation:', error);
+          }
+          FormComponentQueryrefetch()
+
+    }
+
+
     // Function to handle "Save and Make Template" button click
     const handleSaveTemplate = () => {
             // Open the modal for entering the template name
@@ -432,9 +709,59 @@ const ConfigureMetadata = (props) => {
 
 
     const handleCloseModal = () => {
-      props.setShowModalConfigureProject(false)      
+        console.log('Checking Closing')
+        setSelectedDataElementsDict(null)
+        props.setShowModalConfigureProject(false)
+        setDirectClickTabDE(0);
+        setEditMode(false)      
 
     };
+
+
+    
+    const handleDeleteSideNavigation = async (KeyID) => {
+
+        try {
+          await props.engine.mutate({
+            resource: `dataStore/${config.dataStoreSideNavigations}/${KeyID}`,
+            type: 'delete',
+          });
+          console.log(`Side Navigation  "${sideNavigationName}" deleted successfully.`);
+        //   handleCloseModal(); // Close the modal after successful deletion
+
+        } catch (error) {
+          console.error('Error deleting navigation:', error);
+        }
+        SideNavigationQueryrefetch(); // Refetch data after deletion
+        // setSelectedProject(null);
+        // setShowDeleteModal(false)
+        
+        console.log('Deleting navigation::', KeyID);
+    
+    
+      };
+
+    const handleDeleteFormComponent = async (KeyID) =>{
+        try {
+            await props.engine.mutate({
+              resource: `dataStore/${config.dataStoreFormComponents}/${KeyID}`,
+              type: 'delete',
+            });
+            console.log(`Form Component  "${sideNavigationName}" deleted successfully.`);
+          //   handleCloseModal(); // Close the modal after successful deletion
+  
+          } catch (error) {
+            console.error('Error deleting navigation:', error);
+          }
+          FormComponentQueryrefetch(); // Refetch data after deletion
+          // setSelectedProject(null);
+          // setShowDeleteModal(false)
+          
+          console.log('Deleting navigation::', KeyID);
+      
+
+    }
+
 
     const handleRemoveDataElementConfirmation = async (dataElement) => {
 
@@ -468,12 +795,22 @@ const ConfigureMetadata = (props) => {
     }
 
     const handleEditDataElement = (dataElement) => {
-
-
+        // testing
+        setfileredHorizontalCatComboLevel1([])
+        // the selected dataElement with the specified ID
+        const updatedDataElements = loadedProject.dataElements.filter(
+            (element) => element.id === dataElement.id
+        );
+        setSelectedDataElementsDict(updatedDataElements)
         setSelectedDataElement(dataElement.name)
         setSelectedDataElementId(dataElement.id)
         setSelectedTab('dataElemenent-configuration')
         setIsDataElementExpanded(true)
+        setDirectClickTabDE(0);
+        setEditMode(true)
+
+
+
 
     }
 
@@ -487,14 +824,9 @@ const ConfigureMetadata = (props) => {
     if (loading1) {
         return <span>Loading...</span>;
     }
+    
 
-    if (data1) {
-      
-            // console.log(props.selectedProject.dataElements)
-            // console.log(props.selectedProject.dataElements.length)
-            
 
-    }
   return (
     <Modal fluid onClose={handleCloseModal}>
       <ModalTitle>
@@ -507,25 +839,49 @@ const ConfigureMetadata = (props) => {
           <Tab
             label="Existing Data Elements"
             selected={selectedTab === 'dataElemenents-table'}
-            onClick={() => setSelectedTab('dataElemenents-table')}
+            onClick={() => {setSelectedTab('dataElemenents-table')        
+                setEditMode(false)
+                setSelectSideNavigation(null);
+                setSelectFormComponents(null);
+            }}
           >
             Existing Data Elements
-            {/* Your table content goes here */}
-            {/* Add your table component or any other content for the 'Table' tab */}
           </Tab>
           <Tab
             label="Configure Data Elements"
             selected={selectedTab === 'dataElemenent-configuration'}
-            onClick={() => setSelectedTab('dataElemenent-configuration')}
+            onClick={() => {
+                setSelectedTab('dataElemenent-configuration');
+                setEditMode(false)
+                setDirectClickTabDE(1);
+                setSelectSideNavigation(null);
+                setSelectFormComponents(null);
+
+              }}
           >
             Configure Data Elements
-            {/* Your existing DataSets content */}
+          </Tab>
+          <Tab
+            label="Configure Form Components"
+            selected={selectedTab === 'form-components'}
+            onClick={() => {
+                setSelectedTab('form-components');
+                setEditMode(false)
+                setDirectClickTabDE(0);
+                setSelectSideNavigation(null);
+                setSelectFormComponents(null);
+              }}
+          >
+            Configure Form Components
           </Tab>
         </TabBar>
 
         {selectedTab === 'dataElemenents-table' && (
         <div className={classes.tableContainer_dataElements}>
           <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
+          {/* <button onClick={handleRefresh} disabled={refreshing}>
+                <IconSync24 className={classes.icon} />
+            </button> */}
                   <Table className={classes.dataTable}>
                     <TableHead>
                     <TableRowHead>
@@ -539,22 +895,37 @@ const ConfigureMetadata = (props) => {
                             <TableRow className={classes.customTableRow} key={dataElement.id}>
                                 <TableCell className={classes.customTableCell}>{dataElement.name}</TableCell>
                                 <TableCell className={`${classes.customTableCell}`}>
-                                <button
+                                {/* <button
                                     className={`${classes.buttonRight} ${classes.iconButton}`}
                                     onClick={() => handleEditDataElement(dataElement)}
                                     >
                                     <IconEdit16 className={classes.icon} />
                                     
-                                    </button>
+                                    </button> */}
+                                    <TooltipComponent 
+                                        IconType={IconEdit16} 
+                                        btnFunc={handleEditDataElement}
+                                        project={dataElement}
+                                        dynamicText="Edit"
+                                        buttonMode="secondary"
 
+                                    />
+                                    <TooltipComponent 
+                                        IconType={IconDelete16} 
+                                        btnFunc={handleRemoveDataElementConfirmation}
+                                        project={dataElement}
+                                        dynamicText="Delete"
+                                        buttonMode="destructive"
 
-                                    <button style={{ color: 'red', borderColor: 'red' }}
+                                    />
+
+                                    {/* <button style={{ color: 'red', borderColor: 'red' }}
                                     className={`${classes.buttonRight} ${classes.iconButton}`}
                                     onClick={() => handleRemoveDataElementConfirmation(dataElement)}
                                     >
                                     <IconDelete16 className={classes.icon} />
                                     
-                                    </button>
+                                    </button> */}
                                 </TableCell>
                             </TableRow>
                             ))
@@ -571,6 +942,37 @@ const ConfigureMetadata = (props) => {
 
         {selectedTab === 'dataElemenent-configuration' && (
                   <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
+                        <div className={classes.baseMargin}>
+                            <div style={{ display: 'flex' }}>
+                            {/* Left content */}
+                            <div style={{ flex: 1, width: '50%' }}>
+                                <SideNavigation
+                                SideNavigationQueryData={SideNavigationQueryData}
+                                loadedProject={loadedProject}
+                                setSelectSideNavigation={setSelectSideNavigation}
+                                selectedDataElementId={selectedDataElementId}
+                                editMode={editMode}
+                                
+                                />
+                            </div>
+
+                            {/* Right content */}
+                            <div style={{ flex: 1, width: '50%' }}>
+
+                                <FormComponentSelection
+                                
+                                FormComponentQueryData={FormComponentQueryData}
+                                loadedProject={loadedProject}
+                                setSelectFormComponents={setSelectFormComponents}
+                                selectedDataElementId={selectedDataElementId}
+                                editMode={editMode}
+                                
+                                />
+
+                            </div>
+                        </div>
+                </div>
+                    
                   <button className={classes.collapsible} onClick={() => setIsDataSetsExpanded((prev) => !prev)}>
                       {isDataSetsExpanded ? '-' : '+'} DataSets
                   </button>
@@ -626,6 +1028,10 @@ const ConfigureMetadata = (props) => {
                               selectedDataElement={selectedDataElement}
                               selectedDataElementId={selectedDataElementId}
                               setSelectedDataElement={setSelectedDataElement}
+                              editMode={editMode}
+                              setSelectSideNavigation={setSelectSideNavigation}
+                              setSelectFormComponents={setSelectFormComponents}
+                              loadedProject={loadedProject}
                                       />;
                               }
                           })()}
@@ -664,9 +1070,13 @@ const ConfigureMetadata = (props) => {
                                           setHorizontalcategoryOptionsLevel1={setHorizontalcategoryOptionsLevel1}
                                           setVerticalCategoryOptionsLevel1={setVerticalCategoryOptionsLevel1} 
                                           selectedHorizontalCategoryID0={selectedHorizontalCategoryID0}
-                                          setControlCategories={setControlCategories}
-                                          controlCategories={controlCategories}
+                                          loadedProject={loadedProject}
+                                          selectedDirectClickTabDE={selectedDirectClickTabDE}
                                           setdictfileredHorizontalCatComboLevel1={setdictfileredHorizontalCatComboLevel1}
+                                          editMode={editMode}
+                                          fileredHorizontalCatComboLevel1={fileredHorizontalCatComboLevel1}
+                                          isHorizontalCategoryExpanded0={isHorizontalCategoryExpanded0}
+                                          
 
                                       />;
                               }
@@ -695,18 +1105,23 @@ const ConfigureMetadata = (props) => {
                       <div className={`${classes.content} ${isHorizontalCategoryExpandedLevel1 ? classes.active : ''}`}>
                           <h3></h3>
 
-                          {fileredHorizontalCatComboLevel1.length > 0 && (
+                          {fileredHorizontalCatCombo0.length > 0 && (
                             
                               <HorizontalCategoryLevel1 
-                              fileredHorizontalCatComboLevel1={fileredHorizontalCatComboLevel1} 
-                              setSelectedHorizontalCategoryNameLevel1={setSelectedHorizontalCategoryNameLevel1}
-                              setSelectedHorizontalCategoryIDLevel1={setSelectedHorizontalCategoryIDLevel1}
-                              setHorizontalcategoryOptionsLevel1={setHorizontalcategoryOptionsLevel1}
-                              setfileredVerticalCatComboLevel1={setfileredVerticalCatComboLevel1}
-                              fileredVerticalCatComboLevel1={fileredVerticalCatComboLevel1}
-                              setVerticalCategoryOptionsLevel1={setVerticalCategoryOptionsLevel1}
-                              setdictfileredVerticalCatComboLevel1={setdictfileredVerticalCatComboLevel1}
 
+                                    fileredHorizontalCatComboLevel1={fileredHorizontalCatComboLevel1} 
+                                    setSelectedHorizontalCategoryNameLevel1={setSelectedHorizontalCategoryNameLevel1}
+                                    setSelectedHorizontalCategoryIDLevel1={setSelectedHorizontalCategoryIDLevel1}
+                                    setHorizontalcategoryOptionsLevel1={setHorizontalcategoryOptionsLevel1}
+                                    setfileredVerticalCatComboLevel1={setfileredVerticalCatComboLevel1}
+                                    fileredVerticalCatComboLevel1={fileredVerticalCatComboLevel1}
+                                    setVerticalCategoryOptionsLevel1={setVerticalCategoryOptionsLevel1}
+                                    setdictfileredVerticalCatComboLevel1={setdictfileredVerticalCatComboLevel1}
+                                    isHorizontalCategoryExpandedLevel1={isHorizontalCategoryExpandedLevel1}
+                                    loadedProject={loadedProject}
+                                    selectedDataElementId={selectedDataElementId}
+                                    fileredHorizontalCatCombo0={fileredHorizontalCatCombo0}
+                                    
                               />
                           )}
                           {typeof selectedHorizontalCategoryIDLevel1 === 'string' && selectedHorizontalCategoryIDLevel1.length >0 && (
@@ -723,19 +1138,13 @@ const ConfigureMetadata = (props) => {
                           )}                             
                       </div>
                   </div>
-
-                  {/* Select HorizontalCategoryLevel1 */}
                   <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel1((prev) => !prev)}>
                       {isVerticalCategoryExpandedlevel1 ? '-' : '+'} Vertical Category (Inner)
                   </button>
                   <div className={classes.baseMargin}>
                       <div className={`${classes.content} ${isVerticalCategoryExpandedlevel1 ? classes.active : ''}`}>
                           <h3></h3>
-                          {/* <HorizontalCategoryLevel1 
-                              fileredHorizonatlCatComboLevel1={fileredHorizonatlCatComboLevel1} 
-                              setSelectedHorizontalCategoryIDLevel1={setSelectedHorizontalCategoryIDLevel1}
-                              setHorinzontalcategoryOptionsLevel1={setHorinzontalcategoryOptionsLevel1}
-                              /> */}
+
                           {fileredVerticalCatComboLevel1.length > 0 && (
                               <VerticalCategoryLevel1
                               fileredVerticalCatComboLevel1={fileredVerticalCatComboLevel1}
@@ -744,6 +1153,11 @@ const ConfigureMetadata = (props) => {
                               setSelectedVerticalCategoryIDLevel1={setSelectedVerticalCategoryIDLevel1}
                               setVerticalCategoryOptionsLevel1={setVerticalCategoryOptionsLevel1}
                               setdictfileredVerticalCatComboLevel2={setdictfileredVerticalCatComboLevel2}
+                              loadedProject={loadedProject}
+                              editMode={editMode}
+                              selectedDataElementId={selectedDataElementId}
+                              isVerticalCategoryExpandedlevel1={isVerticalCategoryExpandedlevel1}
+                              
                               />
                           )}
                           {typeof selectedVerticalCategoryIDLevel1 === 'string' && selectedVerticalCategoryIDLevel1.length >0 && (
@@ -763,18 +1177,13 @@ const ConfigureMetadata = (props) => {
                   </div>
 
 
-                    {/* Select HorizontalCategoryLevel2 */}
-                                    <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel2((prev) => !prev)}>
+                <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel2((prev) => !prev)}>
                       {isVerticalCategoryExpandedlevel2 ? '-' : '+'} Vertical Category (Outer)
                   </button>
                   <div className={classes.baseMargin}>
                       <div className={`${classes.content} ${isVerticalCategoryExpandedlevel2 ? classes.active : ''}`}>
                           <h3></h3>
-                          {/* <HorizontalCategoryLevel1 
-                              fileredHorizonatlCatComboLevel1={fileredHorizonatlCatComboLevel1} 
-                              setSelectedHorizontalCategoryIDLevel1={setSelectedHorizontalCategoryIDLevel1}
-                              setHorinzontalcategoryOptionsLevel1={setHorinzontalcategoryOptionsLevel1}
-                              /> */}
+
                           {fileredVerticalCatComboLevel2.length > 0 && (
                               <VerticalCategoryLevel2
                               fileredVerticalCatComboLevel2={fileredVerticalCatComboLevel2} 
@@ -782,6 +1191,11 @@ const ConfigureMetadata = (props) => {
                               setSelectedVerticalCategoryIDLevel2={setSelectedVerticalCategoryIDLevel2}
                               setVerticalCategoryOptionsLevel2={setVerticalCategoryOptionsLevel2}
                               selectedVerticalCategoryIDLevel1={selectedVerticalCategoryIDLevel1}
+                              loadedProject={loadedProject}
+                              selectedDataElementId={selectedDataElementId}
+                              isVerticalCategoryExpandedlevel2={isVerticalCategoryExpandedlevel2}
+                              selectedDirectClickTabDE={selectedDirectClickTabDE}
+
                               />
                           )}
 
@@ -799,37 +1213,136 @@ const ConfigureMetadata = (props) => {
                           )}                             
                       </div>
                   </div>
+
+
             </div>
         )}
     
+        {selectedTab === 'form-components' && (
+            <div className={classes.tableContainer_dataElements}>
+                <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
+                    {/* <button onClick={handleRefresh} disabled={refreshing}>
+                        <IconSync24 className={classes.icon} />
+                    </button> */}
+                    <Table className={classes.dataTable}>
+                        <TableHead>
+                        <TableRowHead>
+                            <TableCellHead className={classes.customTableCellHead}>
+                                Side Navigation
+                                <span className={classes.iconAdd} onClick={() => setSideNavigationForm(true)}>
+                                <IconAddCircle24 />
 
-          </ModalContent>
+                                </span>
+                                </TableCellHead>
+
+                            <TableCellHead>Actions</TableCellHead>
+                        </TableRowHead>
+                        </TableHead>
+                        <TableBody>
+                        {Array.isArray(SideNavigationQueryData?.dataStore?.entries || []) &&
+                            SideNavigationQueryData?.dataStore?.entries.map((navigation) => (
+                                // Check if navigation.dataSet is equal to selectedDataSet
+                                navigation.projectID === loadedProject.id && (
+                                    <TableRow key={navigation.sideNavName} className={classes.customTableRow}>
+                                        <TableCell className={classes.customTableCell}>{navigation.sideNavName}</TableCell>
+                                        <TableCell className={`${classes.customTableCell}`}>
+
+
+                                        <TooltipComponent 
+                                        IconType={IconDelete16} 
+                                        btnFunc={handleDeleteSideNavigation}
+                                        project={navigation.key}
+                                        dynamicText="Delete"
+                                        buttonMode="destructive"/>
+
+                                        </TableCell>
+                                    </TableRow>
+                                )
+
+                            ))}
+                            </TableBody>
+                    </Table>
+                </div>
+                <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
+                    {/* <button onClick={handleRefresh} disabled={refreshing}>
+                        <IconSync24 className={classes.icon} />
+                    </button> */}
+                    <Table className={classes.dataTable}>
+                        <TableHead>
+                        <TableRowHead>
+                            <TableCellHead className={classes.customTableCellHead}>
+                                Form Components
+                                
+                                <span className={classes.iconAdd}  onClick={() => setFormComponents(true)}>
+                                <IconAddCircle24 />
+
+                                </span>
+                                
+                                </TableCellHead>
+                            <TableCellHead>Actions</TableCellHead>
+                        </TableRowHead>
+                        </TableHead>
+                        <TableBody>
+                        {Array.isArray(FormComponentQueryData?.dataStore?.entries || []) &&
+                            FormComponentQueryData?.dataStore?.entries.map((form_component) => (
+                                // Check if navigation.dataSet is equal to selectedDataSet
+                                form_component.projectID === loadedProject.id && (
+                                <TableRow className={classes.customTableRow}>
+                                    <TableCell className={classes.customTableCell}>{form_component.formComponentName}</TableCell>
+                                    <TableCell className={`${classes.customTableCell}`}>
+                                        
+                                    <TooltipComponent 
+                                        IconType={IconDelete16} 
+                                        btnFunc={handleDeleteFormComponent}
+                                        project={form_component.key}
+                                        dynamicText="Delete"
+                                        buttonMode="destructive"/>
+
+
+                                    </TableCell>
+                                </TableRow>
+                            )
+                        ))}
+                            </TableBody>
+                    </Table>
+                </div>
+            </div>
+            
+            
+        )}
+        </ModalContent>
           {selectedTab === 'dataElemenent-configuration' && (
+            
 
-                    <ModalActions>
-                    <ButtonStrip>
-                    <Button onClick={() => handleCloseModal()}>Close</Button>
-                    <Button primary  
-                    onClick={() => handleSaveToConfiguration('save')}
-                    >
-                        Save
-                    </Button>
-                    <Button primary  onClick={() => handleSaveTemplate()}>
-                        Save and Make Template
-                    </Button>
-                    <Button onClick={() =>{
-                        GenerateHTMLHandler();
-                        }
-                        }>Generate HTML Template</Button>
-                    </ButtonStrip>
+                    <ModalActions>                    
 
+                        <div className={classes.baseMargin}>
+                            <ButtonStrip>
+                            <Button onClick={() => handleCloseModal()}>Close</Button>
+                            <Button primary  
+                            onClick={() => handleSaveToConfiguration('save')}
+                            >
+                                Save
+                            </Button>
+                            <Button primary  onClick={() => handleSaveTemplate()}>
+                                Save and Make Template
+                            </Button>
+                            <Button onClick={() =>{
+                                GenerateHTMLHandler();
+                                }
+                                }>Generate HTML Template</Button>
+                            </ButtonStrip>
+                        </div>
 
                     </ModalActions>
 
 
           )}
 
-                      {/* Modal for entering the template name */}
+
+
+
+            {/* Modal for entering the template name */}
             {showTemplateNameModal && (
                 <Modal>
                     <ModalTitle>Enter Template Name</ModalTitle>
@@ -859,7 +1372,70 @@ const ConfigureMetadata = (props) => {
                     </ModalActions>
                 </Modal>
             )}
-                        {/* Modal for creating a new project */}
+            
+            {/* Modal for Creating Side Navigation */}
+            {showSideNavigationForm && (
+                <Modal>
+                <ModalTitle>Create Side Navigation</ModalTitle>
+                <ModalContent>
+                    {/* Add content for Side Navigation */}
+                    <div>
+
+                        <Input
+                              name="SideNavigation"
+                              placeholder="Create Side Navigation"
+                              value={sideNavigationName}
+                              onChange={({ value }) => setSideNavigationName(value)}
+                          />
+
+                    </div>
+                </ModalContent>
+                <ModalActions>
+                    <ButtonStrip>
+                    <Button onClick={handleCloseSideandFormNavigationModal}>Cancel</Button>
+                    {/* Add save changes logic here */}
+                    <Button primary onClick={handleCreateSideNavigation}>Create Side Navigation
+                    
+                    
+
+                    </Button>
+                    </ButtonStrip>
+                </ModalActions>
+                </Modal>
+            )}
+
+            {/* Modal for Creating form Component */}
+            {showFormComponents && (
+                <Modal>
+                <ModalTitle>Create Form Components</ModalTitle>
+                <ModalContent>
+                    {/* Add content for Form Component */}
+                    <div>
+
+                        <Input
+                              name="FormComponent"
+                              placeholder="Create Form Component"
+                              value={formComponentName}
+                              onChange={({ value }) => setFormComponentName(value)}
+                          />
+
+                    </div>
+                </ModalContent>
+                <ModalActions>
+                    <ButtonStrip>
+                    <Button onClick={handleCloseSideandFormNavigationModal}>Cancel</Button>
+                    {/* Add save changes logic here */}
+                    <Button primary onClick={handleCreateFormComponent}>
+                        Create Form Component                 
+                    
+
+                    </Button>
+                    </ButtonStrip>
+                </ModalActions>
+                </Modal>
+            )}
+            
+            {/* Modal for generating Custom Form */}
             {showGenerateForm && 
                 (<GenerateForm 
                     engine={props.engine}

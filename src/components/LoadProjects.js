@@ -1,6 +1,8 @@
 import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
 import React, { useState, useEffect } from 'react';
 import ConfigureMetadata from './ConfigureMetadata'
+import TooltipComponent from './TooltipComponent'
+
 
 import {
   Table,
@@ -14,6 +16,7 @@ import {
 } from '@dhis2/ui';
 import { Modal, ModalTitle, ModalContent, ModalActions, ButtonStrip, Button } from '@dhis2/ui';
 import { config, ProjectsFiltersMore } from '../consts'
+import { IconEdit16, IconDelete16, IconTextHeading16} from '@dhis2/ui-icons';
 import classes from '../App.module.css'
 
 const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects, reloadProjects, setReloadProjects }) => {
@@ -64,7 +67,8 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
     ? projects.filter(
         (project) =>
           project.projectName.toLowerCase().includes(filterText.toLowerCase()) ||
-          project.id.toLowerCase().includes(filterText.toLowerCase())
+          project.id.toLowerCase().includes(filterText.toLowerCase()) ||
+          project.dataSet.name.toLowerCase().includes(filterText.toLowerCase())
       )
     : projects;
 
@@ -125,7 +129,7 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
       <InputField
         className={classes.filterInput}
         inputWidth={'20vw'}
-        label="Filter"
+        label="Filter by - Project Name, ID or DataSet"
         name="filter"
         value={filterText}
         onChange={(e) => handleFilterChange(e.value)}
@@ -136,6 +140,8 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
           <TableRowHead>
             <TableCellHead>Project Name</TableCellHead>
             <TableCellHead>Project Unique ID</TableCellHead>
+            <TableCellHead>DataSet</TableCellHead>
+            <TableCellHead>Date modified</TableCellHead>
             <TableCellHead>Actions</TableCellHead>
           </TableRowHead>
         </TableHead>
@@ -145,12 +151,50 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
               <TableRow className={classes.customTableRow} key={project.key}>
                 <TableCell className={classes.customTableCell}>{project.projectName}</TableCell>
                 <TableCell className={classes.customTableCell}>{project.id}</TableCell>
+                <TableCell className={classes.customTableCell}>{project.dataSet.name}-{project.dataSet.id}</TableCell>
+                <TableCell className={classes.customTableCell}>{project.modifiedDate}</TableCell>
                 <TableCell className={`${classes.customTableCell}`}>
-                  <Button primary onClick={() => handleConfigureProject(project)}
-                        className={classes.buttonRight}>Configure</Button>
-                  <Button secondary onClick={() => handleEditProject(project)}
-                  className={classes.buttonRight}>Edit</Button>
-                  <Button destructive onClick={() => handleDeleteProjectConfirmation(project)}>Delete</Button>
+                  <TooltipComponent 
+                    IconType={IconEdit16} 
+                    btnFunc={handleConfigureProject}
+                    project={project}
+                    dynamicText="Configure"
+                    buttonMode="primary"
+                    />
+                  {/* <Button primary onClick={() => handleConfigureProject(project)}
+                        className={`${classes.buttonRight} ${classes.iconButton}`}>
+                        
+                        <IconEdit16 className={classes.icon} />
+                        
+                        </Button> */}
+                  <TooltipComponent 
+                    IconType={IconTextHeading16} 
+                    btnFunc={handleEditProject}
+                    project={project}
+                    dynamicText="Rename"
+                    buttonMode="secondary"
+
+                    />
+                  {/* <Button secondary onClick={() => handleEditProject(project)}
+                        className={`${classes.buttonRight} ${classes.renamebutton}`} 
+                        >
+                        <IconTextHeading16 className={classes.icon} />
+                  </Button> */}
+
+                  <TooltipComponent 
+                      IconType={IconDelete16} 
+                      btnFunc={handleDeleteProjectConfirmation}
+                      project={project}
+                      dynamicText="Delete Project"
+                      buttonMode="destructive"
+
+                    />
+                  {/* <Button style={{ color: 'red', borderColor: 'red' }}
+                                    className={`${classes.buttonRight} ${classes.iconButton}`}
+                                    destructive onClick={() => handleDeleteProjectConfirmation(project)}>
+
+                                    <IconDelete16 className={classes.icon} />
+                                    </Button> */}
               </TableCell>
               </TableRow>
         ))}
@@ -201,6 +245,7 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
 
 
             {/* Modal for configuring projects */}
+            {/* Offload Memory of data query when leaving this page */}
             {showConfigureProject && 
                 (<ConfigureMetadata 
                   engine={engine}

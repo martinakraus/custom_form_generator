@@ -302,7 +302,8 @@ div.app-shell-app.jsx-1964929281 {
 
 .tableContainer {
   max-Width: 800px; /* Set the desired maximum width */
-  margin: 0 auto; /* Center the container on the page if needed */
+  margin: 0 auto;  /* Center the container on the page if needed */
+
 }
 
 .tableContainer_dataElements {
@@ -322,3 +323,69 @@ min-height: 200px;
   border: none; 
   cursor: pointer; 
 }
+
+.renamebutton {
+  position: relative;
+}
+
+.renamebutton:hover::after {
+  content: 'Rename';  /* Retrieve content from the data-tooltip attribute */
+  position: absolute;
+  top: 100%; /* Position the tooltip below the button */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #2C6693;
+  color: #E8E8E8;
+  padding: 5px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+
+.tooltipbutton{
+  position: relative;
+}
+
+.tooltipbutton:hover .tooltip-content {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip-content {
+  visibility: hidden;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #2C6693;
+  color: #E8E8E8;
+  padding: 5px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: visibility 0s, opacity 0.3s linear;
+}
+
+/* Add these styles to table file */
+.customTableCellHead {
+  width: 70%;
+}
+
+/* Add this style to your CSS file */
+.iconAdd {
+  color: green; /* Set the desired color for the icon */
+  margin-left: 5px; /* Adjust the left margin as needed */
+}
+
+/* Replace with your actual styles or modify as needed */
+.sideNavigationSelect {
+  width: 50%; /* Adjust the width as needed */
+  float: left;
+}
+
+.formComponentSelect {
+  width: 50%; /* Adjust the width as needed */
+  float: left;
+  margin-left: 10px; /* Adjust the margin as needed for spacing between the two components */
+}
+
