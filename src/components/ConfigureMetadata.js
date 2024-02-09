@@ -45,7 +45,7 @@ import {
 import { TabBar , Tab} from '@dhis2-ui/tab'
 import classes from '../App.module.css'
 import { Divider } from '@dhis2-ui/divider'
-import { config, sideNavigationFilter, formComponentFilter} from '../consts'
+import { config, sideNavigationFilter, formComponentFilter, TemplateFilter} from '../consts'
 import { generateRandomId } from '../utils';
 
   
@@ -87,6 +87,13 @@ const ConfigureMetadata = (props) => {
     const FormComponentQuery = {
         dataStore: {
         resource: `dataStore/${config.dataStoreFormComponents}?${formComponentFilter}`,
+        },
+    }
+
+    // Define your data store query
+    const TemplateQuery = {
+        dataStore: {
+        resource: `dataStore/${config.dataStoreTemplates}?${TemplateFilter}`,
         },
     }
         
@@ -153,7 +160,7 @@ const ConfigureMetadata = (props) => {
     const [HorizontalCategoryOptionsLevel1, setHorizontalcategoryOptionsLevel1] = useState([]);
     const [fileredHorizontalCatComboLevel1, setfileredHorizontalCatComboLevel1] = useState([]);
 
-    // Constants for Vertical Categories (Level 1 Outer)
+    // Constants for Vertical Categories (Level 1 Inner)
     const [selectedVerticalCategoryIDLevel1, setSelectedVerticalCategoryIDLevel1] = useState(null);
     const [selectedVerticalCategoryNameLevel1, setSelectedVerticalCategoryNameLevel1] = useState(null);
     const [dictfileredVerticalCatComboLevel1, setdictfileredVerticalCatComboLevel1] = useState([]);
@@ -161,7 +168,7 @@ const ConfigureMetadata = (props) => {
     const [verticalCategoryOptionsLevel1, setVerticalCategoryOptionsLevel1] = useState([]);
     const [fileredVerticalCatComboLevel1, setfileredVerticalCatComboLevel1] = useState([]);
 
-    // Constants for Vertical Categories (Level 1 Outer)
+    // Constants for Vertical Categories (Level 2 Outer)
     const [selectedVerticalCategoryIDLevel2, setSelectedVerticalCategoryIDLevel2] = useState(null);
     const [selectedVerticalCategoryNameLevel2, setSelectedVerticalCategoryNameLevel2] = useState(null);
     const [dictfileredVerticalCatComboLevel2, setdictfileredVerticalCatComboLevel2] = useState([]);
@@ -181,6 +188,12 @@ const ConfigureMetadata = (props) => {
     const { loading: loadingAfterSave, error: ErrorAfterSave, data: dataAfterSave, refetch} = useDataQuery(dataStoreQuery);     
     const { data: SideNavigationQueryData, refetch:SideNavigationQueryrefetch } = useDataQuery(SideNavigationQuery); // Use separate hook for dataStoreQuery
     const { data: FormComponentQueryData, refetch:FormComponentQueryrefetch } = useDataQuery(FormComponentQuery); // Use separate hook for dataStoreQuery
+    const { data: TemaplateQueryData, refetch:TemaplateQueryrefetch } = useDataQuery(TemplateQuery); // Use separate hook for dataStoreQuery
+
+    if (TemaplateQueryData){
+
+        console.log(TemaplateQueryData)
+    }
 
     useEffect(() => {
         refetch();
@@ -310,13 +323,17 @@ const ConfigureMetadata = (props) => {
     useEffect(() => {
         
         // Constants for Horizontal Categories (Outer)
-        setdictfileredHorizontalCatComboLevel1([]);
+
         setSelectedHorizontalCategoryIDLevel1(null);
+        setSelectedHorizontalCategoryNameLevel1(null)
+        setdictfileredHorizontalCatComboLevel1([]);
         setIsHorizontalCategoryExpandedLevel1(false);
         setHorizontalcategoryOptionsLevel1([]);
+
+
         // setfileredHorizontalCatComboLevel1([]);
     
-        // Constants for Vertical Categories (Level 1 Outer)
+        // Constants for Vertical Categories (Level 1 Inner)
         setSelectedVerticalCategoryIDLevel1(null);
         setSelectedVerticalCategoryNameLevel1(null);
         setdictfileredVerticalCatComboLevel1([]);
@@ -324,13 +341,14 @@ const ConfigureMetadata = (props) => {
         setVerticalCategoryOptionsLevel1([]);
         setfileredVerticalCatComboLevel1([]);
         
-        // Constants for Vertical Categories (Level 1 Outer)
+        // Constants for Vertical Categories (Level 2 Outer)
         setSelectedVerticalCategoryIDLevel2(null);
         setSelectedVerticalCategoryNameLevel2(null);
         setdictfileredVerticalCatComboLevel2([]);
         setIsVerticalCategoryExpandedlevel2(false);
         setVerticalCategoryOptionsLevel2([]);
         setfileredVerticalCatComboLevel2([]);
+        // setEditMode(false)
 
 
     },[selectedHorizontalCategoryID0])
@@ -445,7 +463,19 @@ const ConfigureMetadata = (props) => {
         if (selectedDataElementId !== null 
             && selectedDataElement !== null
             && selectedHorizontalCategoryID0 !== null) {
-
+                            
+                // console.log('Configuation dictfileredHorizontalCatCombo0')
+                // console.log(dictfileredHorizontalCatCombo0)
+                // console.log('Configuation dictfileredHorizontalCatComboLevel1')
+                // console.log(dictfileredHorizontalCatComboLevel1)
+                // console.log('Configuation dictfileredVerticalCatComboLevel1')
+                // console.log(dictfileredVerticalCatComboLevel1)
+                // console.log('Configuation dictfileredVerticalCatComboLevel2')
+                // console.log(dictfileredVerticalCatComboLevel2)
+                // console.log('Configuation selectedSideNavigation')
+                // console.log(selectedSideNavigation)
+                // console.log('Configuation selectedFormComponents')
+                // console.log(selectedFormComponents)               
                 const projectData = {
                     "dataElements":[        
                         {
@@ -516,35 +546,32 @@ const ConfigureMetadata = (props) => {
                     const trimmedTemplateName = templateName.replace(/\s+/g, '');
         
                     const TemplateData =  {
-                        
-                        "Templates":[  
-                                {
-                                "id":Templateid, 
-                                "name":templateName,
-                                "sideNavigation": selectedSideNavigation || 'Default',
-                                "formComponent":selectedFormComponents || 'Default',                    
-                                "HorizontalLevel0": {                                
-                                    "id":selectedHorizontalCategoryID0, 
-                                    "name":selectedHorizontalCategoryName0,
-                                    "metadata":dictfileredHorizontalCatCombo0                            
-                                },
-                                "HorizontalLevel1": {                                
-                                    "id":selectedHorizontalCategoryIDLevel1, 
-                                    "name":selectedHorizontalCategoryNameLevel1,
-                                    "metadata":dictfileredHorizontalCatComboLevel1                        
-                                },
-                                "verticalLevel1": {                                
-                                    "id":selectedVerticalCategoryIDLevel1, 
-                                    "name":selectedVerticalCategoryNameLevel1,
-                                    "metadata":dictfileredVerticalCatComboLevel1                        
-                                },
-                                "verticalLevel2": {                                
-                                    "id":selectedVerticalCategoryIDLevel2, 
-                                    "name":selectedVerticalCategoryNameLevel2,
-                                    "metadata":dictfileredVerticalCatComboLevel2                        
-                                },                 
-                            }
-                        ]
+                        "id":Templateid, 
+                        "name":templateName,
+                        "projectID":loadedProject.id,
+                        "modifiedDate":modifiedDate(),
+                        "sideNavigation": selectedSideNavigation || 'Default',
+                        "formComponent":selectedFormComponents || 'Default',                    
+                        "HorizontalLevel0": {                                
+                            "id":selectedHorizontalCategoryID0, 
+                            "name":selectedHorizontalCategoryName0,
+                            "metadata":dictfileredHorizontalCatCombo0
+                        },
+                        "HorizontalLevel1": {                                
+                                "id":selectedHorizontalCategoryIDLevel1, 
+                                "name":selectedHorizontalCategoryNameLevel1,
+                                "metadata":dictfileredHorizontalCatComboLevel1 
+                        }, 
+                        "verticalLevel1": {                                
+                            "id":selectedVerticalCategoryIDLevel1, 
+                            "name":selectedVerticalCategoryNameLevel1,
+                            "metadata":dictfileredVerticalCatComboLevel1                        
+                        },
+                        "verticalLevel2": {                                
+                            "id":selectedVerticalCategoryIDLevel2, 
+                            "name":selectedVerticalCategoryNameLevel2,
+                            "metadata":dictfileredVerticalCatComboLevel2                        
+                        }
                     }
         
                     try {
@@ -558,11 +585,11 @@ const ConfigureMetadata = (props) => {
                         // Handle error (log, show alert, etc.)
                         console.error('Error saving Template:', error);
                       }      
-        
+                TemaplateQueryrefetch()
                 }
                 AferProjectSave((prev) => !prev);
 
-                setSelectedTab('dataElemenent-configuration');
+                setSelectedTab('dataElemenents-table');
                 setEditMode(false)
                 setDirectClickTabDE(1);
                 setSelectSideNavigation(null);
@@ -741,6 +768,12 @@ const ConfigureMetadata = (props) => {
     
       };
 
+    const handleDeleteTemplate = async (KeyID) => {
+
+
+
+    }
+
     const handleDeleteFormComponent = async (KeyID) =>{
         try {
             await props.engine.mutate({
@@ -839,7 +872,8 @@ const ConfigureMetadata = (props) => {
           <Tab
             label="Existing Data Elements"
             selected={selectedTab === 'dataElemenents-table'}
-            onClick={() => {setSelectedTab('dataElemenents-table')        
+            onClick={() => {
+                setSelectedTab('dataElemenents-table')        
                 setEditMode(false)
                 setSelectSideNavigation(null);
                 setSelectFormComponents(null);
@@ -856,6 +890,7 @@ const ConfigureMetadata = (props) => {
                 setDirectClickTabDE(1);
                 setSelectSideNavigation(null);
                 setSelectFormComponents(null);
+                // setSelectedDataElementId(null);
 
               }}
           >
@@ -873,6 +908,19 @@ const ConfigureMetadata = (props) => {
               }}
           >
             Configure Form Components
+          </Tab>
+          <Tab
+            label="Templates"
+            selected={selectedTab === 'template-configuration'}
+            onClick={() => {
+                setSelectedTab('template-configuration');
+                setEditMode(false)
+                setDirectClickTabDE(0);
+                setSelectSideNavigation(null);
+                setSelectFormComponents(null);
+              }}
+          >
+            Templates
           </Tab>
         </TabBar>
 
@@ -1076,6 +1124,9 @@ const ConfigureMetadata = (props) => {
                                           editMode={editMode}
                                           fileredHorizontalCatComboLevel1={fileredHorizontalCatComboLevel1}
                                           isHorizontalCategoryExpanded0={isHorizontalCategoryExpanded0}
+                                          setfileredVerticalCatComboLevel2={setfileredVerticalCatComboLevel2}
+                                          setVerticalCategoryOptionsLevel2={setVerticalCategoryOptionsLevel2}
+                                          setSelectedVerticalCategoryIDLevel2={setSelectedVerticalCategoryIDLevel2}
                                           
 
                                       />;
@@ -1086,6 +1137,10 @@ const ConfigureMetadata = (props) => {
                               <HorizontalTransfer 
                               fileredHorizontalCatCombo0={fileredHorizontalCatCombo0}
                               setdictfileredHorizontalCatCombo0={setdictfileredHorizontalCatCombo0}
+                              loadedProject={loadedProject}
+                              selectedDataElementId={selectedDataElementId}
+                              editMode={editMode}
+                              isHorizontalCategoryExpanded0={isHorizontalCategoryExpanded0}
                               
                               />
                           </div>
@@ -1131,7 +1186,10 @@ const ConfigureMetadata = (props) => {
                                   selectedHorizontalCategoryIDLevel1={selectedHorizontalCategoryIDLevel1}
                                   setHorizontalcategoryOptionsLevel1={setHorizontalcategoryOptionsLevel1}
                                   HorizontalCategoryOptionsLevel1={HorizontalCategoryOptionsLevel1}
-                                  setdictfileredHorizontalCatComboLevel1={setdictfileredHorizontalCatComboLevel1}                   
+                                  setdictfileredHorizontalCatComboLevel1={setdictfileredHorizontalCatComboLevel1}                                 
+                                  loadedProject={loadedProject}
+                                  selectedDataElementId={selectedDataElementId}
+                                  editMode={editMode}
                               />
                           </div> 
 
@@ -1168,6 +1226,9 @@ const ConfigureMetadata = (props) => {
                                   setVerticalCategoryOptionsLevel1={setVerticalCategoryOptionsLevel1}
                                   verticalCategoryOptionsLevel1={verticalCategoryOptionsLevel1}
                                   setdictfileredVerticalCatComboLevel1={setdictfileredVerticalCatComboLevel1}
+                                  loadedProject={loadedProject}
+                                  selectedDataElementId={selectedDataElementId}
+                                  editMode={editMode}
                                                      
                               />
                           </div> 
@@ -1199,14 +1260,17 @@ const ConfigureMetadata = (props) => {
                               />
                           )}
 
-                          {typeof selectedVerticalCategoryIDLevel2 === 'string' && selectedVerticalCategoryIDLevel2.length >0 && (
+                          {typeof selectedVerticalCategoryIDLevel2 === 'string' && selectedVerticalCategoryIDLevel2.length >0 && isVerticalCategoryExpandedlevel2 && (
                           <div className={classes.transferContainer}>
                               <VerticalTransferLevel2
                                   fileredVerticalCatComboLevel2={fileredVerticalCatComboLevel2}     
                                   selectedVerticalCategoryIDLevel2={selectedVerticalCategoryIDLevel2}
                                   setVerticalCategoryOptionsLevel2={setVerticalCategoryOptionsLevel2}
                                   VerticalCategoryOptionsLevel2={VerticalCategoryOptionsLevel2}
-                                  setdictfileredVerticalCatComboLevel2={setdictfileredVerticalCatComboLevel2}                   
+                                  setdictfileredVerticalCatComboLevel2={setdictfileredVerticalCatComboLevel2}
+                                  loadedProject={loadedProject}
+                                  selectedDataElementId={selectedDataElementId}
+                                  editMode={editMode}                   
                               />
                           </div> 
 
@@ -1310,6 +1374,47 @@ const ConfigureMetadata = (props) => {
             
             
         )}
+        {selectedTab === 'template-configuration' && (
+
+        <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
+
+                <Table className={classes.dataTable}>
+                        <TableHead>
+                        <TableRowHead>
+                            <TableCellHead className={classes.customTableCellHead}>
+                                Template
+                            </TableCellHead>
+                            <TableCellHead>Actions</TableCellHead>
+                        </TableRowHead>
+                        </TableHead>
+                        <TableBody>
+                        {Array.isArray(TemaplateQueryData?.dataStore?.entries || []) &&
+                            TemaplateQueryData?.dataStore?.entries.map((template) => (
+                                // Check if navigation.dataSet is equal to selectedDataSet
+                                template.projectID === loadedProject.id && (
+                                    <TableRow key={template.name} className={classes.customTableRow}>
+                                        <TableCell className={classes.customTableCell}>{template.name}</TableCell>
+                                        <TableCell className={`${classes.customTableCell}`}>
+
+
+                                        <TooltipComponent 
+                                        IconType={IconDelete16} 
+                                        btnFunc={handleDeleteTemplate}
+                                        project={template.key}
+                                        dynamicText="Delete"
+                                        buttonMode="destructive"/>
+
+                                        </TableCell>
+                                    </TableRow>
+                                )
+
+                            ))}
+                        </TableBody>
+            </Table>
+        </div>
+
+        )}
+
         </ModalContent>
           {selectedTab === 'dataElemenent-configuration' && (
             

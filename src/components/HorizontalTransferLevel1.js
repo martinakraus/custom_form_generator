@@ -8,6 +8,7 @@ const HorizontalTransferLevel1 = (props) => {
   const [loading, setLoading] = useState(false)
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [filerteredCategoryOptionsSelected, setfilerteredCategoryOptionsSelected] = useState([]);
+  const [runTwice, setRunTwice] = useState(0); // Track how many times the effect has run
   
   // Function to handle the change of the selected category
   const handleHorizontalTransferChange = (selected) => {
@@ -17,7 +18,9 @@ const HorizontalTransferLevel1 = (props) => {
     const filteredOptionsSelected = filerteredCategoryOptionsSelected
         .filter(category => selected.includes(category.value))
         .map(({ value, label }) => ({ id:value, name:label }));
-    props.setdictfileredHorizontalCatComboLevel1(filteredOptionsSelected)
+    const options_init_reordered = selected.map(id => filteredOptionsSelected.find(option => option.id === id));
+
+    props.setdictfileredHorizontalCatComboLevel1(options_init_reordered)
 
 
   }
@@ -52,19 +55,44 @@ const HorizontalTransferLevel1 = (props) => {
           name: option.name,
 
         })) || [];
-        
+
+
+
+        if (props.editMode){
+          const updatedDataElementsLevel1 = props.loadedProject.dataElements.filter(
+            (element) => element.id === props.selectedDataElementId
+          );
+          const metadata = updatedDataElementsLevel1[0]?.HorizontalLevel1?.metadata?.map(option => ({
+              value: option.id,
+              label: option.name,
+              selected: true, // Set all options to the right by default
+            })) || [];
+
+            setSelectedKeys(metadata.map(option => option.value)); // Set all options to the right by default
+            handleHorizontalTransferChange(metadata.map(option => option.value))
+        }else{
+
+            setSelectedKeys(options.map(option => option.value)); // Set all options to the right by default
+            props.setdictfileredHorizontalCatComboLevel1(options_init);
+        }        
         props.setHorizontalcategoryOptionsLevel1(options)
         setfilerteredCategoryOptionsSelected(options);
-        props.setdictfileredHorizontalCatComboLevel1(options_init);
+        // props.setdictfileredHorizontalCatComboLevel1(options_init);
 
-        setSelectedKeys(options.map(option => option.value)); // Set all options to the right by default
+        // setSelectedKeys(options.map(option => option.value)); // Set all options to the right by default
     } else {
         props.setHorizontalcategoryOptionsLevel1([]);
     }
-    console.log(selectedKeys)
+    // console.log(selectedKeys)
     // setCategoryOptions(options);
     setLoading(false)
-  }, [props.fileredHorizontalCatComboLevel1, props.selectedHorizontalCategoryIDLevel1]);
+    // Increment the counter for the number of times the effect has run. This is to handle control
+    if (runTwice <= 2){
+
+      setRunTwice(runTwice + 1);
+
+    }
+  }, [props.fileredHorizontalCatComboLevel1, props.selectedHorizontalCategoryIDLevel1, runTwice]);
 
   return (
     <div>

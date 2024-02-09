@@ -8,6 +8,8 @@ const VerticalTransferLevel2 = (props) => {
   const [loading, setLoading] = useState(false)
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [filerteredCategoryOptionsSelected, setfilerteredCategoryOptionsSelected] = useState([]);
+  const [runTwice, setRunTwice] = useState(0); // Track how many times the effect has run
+
   
   // Function to handle the change of the selected category
   const handleHorizontalTransferChange = (selected) => {
@@ -17,13 +19,17 @@ const VerticalTransferLevel2 = (props) => {
     const filteredOptionsSelected = filerteredCategoryOptionsSelected
         .filter(category => selected.includes(category.value))
         .map(({ value, label }) => ({ id:value, name:label }));
-    props.setdictfileredVerticalCatComboLevel2(filteredOptionsSelected)
+    const options_init_reordered = selected.map(id => filteredOptionsSelected.find(option => option.id === id));
+
+    props.setdictfileredVerticalCatComboLevel2(options_init_reordered)
 
   }
 
 
   useEffect(() => {
     setLoading(true)
+
+
     const filteredCategories = props.fileredVerticalCatComboLevel2 || [];
 
     // Extract horizontal category selected
@@ -51,18 +57,42 @@ const VerticalTransferLevel2 = (props) => {
           name: option.name,
 
         })) || [];
+
+
+        if (props.editMode){
+          const updatedDataElementsLevel1 = props.loadedProject.dataElements.filter(
+            (element) => element.id === props.selectedDataElementId
+          );
+          const metadata = updatedDataElementsLevel1[0]?.verticalLevel2?.metadata?.map(option => ({
+              value: option.id,
+              label: option.name,
+              selected: true, // Set all options to the right by default
+            })) || [];
+            setSelectedKeys(metadata.map(option => option.value)); // Set all options to the right by default
+            handleHorizontalTransferChange(metadata.map(option => option.value))
+       
+        }else{
+
+          setSelectedKeys(options.map(option => option.value)); // Set all options to the right by default
+          props.setdictfileredVerticalCatComboLevel2(options_init); 
+        }
         
         props.setVerticalCategoryOptionsLevel2(options)
         setfilerteredCategoryOptionsSelected(options);
-        props.setdictfileredVerticalCatComboLevel2(options_init); 
-        setSelectedKeys(options.map(option => option.value)); // Set all options to the right by default
+        // props.setdictfileredVerticalCatComboLevel2(options_init); 
+        // setSelectedKeys(options.map(option => option.value)); // Set all options to the right by default
     } else {
         props.setVerticalCategoryOptionsLevel2([]);
     }
-    console.log(selectedKeys)
+    // console.log(selectedKeys)
     // setCategoryOptions(options);
     setLoading(false)
-  }, [props.fileredVerticalCatComboLevel2, props.selectedVerticalCategoryIDLevel2]);
+    if (runTwice <= 2){
+
+      setRunTwice(runTwice + 1);
+
+    }
+  }, [props.fileredVerticalCatComboLevel2, props.selectedVerticalCategoryIDLevel2, runTwice]);
 
   return (
     <div>

@@ -9,11 +9,7 @@ const VerticalCategoryLevel2 = (props) => {
 
   useEffect(() => {
     // Filter out the selected vertical category
-
-
     setHorizontalCategories(filteredCategories);
-
-
 
     // if(updatedDataElementsLevel1.length > 0 && selectedCategory === null){
         if(props.selectedDirectClickTabDE === 0
@@ -29,7 +25,6 @@ const VerticalCategoryLevel2 = (props) => {
                 if (savedCategory){
 
                   const SelectedCategories = filteredCategories.filter(category => category.id === savedCategory);
-                  console.log(savedCategory);
                   props.setSelectedVerticalCategoryIDLevel2(savedCategory)
                   props.setSelectedVerticalCategoryNameLevel2(SelectedCategories[0].name || '')
                   setSelectedCategory(savedCategory)

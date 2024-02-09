@@ -5,15 +5,24 @@ import { SingleSelect, SingleSelectOption  } from '@dhis2-ui/select'
 
 const SideNavigation = props => {
 
+    const [selectedSideNavigation, setSelectedSideNavigation] = useState(null);
+    const [disabled, setDisable] = useState(true);
 
-    const selectedDataElement = props.loadedProject.dataElements.find(dataElement => dataElement.id === props.selectedDataElementId);
+    useEffect(() => {
+        if (props.selectedDataElementId.length > 0) {
+            const selectedDataElement = props.loadedProject.dataElements.find(dataElement => dataElement.id === props.selectedDataElementId);
+            if (selectedDataElement !== undefined){                
+                const initialSelectedSideNavigation = selectedDataElement.sideNavigation === 'Default' ? null : selectedDataElement.sideNavigation;
+                setSelectedSideNavigation(initialSelectedSideNavigation);
+            }else{
+                setSelectedSideNavigation(null);
+            }
+            setDisable(false)
+        } else {
 
-    // const initialSelectedSideNavigation = props.loadedProject.dataElements[0].sideNavigation === 'Default' ? null : props.loadedProject.dataElements[0].sideNavigation;
-    const initialSelectedSideNavigation = selectedDataElement.sideNavigation === 'Default' ? null : selectedDataElement.sideNavigation;
-    console.log(initialSelectedSideNavigation)
-    console.log(props.selectedDataElementId)
-
-    const [selectedSideNavigation, setSelectSideNavigation] = useState(initialSelectedSideNavigation);
+            setSelectedSideNavigation(null);
+        }
+    }, [props.selectedDataElementId, props.loadedProject.dataElements]);
 
 
     useEffect(() => {
@@ -30,7 +39,7 @@ const SideNavigation = props => {
 
         const selectedValue = event && event.selected !== undefined ? event.selected : event;
 
-        setSelectSideNavigation(selectedValue)
+        setSelectedSideNavigation(selectedValue)
         props.setSelectSideNavigation(event)
 
 
@@ -48,7 +57,7 @@ const SideNavigation = props => {
                     selected={selectedSideNavigation}
                     value={selectedSideNavigation}
                     onChange={({ selected }) => handleSideNavigationSelectionChange(selected)}
-
+                    disabled={disabled}
                 >
                     {props.SideNavigationQueryData?.dataStore?.entries
                     .filter(({ projectID }) => projectID === props.loadedProject.id)
