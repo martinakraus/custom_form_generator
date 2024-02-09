@@ -10,12 +10,18 @@ const HorizontalTransfer = (props) => {
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [filerteredCategoryOptionsSelected, setfilerteredCategoryOptionsSelected] = useState([]);
   const filteredCategories = props.fileredHorizontalCatCombo0 || [];
+  const [runTwice, setRunTwice] = useState(0); // Track how many times the effect has run
+
+
+  // console.log('Init fileredHorizontalCatCombo0')
+  // console.log(props.fileredHorizontalCatCombo0)
 
 
 
   
   // Function to handle the change of the selected category
   const handleVerticalTransferChange = (selected) => {
+
     setSelectedKeys(selected);
     // Create a new array with only necessary properties for the remaining records
     const filteredOptionsSelected = filerteredCategoryOptionsSelected
@@ -23,15 +29,16 @@ const HorizontalTransfer = (props) => {
         .map(({ value, label }) => ({ id:value, name:label }));
 
 
-    console.log('*** filerteredCategoryOptionsSelected Start 2 ******')
-    console.log(filteredOptionsSelected)
-    props.setdictfileredHorizontalCatCombo0(filteredOptionsSelected)
-    console.log('*** filerteredCategoryOptionsSelected End 2 ******')
+    
+    const options_init_reordered = selected.map(id => filteredOptionsSelected.find(option => option.id === id));
+    console.log('here 2')
+    console.log(options_init_reordered)
+    props.setdictfileredHorizontalCatCombo0(options_init_reordered)
+
   }
 
   useEffect(() => {
         setLoading(true)
-
         // Extract categoryOptions from each object
         const categoryOptionsArray = filteredCategories.map(category => category.categoryOptions);
 
@@ -44,20 +51,64 @@ const HorizontalTransfer = (props) => {
             label: option.name,
             selected: true, // Set all options to the right by default
           })) || [];
-        
+
+        setfilerteredCategoryOptionsSelected(options);
+
+
                   // Now, allCategoryOptions contains all the category options
         const options_init = allCategoryOptions?.map(option => ({
           id: option.id,
           name: option.name,
 
         })) || [];
-        setCategoryOptions(options);
-        setfilerteredCategoryOptionsSelected(options);
-        props.setdictfileredHorizontalCatCombo0(options_init);
-        setSelectedKeys(options.map(option => option.value)); // Set all options to the right by default
+
+
+
+
+
+        if (props.editMode){
+          const updatedDataElementsLevel1 = props.loadedProject.dataElements.filter(
+            (element) => element.id === props.selectedDataElementId
+          );
+
+          const metadata = updatedDataElementsLevel1[0]?.HorizontalLevel0?.metadata?.map(option => ({
+              value: option.id,
+              label: option.name,
+              selected: true, // Set all options to the right by default
+            })) || [];
+
+            setSelectedKeys(metadata.map(option => option.value)); // Set all options to the right by default
+            
+            handleVerticalTransferChange(metadata.map(option => option.value))
+            console.log('here 1')
+            console.log(metadata.map(option => option.value))
+       
+        }else{
+
+            setSelectedKeys(options.map(option => option.value)); // Set all options to the right by default
+            props.setdictfileredHorizontalCatCombo0(options_init);
+        }
+        // setCategoryOptions(options);
+        setCategoryOptions(options); 
+        // props.setdictfileredHorizontalCatCombo0(options_init);
+        // console.log(options.map(option => option.value))
         setLoading(false)
 
-  }, [props.fileredHorizontalCatCombo0]);
+        // Increment the counter for the number of times the effect has run. This is to handle control
+        if (runTwice <= 2){
+
+          setRunTwice(runTwice + 1);
+
+        }
+        
+  }, [props.fileredHorizontalCatCombo0, runTwice]);
+
+  // useEffect(() => {
+  //   // Resume normal operation after running twice
+  //   if (runTwice >= 2) {
+  //     // Additional logic or resetting state if needed
+  //   }
+  // }, [runTwice]);
 
   return (
     <div>
@@ -71,8 +122,6 @@ const HorizontalTransfer = (props) => {
         selected={selectedKeys}
         onChange={({ selected }) => {
           handleVerticalTransferChange(selected);
-          console.log('Selected options1:', selected);
-
           // Add your logic to handle selected options
         }}
         // selectedEmptyComponent={<p style={{textAlign: 'center'}}>You have not selected anything yet<br /></p>}

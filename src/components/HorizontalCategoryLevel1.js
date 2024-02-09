@@ -40,9 +40,8 @@ const HorizontalCategoryLevel1 = (props) => {
 //   }, [props.isHorizontalCategoryExpandedLevel1]);
 
   useEffect(() => {
-      //if(HorizontalCategoriesinit === 0){
+      if(props.isHorizontalCategoryExpandedLevel1){
         const filteredCategories = props.fileredHorizontalCatComboLevel1 || [];
-
               setHorizontalCategories(filteredCategories);
               // Clear the array
               const notSelectedCategories = [];
@@ -75,9 +74,9 @@ const HorizontalCategoryLevel1 = (props) => {
 
               setHorizontalCategoriesinit(1)                            
         
-      //}
+      }
   
-  }, [props.isHorizontalCategoryExpandedLevel1]);
+  }, [props.isHorizontalCategoryExpandedLevel1]); // 
 
   // Clear selectCategory if HL0 is changed
   useEffect(() =>{

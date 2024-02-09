@@ -11,3 +11,4 @@ export const ProjectsFiltersMore = 'fields=id,projectName,dataSet,modifiedDate,d
 export const sideNavigationFilter = 'fields=sideNavName,projectID';
 
 export const formComponentFilter = 'fields=formComponentName,projectID';
+export const TemplateFilter = 'fields=name,projectID';

@@ -48,21 +48,28 @@ const HorizontalCategory = (props) => {
     props.setfileredHorizontalCatCombo0(selectedCategory1);
     props.setSelectedHorizontalCategoryName0(selectedCategory1[0].name)
 
-    // Update the state with the filtered categories
+
+    props.setdictfileredHorizontalCatComboLevel1([])
+
+    // Update the state with the filtered categories Vertical 1
     props.setfileredVerticalCatComboLevel1([]);
     props.setVerticalCategoryOptionsLevel1([]);
     props.setSelectedVerticalCategoryIDLevel1([]);
-    props.setdictfileredHorizontalCatComboLevel1([])
+
+     // Update the state with the filtered categories Vertical 2
+     props.setfileredVerticalCatComboLevel2([]);
+     props.setVerticalCategoryOptionsLevel2([]);
+     props.setSelectedVerticalCategoryIDLevel2([]);
 
 
-    console.log('***** Testing 3 *******')
-    console.log(selectedCategory)
+   
+
   };
 
   // implement componet core logic
   const loader = () => {
 
-    if (props.editMode){        
+    
       if (data){
         // the selected dataElement with the specified ID
         if (props.loadedProject.dataElements){
@@ -72,13 +79,15 @@ const HorizontalCategory = (props) => {
     
           const { categoryCombo } = data.dataElement;
           const categories1 = categoryCombo?.categories || [];
+          setCategories(categories1);
+          if (props.editMode){    
           const HorizontalCategoryObject = categories1.filter(
             (element) => element.id === updatedDataElements[0].HorizontalLevel0.id
           ) || [];
     
           //if (intialselectedCategoryControl === 0){
                     // Update the state with the category data
-            setCategories(categories1);
+
             const savedCategory = HorizontalCategoryObject[0].id
             props.setSelectedHorizontalCategoryID0(savedCategory);
             const updatedCategories = categories1.filter(category => category.id !== savedCategory);
@@ -101,7 +110,7 @@ const HorizontalCategory = (props) => {
   useEffect(() => {
     if (!props.editMode){
       if (data && data.dataElement) {
-        console.log(data)
+        // console.log(data)
         const { categoryCombo } = data.dataElement;
         const categories1 = categoryCombo?.categories || [];
         // Update the state with the category data

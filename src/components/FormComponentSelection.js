@@ -4,14 +4,24 @@ import { SingleSelect, SingleSelectOption  } from '@dhis2-ui/select'
 
 
 const FormComponentSelection = props => {  
-    const selectedDataElement = props.loadedProject.dataElements.find(dataElement => dataElement.id === props.selectedDataElementId);
-    // const initialSelectedSideNavigation = props.loadedProject.dataElements[0].sideNavigation === 'Default' ? null : props.loadedProject.dataElements[0].sideNavigation;
-    const initialSelectedformComponent = selectedDataElement.formComponent === 'Default' ? null : selectedDataElement.formComponent;
-    console.log(initialSelectedformComponent)
-    console.log(props.selectedDataElementId)
 
+    const [selectedFormComponents, setSelectFormComponents] = useState(null);
+    const [disabled, setDisable] = useState(true);
 
-    const [selectedFormComponents,setSelectFormComponents] = useState(initialSelectedformComponent);
+    useEffect(() => {
+        if (props.selectedDataElementId.length > 0) {
+            const selectedDataElement = props.loadedProject.dataElements.find(dataElement => dataElement.id === props.selectedDataElementId);
+            if (selectedDataElement !== undefined){                
+                const initialSelectedformComponent = selectedDataElement.formComponent === 'Default' ? null : selectedDataElement.formComponent;
+                setSelectFormComponents(initialSelectedformComponent);
+            }else{
+                setSelectFormComponents(null);
+            }
+            setDisable(false)
+        } else {
+            setSelectFormComponents(null);
+        }
+    }, [props.selectedDataElementId, props.loadedProject.dataElements]);
 
     useEffect(() => {
 
@@ -30,7 +40,6 @@ const FormComponentSelection = props => {
 
     }
 
-
     return (
       
         <div style={{ marginLeft:'10px' }}>
@@ -43,7 +52,8 @@ const FormComponentSelection = props => {
                 selected={selectedFormComponents}
                 value={selectedFormComponents}
                 onChange={({ selected }) => handleFormSelectionSelectionChange(selected)}
-                
+                disabled={disabled}
+
             >
                 {props.FormComponentQueryData.dataStore?.entries
                 .filter(({ projectID }) => projectID === props.loadedProject.id)
