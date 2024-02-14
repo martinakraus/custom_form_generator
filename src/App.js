@@ -98,6 +98,11 @@ const MyApp = () => {
                     setReloadProjects={setReloadProjects} 
                     />                    
             )}
+
+
+            <footer className={classes.footer}>
+                <p>Copyright &copy; FHI360:EpiC | Business Solutions 2024 version v1.0.1 Beta 24-02-2024</p>
+            </footer>
     </div>
     )
 }

@@ -26,6 +26,17 @@
 
   }
 
+  .footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #f8f9fa;
+    padding: 10px;
+    text-align: center;
+    border-top: 1px solid #ccc;
+}
+
 /* Add a new rule to override the styles for div.app-shell-app.jsx-1964929281 */
 div.app-shell-app.jsx-1964929281 {
     /* Your modified styles here */

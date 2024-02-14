@@ -8,6 +8,7 @@ const HorizontalCategory = (props) => {
   const [categories, setCategories] = useState([]);
   // State to hold the selected category
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [disabled, setDisabled] = useState(false)
 
   // Query to fetch data elements and their category information
   const query = {
@@ -94,6 +95,11 @@ const HorizontalCategory = (props) => {
             // Add logic to get the array of the select category
             const selectedCategory1 = categories1.filter(category => category.id === savedCategory);
             // console.log(updatedCategories)
+            if (savedCategory !== null || savedCategory !== '')
+            {
+              setDisabled(true)
+            }
+
             setSelectedCategory(savedCategory);
             // Use the state updater function to ensure you have the latest state
             props.setfileredHorizontalCatComboLevel1([])
@@ -163,6 +169,7 @@ const HorizontalCategory = (props) => {
         selected={categories.some(category => category.id === selectedCategory) ? selectedCategory : null}
         value={categories.some(category => category.id === selectedCategory) ? selectedCategory : null}
         onChange={({ selected }) => handleVerticalCategoryChange(selected)}
+        disabled={disabled}
 
       >
         {categories.map(category => (
