@@ -6,6 +6,8 @@ const VerticalCategoryLevel1 = (props) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [horizontalCategories, setHorizontalCategories] = useState([]);
   const filteredCategories = props.fileredVerticalCatComboLevel1 || [];
+  const [disabled, setDisabled] = useState(false)
+
 
   useEffect(() => {
     // Filter out the selected vertical category
@@ -20,7 +22,9 @@ const VerticalCategoryLevel1 = (props) => {
       ) || [];
 
       const savedCategory = VerticalCategoryObject[0]?.id
+
       if (savedCategory){
+        setDisabled(true)
         const notSelectedCategories = filteredCategories.filter(category => category.id !== savedCategory);
         props.setfileredVerticalCatComboLevel2(notSelectedCategories)
 
@@ -54,6 +58,7 @@ const VerticalCategoryLevel1 = (props) => {
         selected={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : null}
         value={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : null}
         onChange={({ selected }) => handleHorizontalCategoryChange(selected)}
+        disabled={disabled}
       >
         {horizontalCategories.map(category => (
           <SingleSelectOption key={category.id} label={category.name} value={category.id} />

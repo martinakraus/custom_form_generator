@@ -8,6 +8,7 @@ const HorizontalCategoryLevel1 = (props) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [horizontalCategories, setHorizontalCategories] = useState([]);
   const [HorizontalCategoriesinit, setHorizontalCategoriesinit] = useState(0);
+  const [disabled, setDisabled] = useState(false)
 
 //     // Query to fetch data elements and their category information
 //     const query = {
@@ -57,6 +58,7 @@ const HorizontalCategoryLevel1 = (props) => {
 
               if (savedCategory) {
                 // Populate notSelectedCategories
+                setDisabled(true)
                 notSelectedCategories.push(...filteredCategories.filter(category => category.id !== HorizontalCategoryObject.id));
                 // console.log('********* notSelectedCategories *********')
                 // console.log(notSelectedCategories)
@@ -120,6 +122,7 @@ const HorizontalCategoryLevel1 = (props) => {
         selected={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : null}
         value={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : null}
         onChange={({ selected }) => handleVerticalLevel0CategoryChange(selected)}
+        disabled={disabled}
       >
         {horizontalCategories.map(category => (
           <SingleSelectOption key={category.id} label={category.name} value={category.id} />

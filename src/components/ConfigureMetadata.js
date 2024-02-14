@@ -10,7 +10,7 @@ import HorizontalTransfer from './HorizontalTransfer'
 import HorizontalTransferLevel1 from './HorizontalTransferLevel1';
 import VerticalTransferLevel1 from './VerticalTransferLevel1';
 import VerticalTransferLevel2 from './VerticalTransferLevel2';
-import MetadateTemplating from './MetadateTemplating';
+import MetadataTemplating from './MetadataTemplating';
 import GenerateForm from './GenerateForm';
 import TooltipComponent from './TooltipComponent'
 import { Input } from '@dhis2-ui/input'
@@ -546,7 +546,8 @@ const ConfigureMetadata = (props) => {
                     const trimmedTemplateName = templateName.replace(/\s+/g, '');
         
                     const TemplateData =  {
-                        "id":Templateid, 
+                        "id":Templateid,
+                        "key": templateName+'-'+Templateid,
                         "name":templateName,
                         "projectID":loadedProject.id,
                         "modifiedDate":modifiedDate(),
@@ -768,11 +769,7 @@ const ConfigureMetadata = (props) => {
     
       };
 
-    const handleDeleteTemplate = async (KeyID) => {
 
-
-
-    }
 
     const handleDeleteFormComponent = async (KeyID) =>{
         try {
@@ -795,7 +792,26 @@ const ConfigureMetadata = (props) => {
 
     }
 
+    const handleDeleteTemplate = async (KeyID) => {
 
+        try {
+            await props.engine.mutate({
+              resource: `dataStore/${config.dataStoreTemplates}/${KeyID}`,
+              type: 'delete',
+            });
+            console.log(`Template  "${KeyID}" deleted successfully.`);
+          //   handleCloseModal(); // Close the modal after successful deletion
+  
+          } catch (error) {
+            console.error('Error deleting Template:', error);
+          }
+          TemaplateQueryrefetch(); // Refetch data after deletion
+          // setSelectedProject(null);
+          // setShowDeleteModal(false)
+          
+          console.log('Deleting Template::', KeyID);
+
+    }
     const handleRemoveDataElementConfirmation = async (dataElement) => {
 
         // Filter out the dataElement with the specified ID
@@ -847,7 +863,11 @@ const ConfigureMetadata = (props) => {
 
     }
 
+    handleEditDataElement
+    const handleEditTemplate = (template) => {
 
+        console.log('Handle Edit Template Btn Clicked')
+    }
     {/*  useDataQuery(query) exceptions */}
     
     if (error1 ) {
@@ -1091,9 +1111,11 @@ const ConfigureMetadata = (props) => {
                   </Button>
                   </div>
                   {showModalMetadataTemplate && 
-                      (<MetadateTemplating 
+                      (<MetadataTemplating 
                           showModalMetadataTemplate={showModalMetadataTemplate}
-                          setShowModalMetadataTemplate={setShowModalMetadataTemplate}/>                    
+                          setShowModalMetadataTemplate={setShowModalMetadataTemplate}
+                          loadedProjectid={loadedProject.id}
+                          selectedDataElementId={selectedDataElementId}/>                    
                   )}
 
                   {/* Select HorizontalCategory */}
@@ -1392,11 +1414,18 @@ const ConfigureMetadata = (props) => {
                             TemaplateQueryData?.dataStore?.entries.map((template) => (
                                 // Check if navigation.dataSet is equal to selectedDataSet
                                 template.projectID === loadedProject.id && (
-                                    <TableRow key={template.name} className={classes.customTableRow}>
+                                    <TableRow key={template.key} className={classes.customTableRow}>
                                         <TableCell className={classes.customTableCell}>{template.name}</TableCell>
                                         <TableCell className={`${classes.customTableCell}`}>
 
+                                        <TooltipComponent 
+                                        IconType={IconEdit16} 
+                                        btnFunc={handleEditTemplate}
+                                        project={template.key}
+                                        dynamicText="Edit"
+                                        buttonMode="secondary"
 
+                                    />
                                         <TooltipComponent 
                                         IconType={IconDelete16} 
                                         btnFunc={handleDeleteTemplate}
