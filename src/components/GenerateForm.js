@@ -739,55 +739,45 @@ const GenerateForm = (props) => {
             const dataElements = props.loadedProject.dataElements.filter((d) => d.sideNavigation === sn)
 
             //Get unique Horizontal level 0
-            const horizNavs = dataElements.map(de => de.HorizontalLevel0.metadata);
-            const diffHorizNavs = [];
-            for (let j = 0; j < horizNavs.length; j++) {
-                const items = horizNavs[j].map(n => n.name);
-                if (diffHorizNavs.every(nv => JSON.stringify(nv.sort()) !== JSON.stringify(items.sort()))) {
-                    diffHorizNavs.push(items);
-                }
-            }
+            const horizNavs = dataElements.map(de => de.HorizontalLevel0.metadata).flat();
+            const uniqueSet = new Set(horizNavs.map(item => item.id));
+            const navs = Array.from(uniqueSet).map(id => horizNavs.find(item => item.id === id));
 
             //Build Horizontal level 0
             template += `
                 <div id="INFOLINK_Tabs_vertical_${h}">`
-            for (let a = 0; a < diffHorizNavs.length; a++) {
-                const navs = diffHorizNavs[a];
-                template += `
-                        <div id="INFOLINK_Tabs_h_${h}_${a}">
+            template += `
+                        <div id="INFOLINK_Tabs_h_${h}">
                             <ul class="ui-helper-hidden">`;
-                for (let j = 0; j < navs.length; j++) {
-                    template += `<li><a href="#INFOLINK_Form_${h}_${a}_${j}">${navs[j]}</a></li>`;
-                }
-                template += '</ul>';
-                for (let j = 0; j < navs.length; j++) {
-                    //Filter dataElements that match current Horizontal level 0 and side navigation
-                    const _dataElements = dataElements.filter(de => {
-                        const tabs = de.HorizontalLevel0.metadata.map(md => md.name);
-                        return JSON.stringify(tabs.sort()) === JSON.stringify(navs.sort())
-                    })
+            for (let j = 0; j < navs.length; j++) {
+                template += `<li><a href="#INFOLINK_Form_${h}_${j}">${navs[j].name}</a></li>`;
+            }
+            template += '</ul>';
+            for (let j = 0; j < navs.length; j++) {
+                //Filter dataElements that match current Horizontal level 0 and side navigation
+                const _dataElements = dataElements.filter(de => de.HorizontalLevel0.metadata.map(md => md.id).includes(navs[j].id))
 
-                    //Get unique collapsible (formComponent)
-                    const groups = new Set();
-                    _dataElements.forEach(d1 => groups.add(d1.formComponent))
+                //Get unique collapsible (formComponent)
+                const groups = new Set();
+                _dataElements.forEach(d1 => groups.add(d1.formComponent))
 
-                    //Build formComponent
-                    template += `
-                        <div id="INFOLINK_Form_${h}_${a}_${j}">
+                //Build formComponent
+                template += `
+                        <div id="INFOLINK_Form_${h}_${j}">
                             <p class="INFOLINK_Form_ShowHide">&nbsp;</p>
                                 <div class="INFOLINK_Form">`;
-                    groups.forEach((group) => {
-                        template += `
+                groups.forEach((group) => {
+                    template += `
                             <div class="INFOLINK_Form_Container INFOLINK_Form_Title INFOLINK_Form_Title_Quarterly">${group}</div>
                                 <div class="INFOLINK_Form_Collapse">`;
 
-                        //Filter dataElements that match current Horizontal level 0 and side navigation and formComponent
-                        const filteredDE = _dataElements.filter(de => de.formComponent === group)
+                    //Filter dataElements that match current Horizontal level 0 and side navigation and formComponent
+                    const filteredDE = _dataElements.filter(de => de.formComponent === group)
 
-                        for (let k = 0; k < filteredDE.length; k++) {
-                            const dataElement = filteredDE[k];
-                            //Data Elements
-                            template += `
+                    for (let k = 0; k < filteredDE.length; k++) {
+                        const dataElement = filteredDE[k];
+                        //Data Elements
+                        template += `
                                 <div class="si_JPFY6dsd">
                                     <div>
                                         <div class="INFOLINK_Form_Priority_Container_Outer">
@@ -798,14 +788,14 @@ const GenerateForm = (props) => {
                                         </div>
                             `;
 
-                            //Check for availability of at least 3 levels
-                            if (dataElement.verticalLevel1?.id) {
-                                //Check for availability of at least 4 levels
-                                if (dataElement.verticalLevel2?.id) {
-                                    if (dataElement.verticalLevel3?.id) {
-                                        //Build for 5-levels
-                                        for (let o = 0; o < dataElement.verticalLevel3.metadata.length; o++) {
-                                            template += `
+                        //Check for availability of at least 3 levels
+                        if (dataElement.verticalLevel1?.id) {
+                            //Check for availability of at least 4 levels
+                            if (dataElement.verticalLevel2?.id) {
+                                if (dataElement.verticalLevel3?.id) {
+                                    //Build for 5-levels
+                                    for (let o = 0; o < dataElement.verticalLevel3.metadata.length; o++) {
+                                        template += `
                                                 <div class="INFOLINK_Form_Priority_Container_Outer">
                                                     <div class="INFOLINK_Form_Priority_Container_Inner INFOLINK_Form_Priority_required">
                                                         <div class="INFOLINK_Form_Priority">&nbsp;</div>
@@ -813,136 +803,134 @@ const GenerateForm = (props) => {
                                                     </div>
                                                 </div>
                                             `;
-                                            template += `
+                                        template += `
                                                 <div class="INFOLINK_Form_Container">
                                                     <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">&nbsp;</div>`
-                                            for (let h = 0; h < dataElement.verticalLevel1.metadata.length; h++) {
-                                                template += `
+                                        for (let h = 0; h < dataElement.verticalLevel1.metadata.length; h++) {
+                                            template += `
                                                     <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br>${dataElement.verticalLevel1.metadata[h].name.replace(' Years', '')}</div>`;
-                                            }
-                                            template += `</div>`;
+                                        }
+                                        template += `</div>`;
 
-                                            for (let l = 0; l < dataElement.HorizontalLevel1.metadata.length; l++) {
-                                                if (navs[j] === 'Female Sex Workers' && dataElement.HorizontalLevel1.metadata[l].name === 'Male') {
-                                                    continue
-                                                }
-                                                if (navs[j] === 'MSM' && dataElement.HorizontalLevel1.metadata[l].name === 'Female') {
-                                                    continue
-                                                }
-                                                template += `
+                                        for (let l = 0; l < dataElement.HorizontalLevel1.metadata.length; l++) {
+                                            if (navs[j].name === 'Female Sex Workers' && dataElement.HorizontalLevel1.metadata[l].name === 'Male') {
+                                                continue
+                                            }
+                                            if (navs[j].name === 'MSM' && dataElement.HorizontalLevel1.metadata[l].name === 'Female') {
+                                                continue
+                                            }
+                                            template += `
                                                     <div class="INFOLINK_Form_Container">
                                                           <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">${dataElement.HorizontalLevel1.metadata[l].name}</div>`;
-                                                for (let h = 0; h < dataElement.verticalLevel1.metadata.length; h++) {
-                                                    const coc = idMap.get(JSON.stringify([dataElement.verticalLevel1.metadata[h].id, dataElement.HorizontalLevel0.metadata.find(md => md.name === navs[j])?.id, dataElement.HorizontalLevel1.metadata[l].id, dataElement.verticalLevel3.metadata[o].id].sort()));
-                                                    if (coc) {
-                                                        template += `<div class="INFOLINK_Form_EntryField"><input id="${dataElement.id}-${coc?.id}-val" name="entryfield" title="${dataElement.name} ${coc?.name}" value="[ ${dataElement.name} ${coc?.name} ]" /></div>`
-                                                    }
+                                            for (let h = 0; h < dataElement.verticalLevel1.metadata.length; h++) {
+                                                const coc = idMap.get(JSON.stringify([dataElement.verticalLevel1.metadata[h].id, dataElement.HorizontalLevel0.metadata.find(md => md.id === navs[j].id)?.id, dataElement.HorizontalLevel1.metadata[l].id, dataElement.verticalLevel3.metadata[o].id].sort()));
+                                                if (coc) {
+                                                    template += `<div class="INFOLINK_Form_EntryField"><input id="${dataElement.id}-${coc?.id}-val" name="entryfield" title="${dataElement.name} ${coc?.name}" value="[ ${dataElement.name} ${coc?.name} ]" /></div>`
                                                 }
+                                            }
 
-                                                template += `</div>`;
-                                            }
-                                        }
-                                    } else {
-                                        //Build for 4-levels
-                                        for (let h = 0; h < dataElement.verticalLevel1.metadata.length; h++) {
-                                            if (navs[j] === 'Female Sex Workers' && dataElement.verticalLevel1.metadata[h].name === 'Male') {
-                                                continue
-                                            }
-                                            if (navs[j] === 'MSM' && dataElement.verticalLevel1.metadata[h].name === 'Female') {
-                                                continue
-                                            }
-                                            //Build input template
-                                            template += `
-                                        <div class="INFOLINK_Form_Container">
-                                            <div class="INFOLINK_Form_EntryName bold" style="padding-bottom:0;">${dataElement.verticalLevel1.metadata[h].name}</div>`
-                                            for (let m = 0; m < dataElement.verticalLevel2.metadata.length; m++) {
-                                                template += `
-                                            <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br/>${dataElement.verticalLevel2.metadata[m].name.replace(' Years', '')}</div>`;
-                                            }
                                             template += `</div>`;
-                                            for (let l = 0; l < dataElement.HorizontalLevel1.metadata.length; l++) {
-                                                template += `
-                                            <div class="INFOLINK_Form_Container">
-                                                <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">${dataElement.HorizontalLevel1.metadata[l].name}</div>`;
-                                                for (let m = 0; m < dataElement.verticalLevel2.metadata.length; m++) {
-                                                    const coc = idMap.get(JSON.stringify([dataElement.verticalLevel1.metadata[h].id, dataElement.HorizontalLevel0.metadata.find(md => md.name === navs[j])?.id, dataElement.HorizontalLevel1.metadata[l].id, dataElement.verticalLevel2.metadata[m].id].sort()));
-                                                    if (coc) {
-                                                        template += `<div class="INFOLINK_Form_EntryField"><input id="${dataElement.id}-${coc?.id}-val" name="entryfield" title="${dataElement.name} ${coc?.name}" value="[ ${dataElement.name} ${coc?.name} ]" /></div>`
-                                                    }
-                                                }
-
-                                                template += `</div>`;
-                                            }
                                         }
                                     }
                                 } else {
-                                    //Build for 3-levels
-                                    template += `
-                                        <div class="INFOLINK_Form_Container">
-                                            <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">&nbsp;</div>`
+                                    //Build for 4-levels
                                     for (let h = 0; h < dataElement.verticalLevel1.metadata.length; h++) {
-                                        template += `
-                                        <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br>${dataElement.verticalLevel1.metadata[h].name.replace(' Years', '')}</div>`;
-                                    }
-                                    template += `</div>`;
-
-                                    for (let l = 0; l < dataElement.HorizontalLevel1.metadata.length; l++) {
-                                        if (navs[j] === 'Female Sex Workers' && dataElement.HorizontalLevel1.metadata[l].name === 'Male') {
+                                        if (navs[j].name === 'Female Sex Workers' && dataElement.verticalLevel1.metadata[h].name === 'Male') {
                                             continue
                                         }
-                                        if (navs[j] === 'MSM' && dataElement.HorizontalLevel1.metadata[l].name === 'Female') {
+                                        if (navs[j].name === 'MSM' && dataElement.verticalLevel1.metadata[h].name === 'Female') {
                                             continue
                                         }
+                                        //Build input template
                                         template += `
                                         <div class="INFOLINK_Form_Container">
-                                            <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">${dataElement.HorizontalLevel1.metadata[l].name}</div>`;
-                                        for (let h = 0; h < dataElement.verticalLevel1.metadata.length; h++) {
-                                            const coc = idMap.get(JSON.stringify([dataElement.verticalLevel1.metadata[h].id, dataElement.HorizontalLevel0.metadata.find(md => md.name === navs[j])?.id, dataElement.HorizontalLevel1.metadata[l].id].sort()));
-                                            if (coc) {
-                                                template += `<div class="INFOLINK_Form_EntryField"><input id="${dataElement.id}-${coc?.id}-val" name="entryfield" title="${dataElement.name} ${coc?.name}" value="[ ${dataElement.name} ${coc?.name} ]" /></div>`
-                                            }
+                                            <div class="INFOLINK_Form_EntryName bold" style="padding-bottom:0;">${dataElement.verticalLevel1.metadata[h].name}</div>`
+                                        for (let m = 0; m < dataElement.verticalLevel2.metadata.length; m++) {
+                                            template += `
+                                            <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br/>${dataElement.verticalLevel2.metadata[m].name.replace(' Years', '')}</div>`;
                                         }
-
                                         template += `</div>`;
+                                        for (let l = 0; l < dataElement.HorizontalLevel1.metadata.length; l++) {
+                                            template += `
+                                            <div class="INFOLINK_Form_Container">
+                                                <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">${dataElement.HorizontalLevel1.metadata[l].name}</div>`;
+                                            for (let m = 0; m < dataElement.verticalLevel2.metadata.length; m++) {
+                                                const coc = idMap.get(JSON.stringify([dataElement.verticalLevel1.metadata[h].id, dataElement.HorizontalLevel0.metadata.find(md => md.id === navs[j].id)?.id, dataElement.HorizontalLevel1.metadata[l].id, dataElement.verticalLevel2.metadata[m].id].sort()));
+                                                if (coc) {
+                                                    template += `<div class="INFOLINK_Form_EntryField"><input id="${dataElement.id}-${coc?.id}-val" name="entryfield" title="${dataElement.name} ${coc?.name}" value="[ ${dataElement.name} ${coc?.name} ]" /></div>`
+                                                }
+                                            }
+
+                                            template += `</div>`;
+                                        }
                                     }
                                 }
                             } else {
-                                //Build for 2-level category option combo
+                                //Build for 3-levels
                                 template += `
+                                        <div class="INFOLINK_Form_Container">
+                                            <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">&nbsp;</div>`
+                                for (let h = 0; h < dataElement.verticalLevel1.metadata.length; h++) {
+                                    template += `
+                                        <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br>${dataElement.verticalLevel1.metadata[h].name.replace(' Years', '')}</div>`;
+                                }
+                                template += `</div>`;
+
+                                for (let l = 0; l < dataElement.HorizontalLevel1.metadata.length; l++) {
+                                    if (navs[j].name === 'Female Sex Workers' && dataElement.HorizontalLevel1.metadata[l].name === 'Male') {
+                                        continue
+                                    }
+                                    if (navs[j].name === 'MSM' && dataElement.HorizontalLevel1.metadata[l].name === 'Female') {
+                                        continue
+                                    }
+                                    template += `
+                                        <div class="INFOLINK_Form_Container">
+                                            <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">${dataElement.HorizontalLevel1.metadata[l].name}</div>`;
+                                    for (let h = 0; h < dataElement.verticalLevel1.metadata.length; h++) {
+                                        const coc = idMap.get(JSON.stringify([dataElement.verticalLevel1.metadata[h].id, dataElement.HorizontalLevel0.metadata.find(md => md.id === navs[j].id)?.id, dataElement.HorizontalLevel1.metadata[l].id].sort()));
+                                        if (coc) {
+                                            template += `<div class="INFOLINK_Form_EntryField"><input id="${dataElement.id}-${coc?.id}-val" name="entryfield" title="${dataElement.name} ${coc?.name}" value="[ ${dataElement.name} ${coc?.name} ]" /></div>`
+                                        }
+                                    }
+
+                                    template += `</div>`;
+                                }
+                            }
+                        } else {
+                            //Build for 2-level category option combo
+                            template += `
                                         <div class="INFOLINK_Form_Container">
                                             <div class="INFOLINK_Form_EntryName bold" style="padding-bottom:0px;">&nbsp;</div>
                                             <div class="INFOLINK_Form_Empty" style="padding-bottom:0px;">&nbsp;</div>
                                             <div class="INFOLINK_Form_Empty" style="padding-bottom:0px;">&nbsp;</div>
                                         </div>`;
-                                for (let l = 0; l < dataElement.HorizontalLevel1.metadata.length; l++) {
-                                    if (navs[j] === 'Female Sex Workers' && dataElement.HorizontalLevel1.metadata[l].name === 'Male') {
-                                        continue
-                                    }
-                                    if (navs[j] === 'MSM' && dataElement.HorizontalLevel1.metadata[l].name === 'Female') {
-                                        continue
-                                    }
-                                    template += `
+                            for (let l = 0; l < dataElement.HorizontalLevel1.metadata.length; l++) {
+                                if (navs[j].name === 'Female Sex Workers' && dataElement.HorizontalLevel1.metadata[l].name === 'Male') {
+                                    continue
+                                }
+                                if (navs[j].name === 'MSM' && dataElement.HorizontalLevel1.metadata[l].name === 'Female') {
+                                    continue
+                                }
+                                template += `
                                         <div class="INFOLINK_Form_Container">
                                             <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">${dataElement.HorizontalLevel1.metadata[l].name}</div>`;
-                                    const coc = idMap.get(JSON.stringify([dataElement.HorizontalLevel0.metadata.find(md => md.name === navs[j])?.id, dataElement.HorizontalLevel1.metadata[l].id].sort()));
-                                    if (coc) {
-                                        template += `<div class="INFOLINK_Form_EntryField"><input id="${dataElement.id}-${coc?.id}-val" name="entryfield" title="${dataElement.name} ${coc?.name}" value="[ ${dataElement.name} ${coc?.name} ]" /></div>`
-                                    }
+                                const coc = idMap.get(JSON.stringify([dataElement.HorizontalLevel0.metadata.find(md => md.id === navs[j].id)?.id, dataElement.HorizontalLevel1.metadata[l].id].sort()));
+                                if (coc) {
+                                    template += `<div class="INFOLINK_Form_EntryField"><input id="${dataElement.id}-${coc?.id}-val" name="entryfield" title="${dataElement.name} ${coc?.name}" value="[ ${dataElement.name} ${coc?.name} ]" /></div>`
+                                }
 
-                                    template += `
+                                template += `
                                             <div class="INFOLINK_Form_EntryField">&nbsp;</div>
                                             <div class="INFOLINK_Form_EntryField">&nbsp;</div>
                                             <div class="INFOLINK_Form_EntryField">&nbsp;</div>
                                         </div>`;
-                                }
                             }
-                            template += `</div></div>`;
                         }
-                        template += `</div>`;
-                    })
-                    template += '</div></div>'
-                }
-                //template += '</div>';
+                        template += `</div></div>`;
+                    }
+                    template += `</div>`;
+                })
+                template += '</div></div>'
             }
             template += `</div></div>`;
         })
