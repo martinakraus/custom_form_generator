@@ -12,13 +12,30 @@ const dataSets = {
         paging: 'false',
         filter: `id:eq:${dataSet}`,
       }),
+
     },
   }
 
-const AppGetDEList = props => {
-    const [disabled, setDisable] = useState(false)
-    const { loading: loading, error: error, data: data, refetch: refetch } = useDataQuery(dataSets, {variables: {dataSet: props.selectedDataSet}})
 
+
+const AppGetDEList = props => {
+  const [dataElementState, setDataElementState]=useState(props.selectedDataElementId)
+
+    const dataElementQuery = {
+
+      dataElement: {
+        resource: 'dataElements',
+        params: ({dataElementID})=>({
+          fields: 'id,categoryCombo[name,id]',
+          filter: `id:eq:${dataElementID}`,
+        }),
+      },
+
+
+    }
+    const [disabled, setDisable] = useState(false)
+    const {loading: loading, error: error, data: data, refetch: refetch } = useDataQuery(dataSets, {variables: {dataSet: props.selectedDataSet}})
+    const {loading: dataElementLoading, error: dataElementError, data: dataElementData, refetch: dataElementRefetch } = useDataQuery(dataElementQuery, {variables: {dataElementID: props.selectedDataElementId}})
 
     useEffect(() => {
 
@@ -26,6 +43,8 @@ const AppGetDEList = props => {
         // setdataElementList(data.targetedEntity.dataSets[0]?.dataSetElements || []);
         // console.log('Use Effect Running Once')
         if (props.editMode){
+
+          // converts the value of props.selectedDataElementId into a boolean
           setDisable(!!props.selectedDataElementId);
           // console.log('******** Loaded Project **********')
           // const selectedDataElement = props.loadedProject.dataElements.find(dataElement => dataElement.dataElement.id === props.selectedDataElementId);
@@ -33,6 +52,8 @@ const AppGetDEList = props => {
           // props.setSelectSideNavigation(selectedDataElement.dataElement.displayName.sideNavigation)
         }
         // console.log(props.selectedDataElementId)
+
+        dataElementRefetch({dataElementID: props.selectedDataElementId})
         
     }, [props.selectedDataSet, props.selectedDataElementId]);
 
@@ -93,10 +114,8 @@ const AppGetDEList = props => {
     if (loading) {
         return <span>Loading...</span>
     }
-
-    if (data) {
-    //    console.log(data.targetedEntity.dataSets);
-
+    if (dataElementError) {
+        console.log(error)
     }
 
     const dataElements = data.targetedEntity.dataSets[0]?.dataSetElements || [];

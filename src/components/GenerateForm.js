@@ -10,6 +10,7 @@ const GenerateForm = (props) => {
 
         console.log('********** DataSet Object **************')
         console.log(props.loadedProject)
+        console.log(props.loadedRules)
 
         const htmlContent = '<html><head><title>Hello World</title></head><body><h1>Hello World!</h1></body></html>';
 

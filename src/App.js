@@ -64,7 +64,7 @@ const MyApp = () => {
                                         onClick={() => {
                                             setShowModalLoadProjects(true);
                                             setReloadProjects((prev) => !prev);                                            
-                                            console.log('Log button Clicked')
+
                                         }}
                                         
                                         >
