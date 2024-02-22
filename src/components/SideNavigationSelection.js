@@ -22,7 +22,7 @@ const SideNavigation = props => {
 
             setSelectedSideNavigation(null);
         }
-    }, [props.selectedDataElementId, props.loadedProject.dataElements]);
+    }, [props.selectedDataElementId, props.loadedProject.dataElements, props.savingDataElement]);
 
 
     useEffect(() => {

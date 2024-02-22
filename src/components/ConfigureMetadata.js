@@ -6,10 +6,12 @@ import HorizontalCategory from './HorizontalCategory'
 import HorizontalCategoryLevel1 from './HorizontalCategoryLevel1'
 import VerticalCategoryLevel1 from './VerticalCategoryLevel1'
 import VerticalCategoryLevel2 from './VerticalCategoryLevel2'
+import VerticalCategoryLevel3 from './VerticalCategoryLevel3'
 import HorizontalTransfer from './HorizontalTransfer'
 import HorizontalTransferLevel1 from './HorizontalTransferLevel1';
 import VerticalTransferLevel1 from './VerticalTransferLevel1';
 import VerticalTransferLevel2 from './VerticalTransferLevel2';
+import VerticalTransferLevel3 from './VerticalTransferLevel3';
 import MetadataTemplating from './MetadataTemplating';
 import GenerateForm from './GenerateForm';
 import TooltipComponent from './TooltipComponent'
@@ -45,7 +47,13 @@ import {
 import { TabBar , Tab} from '@dhis2-ui/tab'
 import classes from '../App.module.css'
 import { Divider } from '@dhis2-ui/divider'
-import { config, sideNavigationFilter, formComponentFilter, TemplateFilter} from '../consts'
+import { config, 
+    sideNavigationFilter, 
+    formComponentFilter, 
+    TemplateFilter, 
+    exclusionRuleFilter,
+    conditionLevels,
+    exclusionLevels} from '../consts'
 import { generateRandomId } from '../utils';
 
   
@@ -96,12 +104,22 @@ const ConfigureMetadata = (props) => {
         resource: `dataStore/${config.dataStoreTemplates}?${TemplateFilter}`,
         },
     }
-        
+
+    // Define your data store query
+    const ConditionQuery = {
+        dataStore: {
+        resource: `dataStore/${config.dataStoreConditions}?${exclusionRuleFilter}`,
+        },
+    }
+    
     // To hold pre-loaded data from dataStore
     const [loadedProject, setLoadedProject] = useState(props.selectedProject || []);
 
     // for data control
     const [isAferProjectSave, AferProjectSave] = useState(false);
+
+    // saving dataelement state
+    const [savingDataElement, setSavingDataElementState] = useState(false);
 
     // dataElement refresh button
     const [refreshing, setRefreshing] = useState(true);
@@ -143,6 +161,24 @@ const ConfigureMetadata = (props) => {
     const [showModalMetadataTemplate, setShowModalMetadataTemplate] = useState(false);
     const [showTemplateNameModal , setShowTemplateNameModal] = useState(false);
 
+    // For Exclusion Rules
+    const [showExclusionComponents, setExclusionComponents] = useState(false);
+    const [condition, setCondition] = useState('');
+    const [conditionName, setConditionName] = useState('');
+    const [exclude, setExclusion] = useState('');
+    const [existingConditionName, setExistingConditionName] = useState(false);
+    const [selectedConditionLevel, setSelectedConditionLevel] = useState(""); // State to store the selected level
+    const [selectedExclusionLevel, setSelectedExclusionLevel] = useState(""); // State to store the selected level
+
+
+
+
+
+    // To hold exclusion data from dataStore
+    const [loadedRules, setLoadedRules] = useState([]);
+
+    // reloading and state does not matter
+    const [reloadExclusions, setReloadExclusions] = useState(false);
 
   
     // Constants for Horizontal Categories (Level 2 Inner)
@@ -176,6 +212,15 @@ const ConfigureMetadata = (props) => {
     const [VerticalCategoryOptionsLevel2, setVerticalCategoryOptionsLevel2] = useState([]);
     const [fileredVerticalCatComboLevel2, setfileredVerticalCatComboLevel2] = useState([]);
 
+
+    // Constants for Vertical Categories (Level 2 Outer)
+    const [selectedVerticalCategoryIDLevel3, setSelectedVerticalCategoryIDLevel3] = useState(null);
+    const [selectedVerticalCategoryNameLevel3, setSelectedVerticalCategoryNameLevel3] = useState(null);
+    const [dictfileredVerticalCatComboLevel3, setdictfileredVerticalCatComboLevel3] = useState([]);
+    const [isVerticalCategoryExpandedlevel3, setIsVerticalCategoryExpandedlevel3] = useState(false);
+    const [VerticalCategoryOptionsLevel3, setVerticalCategoryOptionsLevel3] = useState([]);
+    const [fileredVerticalCatComboLevel3, setfileredVerticalCatComboLevel3] = useState([]);
+
     const [isDataSetsExpanded, setIsDataSetsExpanded] = useState(false);
     const [isDataElementExpanded, setIsDataElementExpanded] = useState(false);
    
@@ -189,11 +234,30 @@ const ConfigureMetadata = (props) => {
     const { data: SideNavigationQueryData, refetch:SideNavigationQueryrefetch } = useDataQuery(SideNavigationQuery); // Use separate hook for dataStoreQuery
     const { data: FormComponentQueryData, refetch:FormComponentQueryrefetch } = useDataQuery(FormComponentQuery); // Use separate hook for dataStoreQuery
     const { data: TemaplateQueryData, refetch:TemaplateQueryrefetch } = useDataQuery(TemplateQuery); // Use separate hook for dataStoreQuery
+    const { data: ConditionsQueryData, refetch:ConditionsQueryDataRefetch } = useDataQuery(ConditionQuery); // Use separate hook for dataStoreQuery
 
-    if (TemaplateQueryData){
+if (ConditionsQueryData){
+console.log(ConditionsQueryData)
 
-        console.log(TemaplateQueryData)
-    }
+}
+
+    // useEffect(() => {
+    //     ConditionsQueryDataRefetch();
+    // }, [reloadExclusions, ConditionsQueryDataRefetch]);
+
+
+    useEffect(() => {
+        ConditionsQueryDataRefetch();
+        if (ConditionsQueryData) {
+          // setProjects(data.dataStore ? [data.dataStore] : []);
+    
+              // Check if entries property exists in data.dataStore
+            const newExclusion = ConditionsQueryData.dataStore?.entries.filter(entry => entry.projectID === loadedProject.id) || [];
+            setLoadedRules(newExclusion);
+        }
+      }, [ConditionsQueryData, reloadExclusions, ]);
+
+
 
     useEffect(() => {
         refetch();
@@ -230,8 +294,11 @@ const ConfigureMetadata = (props) => {
     useEffect(() => {  
         if(!editMode){
             clearConstants()
+            
+
+            console.log('Processing: clearConstants() ' + savingDataElement)
         }  
-    }, [editMode]);
+    }, [editMode, savingDataElement]);
 
     const clearConstants = () =>{
         
@@ -265,13 +332,21 @@ const ConfigureMetadata = (props) => {
         setVerticalCategoryOptionsLevel1([]);
         setfileredVerticalCatComboLevel1([]);
         
-        // Constants for Vertical Categories (Level 1 Outer)
+        // Constants for Vertical Categories (Level 2 Outer)
         setSelectedVerticalCategoryIDLevel2(null);
         setSelectedVerticalCategoryNameLevel2(null);
         setdictfileredVerticalCatComboLevel2([]);
         setIsVerticalCategoryExpandedlevel2(false);
         setVerticalCategoryOptionsLevel2([]);
         setfileredVerticalCatComboLevel2([]);
+
+        // Constants for Vertical Categories (Level 3 Outer)
+        setSelectedVerticalCategoryIDLevel3(null);
+        setSelectedVerticalCategoryNameLevel3(null);
+        setdictfileredVerticalCatComboLevel3([]);
+        setIsVerticalCategoryExpandedlevel3(false);
+        setVerticalCategoryOptionsLevel3([]);
+        setfileredVerticalCatComboLevel3([]);
 
         setSelectSideNavigation(null);
         setSelectFormComponents(null);
@@ -300,13 +375,22 @@ const ConfigureMetadata = (props) => {
         setVerticalCategoryOptionsLevel1([]);
         setfileredVerticalCatComboLevel1([]);
         
-        // Constants for Vertical Categories (Level 1 Outer)
+        // Constants for Vertical Categories (Level 2 Outer)
         setSelectedVerticalCategoryIDLevel2(null);
         setSelectedVerticalCategoryNameLevel2(null);
         setdictfileredVerticalCatComboLevel2([]);
         setIsVerticalCategoryExpandedlevel2(false);
         setVerticalCategoryOptionsLevel2([]);
         setfileredVerticalCatComboLevel2([]);
+
+        
+        // Constants for Vertical Categories (Level 3 Outer)
+        setSelectedVerticalCategoryIDLevel3(null);
+        setSelectedVerticalCategoryNameLevel3(null);
+        setdictfileredVerticalCatComboLevel3([]);
+        setIsVerticalCategoryExpandedlevel3(false);
+        setVerticalCategoryOptionsLevel3([]);
+        setfileredVerticalCatComboLevel3([]);
 
         setSelectSideNavigation(null);
         setSelectFormComponents(null);
@@ -350,6 +434,13 @@ const ConfigureMetadata = (props) => {
         setfileredVerticalCatComboLevel2([]);
         // setEditMode(false)
 
+        // Constants for Vertical Categories (Level 3 Outer)
+        setSelectedVerticalCategoryIDLevel3(null);
+        setSelectedVerticalCategoryNameLevel3(null);
+        setdictfileredVerticalCatComboLevel3([]);
+        setIsVerticalCategoryExpandedlevel3(false);
+        setVerticalCategoryOptionsLevel3([]);
+        setfileredVerticalCatComboLevel3([]);
 
     },[selectedHorizontalCategoryID0])
 
@@ -371,6 +462,15 @@ const ConfigureMetadata = (props) => {
         setVerticalCategoryOptionsLevel2([]);
         setfileredVerticalCatComboLevel2([]);
 
+        
+        // Constants for Vertical Categories (Level 3 Outer)
+        setSelectedVerticalCategoryIDLevel3(null);
+        setSelectedVerticalCategoryNameLevel3(null);
+        setdictfileredVerticalCatComboLevel3([]);
+        setIsVerticalCategoryExpandedlevel3(false);
+        setVerticalCategoryOptionsLevel3([]);
+        setfileredVerticalCatComboLevel3([]);
+
     },[selectedHorizontalCategoryIDLevel1])
 
 
@@ -384,7 +484,28 @@ const ConfigureMetadata = (props) => {
                 setVerticalCategoryOptionsLevel2([]);
                 //setfileredVerticalCatComboLevel2([]);
 
+                
+        // Constants for Vertical Categories (Level 3 Outer)
+                setSelectedVerticalCategoryIDLevel3(null);
+                setSelectedVerticalCategoryNameLevel3(null);
+                setdictfileredVerticalCatComboLevel3([]);
+                setIsVerticalCategoryExpandedlevel3(false);
+                setVerticalCategoryOptionsLevel3([]);
+                setfileredVerticalCatComboLevel3([]);
+
     },[selectedVerticalCategoryIDLevel1])
+
+
+    useEffect(() => {
+        // Constants for Vertical Categories (Level 3 Outer)
+        setSelectedVerticalCategoryIDLevel3(null);
+        setSelectedVerticalCategoryNameLevel3(null);
+        setdictfileredVerticalCatComboLevel3([]);
+        setIsVerticalCategoryExpandedlevel3(false);
+        setVerticalCategoryOptionsLevel3([]);
+        // setfileredVerticalCatComboLevel3([]);
+
+        },[selectedVerticalCategoryIDLevel2])
 
 
 
@@ -440,7 +561,35 @@ const ConfigureMetadata = (props) => {
     }, [formComponentName]);
 
 
+    useEffect(() => {
+        if (ConditionsQueryData?.dataStore) {   
+    
+            if (ConditionsQueryData?.dataStore?.entries){
+  
 
+              const conditionExists = (conditionNameToCheck) => {
+                  const conditionNameArray = ConditionsQueryData.dataStore?.entries || [];
+                  
+                  return conditionNameArray.some(condition => 
+                    condition.name.toLowerCase() === conditionNameToCheck.replace(/\s+/g, '').toLowerCase() &&
+                    condition.projectID.toLowerCase() === loadedProject.id.toLowerCase()
+                  );
+              };
+              setExistingConditionName(conditionExists(conditionName))
+            }
+  
+          } else {
+            console.error('Data structure does not match the expected format');
+          }
+
+    },[conditionName]);
+
+    // Function to toggle the state
+    const toggleSavingDataElementState = () => {
+                // Set the state to true
+        setSavingDataElementState(true);
+        setSavingDataElementState(currentState => !currentState); // Negate the current state
+    };
 
     const updateDataStore = async (postObject) =>{
 
@@ -456,6 +605,9 @@ const ConfigureMetadata = (props) => {
             // Handle error (log, show alert, etc.)
             console.error('Error updating project:', error);
           }
+
+        //update project saving state
+        toggleSavingDataElementState()
 
     }
     /** Prepare data to Update DHIS2 Object */
@@ -544,12 +696,13 @@ const ConfigureMetadata = (props) => {
                     const Templateid = generateRandomId();  
                             // Remove spaces from projectName
                     const trimmedTemplateName = templateName.replace(/\s+/g, '');
-        
+       
                     const TemplateData =  {
                         "id":Templateid,
                         "key": templateName+'-'+Templateid,
                         "name":templateName,
                         "projectID":loadedProject.id,
+                        "catCombo":fileredHorizontalCatCombo0[0].id,
                         "modifiedDate":modifiedDate(),
                         "sideNavigation": selectedSideNavigation || 'Default',
                         "formComponent":selectedFormComponents || 'Default',                    
@@ -580,21 +733,23 @@ const ConfigureMetadata = (props) => {
                           resource: `dataStore/${config.dataStoreTemplates}/${trimmedTemplateName}-${Templateid}`,
                           type: 'create',
                           data: TemplateData,
-                        });  
+                        });
+                        //update project saving state
+                        toggleSavingDataElementState()
 
                       } catch (error) {
                         // Handle error (log, show alert, etc.)
                         console.error('Error saving Template:', error);
+
                       }      
                 TemaplateQueryrefetch()
                 }
                 AferProjectSave((prev) => !prev);
 
-                setSelectedTab('dataElemenents-table');
-                setEditMode(false)
+
+                openDataElementList()
+
                 setDirectClickTabDE(1);
-                setSelectSideNavigation(null);
-                setSelectFormComponents(null);
                                 
                     // Close the modal or perform any other actions upon success
                     //handleCloseModal();
@@ -605,6 +760,8 @@ const ConfigureMetadata = (props) => {
         }
         // Activate refresh button
         setRefreshing(false);
+        //update project saving state
+        toggleSavingDataElementState()
     }
 
     // Function to update template name
@@ -617,8 +774,27 @@ const ConfigureMetadata = (props) => {
     const handleTemplateNameChange = (event) => {
             setTemplateName(event.target.value);
     };
+    ["Horizontal Level 1", "Horizontal Level 2", "Vertical Level 1", "Vertical Level 2", "Vertical Level 3"];
 
+    function alignLevels(level){
+        if (level === "Horizontal Level 1"){return 'HorizontalLevel0'}
+        else if(level === "Horizontal Level 2"){return 'HorizontalLevel1'}
+        else if(level === "Vertical Level 1"){return 'verticalLevel1'}
+        else if(level === "Vertical Level 2"){return 'verticalLevel2'}
+        else if(level === "Vertical Level 3"){return 'verticalLevel3'}
+        else {return ''}
+    }
+    // Function to update Exclusion level
+    const handleExclusionLevelChange = (event) => {
 
+        setSelectedExclusionLevel(event.target.value);
+    };
+
+    // Function to update condition level
+    const handleConditionLevelChange = (event) => {
+
+        setSelectedConditionLevel(event.target.value);
+    };
 
     // Function to reset template name and close the modal
     const handleCloseTemplateNameModal = () => {
@@ -632,9 +808,65 @@ const ConfigureMetadata = (props) => {
         setFormComponentName('');
         setSideNavigationForm(false);
         setFormComponents(false);
+
     }; 
 
+    
+    //
+    // Function to reset template name and close the modal
+    const handleCloseExclusionModal = () => {
+        setExclusionComponents(false);
+        setExclusion('');
+        setCondition('');
+        setConditionName('');
+    };
 
+    const handleCreateExclusion = async () => {
+
+        const componentsID = generateRandomId();  
+        
+        // Remove spaces from const
+        const trimmedconditionName= conditionName.replace(/\s+/g, '');
+        if (!trimmedconditionName.trim() || !condition || !exclude) {
+            console.log('Please enter all rule parameters');
+            return;
+        }
+
+        if (existingConditionName){
+            console.log('Rule Name is not Unique');
+            return;
+        }
+
+        const conditionData =  {            
+            id:componentsID, 
+            name:trimmedconditionName,
+            condition:condition,
+            conditionLevel:alignLevels(selectedConditionLevel),
+            exclusion:exclude,
+            exclusionLevel:alignLevels(selectedExclusionLevel),
+            projectID: loadedProject.id,
+            key: `${trimmedconditionName}-${loadedProject.id}`,           
+    
+        }
+
+        try {
+            await props.engine.mutate({
+              resource: `dataStore/${config.dataStoreConditions}/${trimmedconditionName}-${loadedProject.id}`,
+              type: 'create',
+              data: conditionData,
+            });
+        
+            // Close the modal or perform any other actions upon success
+            handleCloseExclusionModal();
+
+          } catch (error) {
+            // Handle error (log, show alert, etc.)
+            console.error('Error saving Excludion Rule:', error);
+          }
+          ConditionsQueryDataRefetch()
+          setReloadExclusions((prev) => !prev); 
+    
+    }
     // Function to create Side Navigation
     const handleCreateSideNavigation = async () => {
 
@@ -812,6 +1044,28 @@ const ConfigureMetadata = (props) => {
           console.log('Deleting Template::', KeyID);
 
     }
+
+    const handleDeleteExclusion = async (KeyID) => {
+
+        try {
+            await props.engine.mutate({
+              resource: `dataStore/${config.dataStoreConditions}/${KeyID}`,
+              type: 'delete',
+            });
+            console.log(`Exclusion  "${KeyID}" deleted successfully.`);
+          //   handleCloseModal(); // Close the modal after successful deletion
+  
+          } catch (error) {
+            console.error('Error deleting Exclusion:', error);
+          }
+          ConditionsQueryDataRefetch(); // Refetch data after deletion
+          // setSelectedProject(null);
+          // setShowDeleteModal(false)
+          
+          console.log('Deleting Exclusion::', KeyID);
+
+    }
+
     const handleRemoveDataElementConfirmation = async (dataElement) => {
 
         // Filter out the dataElement with the specified ID
@@ -863,10 +1117,33 @@ const ConfigureMetadata = (props) => {
 
     }
 
-    handleEditDataElement
+    const openDataElementList = () =>{
+
+        setSelectedTab('dataElemenents-table')        
+        setEditMode(false)
+        setSelectSideNavigation(null);
+        setSelectFormComponents(null);
+
+    }
+    const newDataElementLaunch = () =>{
+
+        setSelectedTab('dataElemenent-configuration');
+        setEditMode(false)
+        setDirectClickTabDE(1);
+        setSelectSideNavigation(null);
+        setSelectFormComponents(null);
+        // setSelectedDataElementId(null);
+
+
+    }
     const handleEditTemplate = (template) => {
 
         console.log('Handle Edit Template Btn Clicked')
+    }
+
+    const handleEditExclusions = (template) => {
+
+        console.log('Handle Exclusion Btn Clicked')
     }
     {/*  useDataQuery(query) exceptions */}
     
@@ -893,10 +1170,7 @@ const ConfigureMetadata = (props) => {
             label="Existing Data Elements"
             selected={selectedTab === 'dataElemenents-table'}
             onClick={() => {
-                setSelectedTab('dataElemenents-table')        
-                setEditMode(false)
-                setSelectSideNavigation(null);
-                setSelectFormComponents(null);
+                openDataElementList()
             }}
           >
             Existing Data Elements
@@ -905,12 +1179,8 @@ const ConfigureMetadata = (props) => {
             label="Configure Data Elements"
             selected={selectedTab === 'dataElemenent-configuration'}
             onClick={() => {
-                setSelectedTab('dataElemenent-configuration');
-                setEditMode(false)
-                setDirectClickTabDE(1);
-                setSelectSideNavigation(null);
-                setSelectFormComponents(null);
-                // setSelectedDataElementId(null);
+                newDataElementLaunch()
+
 
               }}
           >
@@ -942,6 +1212,19 @@ const ConfigureMetadata = (props) => {
           >
             Templates
           </Tab>
+          <Tab
+            label="Exclusion Rules"
+            selected={selectedTab === 'exclusion-rules'}
+            onClick={() => {
+                setSelectedTab('exclusion-rules');
+                setEditMode(false)
+                setDirectClickTabDE(0);
+                setSelectSideNavigation(null);
+                setSelectFormComponents(null);
+              }}
+          >
+            Exclusion Rules
+          </Tab>
         </TabBar>
 
         {selectedTab === 'dataElemenents-table' && (
@@ -953,7 +1236,15 @@ const ConfigureMetadata = (props) => {
                   <Table className={classes.dataTable}>
                     <TableHead>
                     <TableRowHead>
-                        <TableCellHead>Data Elements</TableCellHead>
+                        <TableCellHead>Data Elements
+
+                        <span className={classes.iconAdd}  onClick={() => newDataElementLaunch()}>
+                          
+                                <IconAddCircle24 />
+
+                                </span>
+
+                        </TableCellHead>
                         <TableCellHead>Actions</TableCellHead>
                     </TableRowHead>
                     </TableHead>
@@ -1020,6 +1311,7 @@ const ConfigureMetadata = (props) => {
                                 setSelectSideNavigation={setSelectSideNavigation}
                                 selectedDataElementId={selectedDataElementId}
                                 editMode={editMode}
+                                savingDataElement={savingDataElement}
                                 
                                 />
                             </div>
@@ -1106,16 +1398,21 @@ const ConfigureMetadata = (props) => {
                       </div>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
-                  <Button className={classes.loadTemplateButton} onClick={() => setShowModalMetadataTemplate(true)}>
-                      Load Template
-                  </Button>
+                  <Button 
+                        className={classes.loadTemplateButton} 
+                        onClick={() => setShowModalMetadataTemplate(true)}
+                        disabled={selectedDataElementId.length <= 0}
+                    >
+                        Load Template
+                    </Button>
                   </div>
                   {showModalMetadataTemplate && 
                       (<MetadataTemplating 
                           showModalMetadataTemplate={showModalMetadataTemplate}
                           setShowModalMetadataTemplate={setShowModalMetadataTemplate}
                           loadedProjectid={loadedProject.id}
-                          selectedDataElementId={selectedDataElementId}/>                    
+                          selectedDataElementId={selectedDataElementId}
+                          fileredHorizontalCatCombo0={fileredHorizontalCatCombo0}/>                    
                   )}
 
                   {/* Select HorizontalCategory */}
@@ -1129,6 +1426,7 @@ const ConfigureMetadata = (props) => {
                           {(function() {
                               if (typeof selectedDataElementId === 'string' && selectedDataElementId.length > 0) {
                               return <HorizontalCategory
+                                          selectedDataSet={selectedDataSet}
                                           selectedDataElementId={selectedDataElementId}
                                           setfileredHorizontalCatComboLevel1={setfileredHorizontalCatComboLevel1}
                                           setfileredVerticalCatComboLevel1={setfileredVerticalCatComboLevel1}
@@ -1219,7 +1517,7 @@ const ConfigureMetadata = (props) => {
                       </div>
                   </div>
                   <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel1((prev) => !prev)}>
-                      {isVerticalCategoryExpandedlevel1 ? '-' : '+'} Vertical Category (Inner)
+                      {isVerticalCategoryExpandedlevel1 ? '-' : '+'} Vertical Category 1 (Inner)
                   </button>
                   <div className={classes.baseMargin}>
                       <div className={`${classes.content} ${isVerticalCategoryExpandedlevel1 ? classes.active : ''}`}>
@@ -1261,46 +1559,73 @@ const ConfigureMetadata = (props) => {
 
 
                 <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel2((prev) => !prev)}>
-                      {isVerticalCategoryExpandedlevel2 ? '-' : '+'} Vertical Category (Outer)
+                      {isVerticalCategoryExpandedlevel2 ? '-' : '+'} Vertical Category 2 (Outer)
+                  </button>
+                    <div className={classes.baseMargin}>
+                        <div className={`${classes.content} ${isVerticalCategoryExpandedlevel2 ? classes.active : ''}`}>
+                            <h3></h3>
+
+                            {fileredVerticalCatComboLevel2.length > 0 && (
+                                <VerticalCategoryLevel2
+                                fileredVerticalCatComboLevel2={fileredVerticalCatComboLevel2} 
+                                setSelectedVerticalCategoryNameLevel2={setSelectedVerticalCategoryNameLevel2}
+                                setSelectedVerticalCategoryIDLevel2={setSelectedVerticalCategoryIDLevel2}
+                                setVerticalCategoryOptionsLevel2={setVerticalCategoryOptionsLevel2}
+                                selectedVerticalCategoryIDLevel1={selectedVerticalCategoryIDLevel1}
+                                loadedProject={loadedProject}
+                                selectedDataElementId={selectedDataElementId}
+                                isVerticalCategoryExpandedlevel2={isVerticalCategoryExpandedlevel2}
+                                selectedDirectClickTabDE={selectedDirectClickTabDE}
+                                setfileredVerticalCatComboLevel3={setfileredVerticalCatComboLevel3}
+
+                                />
+                            )}
+
+                            {typeof selectedVerticalCategoryIDLevel2 === 'string' && selectedVerticalCategoryIDLevel2.length >0 && isVerticalCategoryExpandedlevel2 && (
+                            <div className={classes.transferContainer}>
+                                <VerticalTransferLevel2
+                                    fileredVerticalCatComboLevel2={fileredVerticalCatComboLevel2}     
+                                    selectedVerticalCategoryIDLevel2={selectedVerticalCategoryIDLevel2}
+                                    setVerticalCategoryOptionsLevel2={setVerticalCategoryOptionsLevel2}
+                                    VerticalCategoryOptionsLevel2={VerticalCategoryOptionsLevel2}
+                                    setdictfileredVerticalCatComboLevel2={setdictfileredVerticalCatComboLevel2}
+                                    loadedProject={loadedProject}
+                                    selectedDataElementId={selectedDataElementId}
+                                    editMode={editMode}                   
+                                />
+                            </div> 
+
+                            )}                             
+                        </div>
+                  </div>
+
+	
+
+                  <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel3((prev) => !prev)}>
+                      {isVerticalCategoryExpandedlevel3 ? '-' : '+'} Vertical Category 3 (Outer)
                   </button>
                   <div className={classes.baseMargin}>
-                      <div className={`${classes.content} ${isVerticalCategoryExpandedlevel2 ? classes.active : ''}`}>
-                          <h3></h3>
+                      <div className={`${classes.content} ${isVerticalCategoryExpandedlevel3 ? classes.active : ''}`}>
+                          <h3>{fileredVerticalCatComboLevel3.length}</h3>
 
-                          {fileredVerticalCatComboLevel2.length > 0 && (
-                              <VerticalCategoryLevel2
-                              fileredVerticalCatComboLevel2={fileredVerticalCatComboLevel2} 
-                              setSelectedVerticalCategoryNameLevel2={setSelectedVerticalCategoryNameLevel2}
-                              setSelectedVerticalCategoryIDLevel2={setSelectedVerticalCategoryIDLevel2}
-                              setVerticalCategoryOptionsLevel2={setVerticalCategoryOptionsLevel2}
-                              selectedVerticalCategoryIDLevel1={selectedVerticalCategoryIDLevel1}
+                          {fileredVerticalCatComboLevel3.length > 0 && (
+                              <VerticalCategoryLevel3
+                              fileredVerticalCatComboLevel3={fileredVerticalCatComboLevel3} 
+                              setSelectedVerticalCategoryNameLevel3={setSelectedVerticalCategoryNameLevel3}
+                              setSelectedVerticalCategoryIDLevel3={setSelectedVerticalCategoryIDLevel3}
+                              setVerticalCategoryOptionsLevel3={setVerticalCategoryOptionsLevel3}
+                              selectedVerticalCategoryIDLevel2={selectedVerticalCategoryIDLevel2}
                               loadedProject={loadedProject}
                               selectedDataElementId={selectedDataElementId}
-                              isVerticalCategoryExpandedlevel2={isVerticalCategoryExpandedlevel2}
+                              isVerticalCategoryExpandedlevel3={isVerticalCategoryExpandedlevel3}
                               selectedDirectClickTabDE={selectedDirectClickTabDE}
 
                               />
                           )}
 
-                          {typeof selectedVerticalCategoryIDLevel2 === 'string' && selectedVerticalCategoryIDLevel2.length >0 && isVerticalCategoryExpandedlevel2 && (
-                          <div className={classes.transferContainer}>
-                              <VerticalTransferLevel2
-                                  fileredVerticalCatComboLevel2={fileredVerticalCatComboLevel2}     
-                                  selectedVerticalCategoryIDLevel2={selectedVerticalCategoryIDLevel2}
-                                  setVerticalCategoryOptionsLevel2={setVerticalCategoryOptionsLevel2}
-                                  VerticalCategoryOptionsLevel2={VerticalCategoryOptionsLevel2}
-                                  setdictfileredVerticalCatComboLevel2={setdictfileredVerticalCatComboLevel2}
-                                  loadedProject={loadedProject}
-                                  selectedDataElementId={selectedDataElementId}
-                                  editMode={editMode}                   
-                              />
-                          </div> 
-
-                          )}                             
+                            
                       </div>
                   </div>
-
-
             </div>
         )}
     
@@ -1444,7 +1769,81 @@ const ConfigureMetadata = (props) => {
 
         )}
 
+        {selectedTab === 'exclusion-rules' && (
+
+        <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
+
+                <Table className={classes.dataTable}>
+                        <TableHead>
+                        <TableRowHead>
+                            <TableCellHead className={classes.customTableCellHead}>
+                                Exclusion Rules
+                                <span className={classes.iconAdd}  onClick={() => setExclusionComponents(true)}>
+                                <IconAddCircle24 />
+
+                                </span>
+                            </TableCellHead>
+                            <TableCellHead>Actions</TableCellHead>
+                        </TableRowHead>
+                        </TableHead>
+                        <TableBody>
+                        {Array.isArray(ConditionsQueryData?.dataStore?.entries || []) &&
+                            ConditionsQueryData?.dataStore?.entries.map((exclusion) => (
+                                // Check if navigation.dataSet is equal to selectedDataSet
+                                exclusion.projectID === loadedProject.id && (
+                                    <TableRow key={exclusion.key} className={classes.customTableRow}>
+                                        <TableCell className={classes.customTableCell}>{exclusion.name}</TableCell>
+                                        <TableCell className={`${classes.customTableCell}`}>
+
+                                        <TooltipComponent 
+                                        IconType={IconEdit16} 
+                                        btnFunc={handleEditExclusions}
+                                        project={exclusion.key}
+                                        dynamicText="Edit"
+                                        buttonMode="secondary"
+
+                                    />
+                                        <TooltipComponent 
+                                        IconType={IconDelete16} 
+                                        btnFunc={handleDeleteExclusion}
+                                        project={exclusion.key}
+                                        dynamicText="Delete"
+                                        buttonMode="destructive"/>
+
+                                        </TableCell>
+                                    </TableRow>
+                                )
+
+                            ))}
+                        </TableBody>
+            </Table>
+        </div>
+
+        )}
+
         </ModalContent>
+            {(selectedTab !== 'dataElemenent-configuration') && (
+                        
+
+                        <ModalActions>                    
+
+                            <div className={classes.baseMargin}>
+                                <ButtonStrip>
+                                <Button onClick={() => handleCloseModal()}>Close</Button>
+
+                                <Button 
+                                    onClick={loadedProject.dataElements.length > 0 ? GenerateHTMLHandler : undefined}
+                                    disabled={loadedProject.dataElements.length <= 0}
+                                >
+                                    Generate HTML Template
+                                </Button>
+                                </ButtonStrip>
+                            </div>
+
+                        </ModalActions>
+
+
+            )}
           {selectedTab === 'dataElemenent-configuration' && (
             
 
@@ -1461,10 +1860,12 @@ const ConfigureMetadata = (props) => {
                             <Button primary  onClick={() => handleSaveTemplate()}>
                                 Save and Make Template
                             </Button>
-                            <Button onClick={() =>{
-                                GenerateHTMLHandler();
-                                }
-                                }>Generate HTML Template</Button>
+                            <Button 
+                                    onClick={loadedProject.dataElements.length > 0 ? GenerateHTMLHandler : undefined}
+                                    disabled={loadedProject.dataElements.length <= 0}
+                                >
+                                    Generate HTML Template
+                                </Button>
                             </ButtonStrip>
                         </div>
 
@@ -1507,6 +1908,71 @@ const ConfigureMetadata = (props) => {
                 </Modal>
             )}
             
+
+
+            {/* Modal for Exclusion Rules */}
+            {showExclusionComponents && (
+                <Modal>
+                <ModalTitle>Create an Exclusion Rule</ModalTitle>
+                <ModalContent>
+                    {/* Add content for Exclusion Rule */}
+                    <div>
+
+                    <Input
+                              name="conditionName"
+                              placeholder="Condition Name"
+                              value={conditionName}
+                              onChange={({ value }) => setConditionName(value)}
+                              className={classes.inputField}
+                          />
+
+                        <Input
+                              name="condition"
+                              placeholder="Condition"
+                              value={condition}
+                              onChange={({ value }) => setCondition(value)}
+                              className={classes.inputField}
+                          />
+
+                        <select id="conditionLevel" value={selectedConditionLevel} onChange={handleConditionLevelChange} className={classes.selectField}>
+                                    <option value="">Select Condition Level</option>
+                                    {conditionLevels.map(level => (
+                                        <option key={level} value={level}>{level}</option>
+                                    ))}
+                                </select>
+
+                        <Input
+                              name="exclude"
+                              placeholder="Exclude"
+                              value={exclude}
+                              onChange={({ value }) => setExclusion(value)}
+                              className={classes.inputField}
+                          />
+
+                         <select id="conditionLevel" value={selectedExclusionLevel} onChange={handleExclusionLevelChange} className={classes.selectField}>
+                                    <option value="">Select Exclusion Level</option>
+                                    {exclusionLevels.map(level => (
+                                        <option key={level} value={level}>{level}</option>
+                                    ))}
+                                </select>
+
+
+                    </div>
+                </ModalContent>
+                <ModalActions>
+                    <ButtonStrip>
+                    <Button onClick={handleCloseExclusionModal}>Cancel</Button>
+                    {/* Add save changes logic here */}
+                    <Button primary onClick={handleCreateExclusion}>Create Exclusion
+                    
+                    
+
+                    </Button>
+                    </ButtonStrip>
+                </ModalActions>
+                </Modal>
+            )}
+
             {/* Modal for Creating Side Navigation */}
             {showSideNavigationForm && (
                 <Modal>
@@ -1575,6 +2041,7 @@ const ConfigureMetadata = (props) => {
                     engine={props.engine}
                     loadedProject={loadedProject}
                     setShowGenerateForm={setShowGenerateForm}
+                    loadedRules={loadedRules}
                     />                    
             )}
     </Modal>

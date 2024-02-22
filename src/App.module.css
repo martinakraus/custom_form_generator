@@ -400,3 +400,15 @@ min-height: 200px;
   margin-left: 10px; /* Adjust the margin as needed for spacing between the two components */
 }
 
+.inputField {
+  margin-bottom: 10px;
+}
+
+.selectField {
+  margin-bottom: 10px;
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  color: #7A8492;
+  border-color: #A0ADBA;
+}

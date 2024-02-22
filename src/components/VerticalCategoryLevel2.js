@@ -27,6 +27,10 @@ const VerticalCategoryLevel2 = (props) => {
                 if (savedCategory){
                   setDisabled(true)
                   const SelectedCategories = filteredCategories.filter(category => category.id === savedCategory);
+                  const notSelectedCategories = filteredCategories.filter(category => category.id !== savedCategory);
+                  console.log('********* notSelectedCategories *********')
+                  console.log(notSelectedCategories)
+                  props.setfileredVerticalCatComboLevel3(notSelectedCategories)
                   props.setSelectedVerticalCategoryIDLevel2(savedCategory)
                   props.setSelectedVerticalCategoryNameLevel2(SelectedCategories[0].name || '')
                   setSelectedCategory(savedCategory)
