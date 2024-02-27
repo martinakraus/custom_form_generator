@@ -10,7 +10,8 @@ const VerticalCategoryLevel2 = (props) => {
 
 
   useEffect(() => {
-    // Filter out the selected vertical category
+    console.log('*** props.fileredVerticalCatComboLevel2 ***')
+    console.log(props.fileredVerticalCatComboLevel2)
     setHorizontalCategories(filteredCategories);
 
     // if(updatedDataElementsLevel1.length > 0 && selectedCategory === null){
@@ -48,8 +49,13 @@ const VerticalCategoryLevel2 = (props) => {
     setSelectedCategory(selected)
     props.setSelectedVerticalCategoryIDLevel2(selected)
     const SelectedCategories = filteredCategories.filter(category => category.id === selected);
+    const notSelectedCategories = filteredCategories.filter(category => category.id !== selected);
+    props.setfileredVerticalCatComboLevel3(notSelectedCategories)
     props.setSelectedVerticalCategoryNameLevel2(SelectedCategories[0].name || '')
     props.setVerticalCategoryOptionsLevel2([])
+
+
+
   }
 
   return (

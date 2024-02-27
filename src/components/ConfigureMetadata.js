@@ -12,16 +12,15 @@ import HorizontalTransferLevel1 from './HorizontalTransferLevel1';
 import VerticalTransferLevel1 from './VerticalTransferLevel1';
 import VerticalTransferLevel2 from './VerticalTransferLevel2';
 import VerticalTransferLevel3 from './VerticalTransferLevel3';
+import ExclusionRuleComponent from './ExclusionRuleComponent';
 import MetadataTemplating from './MetadataTemplating';
 import GenerateForm from './GenerateForm';
 import TooltipComponent from './TooltipComponent'
 import { Input } from '@dhis2-ui/input'
 import { IconEdit16, IconDelete16, IconAddCircle24} from '@dhis2/ui-icons';
-import { modifiedDate } from '../utils';
+import { generateRandomId, modifiedDate,  alignLevels} from '../utils';
 import SideNavigation from './SideNavigationSelection';
 import FormComponentSelection from './FormComponentSelection';
-
-
 
 
 import { 
@@ -53,8 +52,9 @@ import { config,
     TemplateFilter, 
     exclusionRuleFilter,
     conditionLevels,
-    exclusionLevels} from '../consts'
-import { generateRandomId } from '../utils';
+    exclusionLevels,
+    labelNameFilter} from '../consts'
+import LabelComponent from './LabelComponent';
 
   
 
@@ -112,6 +112,13 @@ const ConfigureMetadata = (props) => {
         },
     }
     
+
+    const LabelQuery = {
+        dataStore: {
+            resource: `dataStore/${config.dataStoreLabelName}?${labelNameFilter}`,
+            },
+
+    }
     // To hold pre-loaded data from dataStore
     const [loadedProject, setLoadedProject] = useState(props.selectedProject || []);
 
@@ -131,6 +138,7 @@ const ConfigureMetadata = (props) => {
     const [selectedDataSet,setselectedDataSet] = useState(props.selectedDataSet);
     const [selectedDataSetName,setselectedDataSetName] = useState([]);
     const [selectedDataElementId, setSelectedDataElementId] = useState(null);
+    const [overidingCategory, setOveridingCategory] = useState('xxxxx');
     const [selectedDataElement, setSelectedDataElement] = useState(null);
     const [selectedDataElementsDict, setSelectedDataElementsDict] = useState(null);
     
@@ -154,6 +162,10 @@ const ConfigureMetadata = (props) => {
 
     // Edit mode
     const [editMode, setEditMode] = useState(false);
+    const [editExclusionMode, setEditExclusionMode] = useState(false);
+    const [selectedExclusion, setSelectedExclusion] = useState("");
+    const [selectedLabel, setSelectedLabel] = useState("");
+    const [editLabelMode, setEditLabelMode] = useState(false);
 
 
     // New state for template name
@@ -170,8 +182,14 @@ const ConfigureMetadata = (props) => {
     const [selectedConditionLevel, setSelectedConditionLevel] = useState(""); // State to store the selected level
     const [selectedExclusionLevel, setSelectedExclusionLevel] = useState(""); // State to store the selected level
 
-
-
+       // For Label Rules
+    const [showLabelComponents, setLabelComponents] = useState(false);
+    const [selectedMetadataOption, setSelectedMetadataOption] = useState("");
+	const [metadataName, setMetadataName] = useState('');
+	const [labelName, setLabelName] = useState('');
+    const [selectedLabelLevel, setSelectedlabelLevel] = useState(""); // State to store the selected level
+    const [reloadLabels, setReloadLabels] = useState(false);
+    const [existingMetadataName, setExistingMetadataName] = useState(false);
 
 
     // To hold exclusion data from dataStore
@@ -221,6 +239,7 @@ const ConfigureMetadata = (props) => {
     const [VerticalCategoryOptionsLevel3, setVerticalCategoryOptionsLevel3] = useState([]);
     const [fileredVerticalCatComboLevel3, setfileredVerticalCatComboLevel3] = useState([]);
 
+
     const [isDataSetsExpanded, setIsDataSetsExpanded] = useState(false);
     const [isDataElementExpanded, setIsDataElementExpanded] = useState(false);
    
@@ -235,11 +254,8 @@ const ConfigureMetadata = (props) => {
     const { data: FormComponentQueryData, refetch:FormComponentQueryrefetch } = useDataQuery(FormComponentQuery); // Use separate hook for dataStoreQuery
     const { data: TemaplateQueryData, refetch:TemaplateQueryrefetch } = useDataQuery(TemplateQuery); // Use separate hook for dataStoreQuery
     const { data: ConditionsQueryData, refetch:ConditionsQueryDataRefetch } = useDataQuery(ConditionQuery); // Use separate hook for dataStoreQuery
+    const { data: LabelQueryData, refetch:LabelQueryDataRefetch } = useDataQuery(LabelQuery); // Use separate hook for dataStoreQuery
 
-if (ConditionsQueryData){
-console.log(ConditionsQueryData)
-
-}
 
     // useEffect(() => {
     //     ConditionsQueryDataRefetch();
@@ -444,7 +460,6 @@ console.log(ConditionsQueryData)
 
     },[selectedHorizontalCategoryID0])
 
-
     useEffect(() => {
         // Constants for Vertical Categories (Level 1 Outer)
         setSelectedVerticalCategoryIDLevel1(null);
@@ -473,7 +488,6 @@ console.log(ConditionsQueryData)
 
     },[selectedHorizontalCategoryIDLevel1])
 
-
     useEffect(() => {
 
                 // Constants for Vertical Categories (Level 1 Outer)
@@ -482,7 +496,7 @@ console.log(ConditionsQueryData)
                 setdictfileredVerticalCatComboLevel2([]);
                 setIsVerticalCategoryExpandedlevel2(false);
                 setVerticalCategoryOptionsLevel2([]);
-                //setfileredVerticalCatComboLevel2([]);
+                setfileredVerticalCatComboLevel2([]); //
 
                 
         // Constants for Vertical Categories (Level 3 Outer)
@@ -495,7 +509,6 @@ console.log(ConditionsQueryData)
 
     },[selectedVerticalCategoryIDLevel1])
 
-
     useEffect(() => {
         // Constants for Vertical Categories (Level 3 Outer)
         setSelectedVerticalCategoryIDLevel3(null);
@@ -503,12 +516,9 @@ console.log(ConditionsQueryData)
         setdictfileredVerticalCatComboLevel3([]);
         setIsVerticalCategoryExpandedlevel3(false);
         setVerticalCategoryOptionsLevel3([]);
-        // setfileredVerticalCatComboLevel3([]);
+        setfileredVerticalCatComboLevel3([]);
 
         },[selectedVerticalCategoryIDLevel2])
-
-
-
 
     useEffect(() => {
         if (SideNavigationQueryData?.dataStore) {
@@ -571,7 +581,7 @@ console.log(ConditionsQueryData)
                   const conditionNameArray = ConditionsQueryData.dataStore?.entries || [];
                   
                   return conditionNameArray.some(condition => 
-                    condition.name.toLowerCase() === conditionNameToCheck.replace(/\s+/g, '').toLowerCase() &&
+                    condition.name.toLowerCase() === conditionNameToCheck.toLowerCase() &&
                     condition.projectID.toLowerCase() === loadedProject.id.toLowerCase()
                   );
               };
@@ -584,6 +594,29 @@ console.log(ConditionsQueryData)
 
     },[conditionName]);
 
+    useEffect(() => {
+        if (LabelQueryData?.dataStore) {   
+    
+            if (LabelQueryData?.dataStore?.entries){
+  
+
+              const labelExists = (labelNameToCheck) => {
+                  const metadataNameArray = LabelQueryData.dataStore?.entries || [];
+                 
+                  return metadataNameArray.some(label => 
+                    label.name.toLowerCase() === labelNameToCheck.toLowerCase() &&
+                    label.projectID.toLowerCase() === loadedProject.id.toLowerCase()
+                  );
+              };
+              setExistingMetadataName(labelExists(metadataName))
+            }
+  
+          } else {
+            console.error('Data structure does not match the expected format');
+          }
+
+    },[metadataName]);
+
     // Function to toggle the state
     const toggleSavingDataElementState = () => {
                 // Set the state to true
@@ -591,43 +624,28 @@ console.log(ConditionsQueryData)
         setSavingDataElementState(currentState => !currentState); // Negate the current state
     };
 
-    const updateDataStore = async (postObject) =>{
+    const updateDataStore = async (postObject, store, key) =>{
 
         try {
             await props.engine.mutate({
-              resource: `dataStore/${config.dataStoreName}/${postObject.key}`,
+              resource: `dataStore/${store}/${key}`,
               type: 'update',
               data: postObject,
             });
 
-
           } catch (error) {
             // Handle error (log, show alert, etc.)
-            console.error('Error updating project:', error);
+            console.error('Error updating object:', error);
           }
-
-        //update project saving state
-        toggleSavingDataElementState()
-
     }
+
     /** Prepare data to Update DHIS2 Object */
     const handleSaveToConfiguration = async (action, templateName = '') => {
         if (selectedDataElementId !== null 
             && selectedDataElement !== null
             && selectedHorizontalCategoryID0 !== null) {
                             
-                // console.log('Configuation dictfileredHorizontalCatCombo0')
-                // console.log(dictfileredHorizontalCatCombo0)
-                // console.log('Configuation dictfileredHorizontalCatComboLevel1')
-                // console.log(dictfileredHorizontalCatComboLevel1)
-                // console.log('Configuation dictfileredVerticalCatComboLevel1')
-                // console.log(dictfileredVerticalCatComboLevel1)
-                // console.log('Configuation dictfileredVerticalCatComboLevel2')
-                // console.log(dictfileredVerticalCatComboLevel2)
-                // console.log('Configuation selectedSideNavigation')
-                // console.log(selectedSideNavigation)
-                // console.log('Configuation selectedFormComponents')
-                // console.log(selectedFormComponents)               
+            
                 const projectData = {
                     "dataElements":[        
                         {
@@ -655,6 +673,11 @@ console.log(ConditionsQueryData)
                             "name":selectedVerticalCategoryNameLevel2,
                             "metadata":dictfileredVerticalCatComboLevel2                        
                         },
+                        "verticalLevel3": {                                
+                            "id":selectedVerticalCategoryIDLevel3, 
+                            "name":selectedVerticalCategoryNameLevel3,
+                            "metadata":dictfileredVerticalCatComboLevel3                        
+                        },
                         }
                     ]
                 }
@@ -681,16 +704,17 @@ console.log(ConditionsQueryData)
                         ...loadedProject,
                         ...projectData,
                         dataElements: updatedDataElements,
-                    })
+                    }, config.dataStoreName, loadedProject.key)
                 } else {
 
                     updateDataStore({
                         ...loadedProject,
                         ...projectData,
                         dataElements: [...loadedProject.dataElements, ...projectData.dataElements],
-                    })
+                    }, config.dataStoreName, loadedProject.key)
 
                 }
+                toggleSavingDataElementState()
 
                 if (action === 'saveTemplate'){    
                     const Templateid = generateRandomId();  
@@ -725,7 +749,12 @@ console.log(ConditionsQueryData)
                             "id":selectedVerticalCategoryIDLevel2, 
                             "name":selectedVerticalCategoryNameLevel2,
                             "metadata":dictfileredVerticalCatComboLevel2                        
-                        }
+                        },
+                        "verticalLevel3": {                                
+                            "id":selectedVerticalCategoryIDLevel3, 
+                            "name":selectedVerticalCategoryNameLevel3,
+                            "metadata":dictfileredVerticalCatComboLevel3                        
+                        },
                     }
         
                     try {
@@ -774,16 +803,9 @@ console.log(ConditionsQueryData)
     const handleTemplateNameChange = (event) => {
             setTemplateName(event.target.value);
     };
-    ["Horizontal Level 1", "Horizontal Level 2", "Vertical Level 1", "Vertical Level 2", "Vertical Level 3"];
 
-    function alignLevels(level){
-        if (level === "Horizontal Level 1"){return 'HorizontalLevel0'}
-        else if(level === "Horizontal Level 2"){return 'HorizontalLevel1'}
-        else if(level === "Vertical Level 1"){return 'verticalLevel1'}
-        else if(level === "Vertical Level 2"){return 'verticalLevel2'}
-        else if(level === "Vertical Level 3"){return 'verticalLevel3'}
-        else {return ''}
-    }
+
+
     // Function to update Exclusion level
     const handleExclusionLevelChange = (event) => {
 
@@ -796,6 +818,11 @@ console.log(ConditionsQueryData)
         setSelectedConditionLevel(event.target.value);
     };
 
+    // Function to update condition level
+    const handleLabelLevelChange = (event) => {
+
+        setSelectedlabelLevel(event.target.value);
+    };
     // Function to reset template name and close the modal
     const handleCloseTemplateNameModal = () => {
         setTemplateName('');
@@ -819,54 +846,185 @@ console.log(ConditionsQueryData)
         setExclusion('');
         setCondition('');
         setConditionName('');
+        setEditExclusionMode(false)
+        setSelectedExclusion('')
     };
 
-    const handleCreateExclusion = async () => {
+    const handleCreateExclusion = async (action, updatingID='') => {
 
-        const componentsID = generateRandomId();  
+        if (action === "new"){
+            const componentsID = generateRandomId();  
         
-        // Remove spaces from const
-        const trimmedconditionName= conditionName.replace(/\s+/g, '');
-        if (!trimmedconditionName.trim() || !condition || !exclude) {
-            console.log('Please enter all rule parameters');
-            return;
-        }
-
-        if (existingConditionName){
-            console.log('Rule Name is not Unique');
-            return;
-        }
-
-        const conditionData =  {            
-            id:componentsID, 
-            name:trimmedconditionName,
-            condition:condition,
-            conditionLevel:alignLevels(selectedConditionLevel),
-            exclusion:exclude,
-            exclusionLevel:alignLevels(selectedExclusionLevel),
-            projectID: loadedProject.id,
-            key: `${trimmedconditionName}-${loadedProject.id}`,           
+            // Remove spaces from const
+            const trimmedconditionName= conditionName.replace(/\s+/g, '');
+            if (!trimmedconditionName.trim() || !condition || !exclude) {
+                console.log('Please enter all rule parameters');
+                return;
+            }
     
-        }
-
-        try {
-            await props.engine.mutate({
-              resource: `dataStore/${config.dataStoreConditions}/${trimmedconditionName}-${loadedProject.id}`,
-              type: 'create',
-              data: conditionData,
-            });
+            if (existingConditionName){
+                console.log('Rule Name is not Unique');
+                return;
+            }
+    
+            // Maximum length for the trimmed string is 15
+            const trimmedName = trimmedconditionName.substring(0, 15);
+    
+            const conditionData =  {            
+                id:componentsID, 
+                name:conditionName,
+                condition:condition,
+                conditionLevel:alignLevels(selectedConditionLevel),
+                exclusion:exclude,
+                exclusionLevel:alignLevels(selectedExclusionLevel),
+                projectID: loadedProject.id,
+                key: `${trimmedName}-${componentsID}`,     
         
-            // Close the modal or perform any other actions upon success
-            handleCloseExclusionModal();
+            }
+    
+            try {
+                await props.engine.mutate({
+                  resource: `dataStore/${config.dataStoreConditions}/${trimmedName}-${componentsID}`,
+                  type: 'create',
+                  data: conditionData,
+                });
+            
+                // Close the modal or perform any other actions upon success
+  
+    
+              } catch (error) {
+                // Handle error (log, show alert, etc.)
+                console.error('Error saving Excludion Rule:', error);
+              }
 
-          } catch (error) {
-            // Handle error (log, show alert, etc.)
-            console.error('Error saving Excludion Rule:', error);
-          }
+        }
+        if (action === "update"){
+
+            
+            const conditionData =  {
+                id:updatingID, 
+                name:conditionName,
+                condition:condition,
+                conditionLevel:alignLevels(selectedConditionLevel),
+                exclusion:exclude,
+                exclusionLevel:alignLevels(selectedExclusionLevel),
+                projectID: loadedProject.id,
+                key: selectedExclusion,    
+            }
+            updateDataStore(conditionData, config.dataStoreConditions, selectedExclusion)
+            
+
+            // id:componentsID, 
+            // projectID: loadedProject.id,
+            // key: `${trimmedName}-${componentsID}`,    
+
+        }
+        handleCloseExclusionModal();
+
           ConditionsQueryDataRefetch()
           setReloadExclusions((prev) => !prev); 
     
     }
+
+
+
+    const handleEditExclusions = (key) => {
+        setEditExclusionMode(true)
+        setSelectedExclusion(key)
+        setExclusionComponents(true)
+    }
+    const handleCloseLabelModal =() =>{
+        setLabelComponents(false);
+        setSelectedMetadataOption('');
+        setMetadataName('');
+        setLabelName('');
+        setEditLabelMode(false)
+        setSelectedLabel('')
+    }
+
+
+    const handleEditLabel = (key) =>{
+        setEditLabelMode(true)
+        setLabelComponents(true)
+        setSelectedLabel(key)
+
+    }
+    const handleCreateLabel = async (action, updatingID) => {
+        if (action === 'new'){
+
+
+            const componentsID = generateRandomId();  
+        
+            // Remove spaces from const
+            const trimmedLabelName= labelName.replace(/\s+/g, '');
+            if (!trimmedLabelName.trim() || !selectedLabelLevel || !metadataName || !selectedLabelLevel || !selectedMetadataOption) {
+                console.log('Please enter all label parameters');
+                return;
+            }
+            if (existingMetadataName){
+                console.log('Metadata name is not Unique');
+                return;
+            }
+            // Maximum length for the trimmed string is 15
+            const trimmedName = trimmedLabelName.substring(0, 15);
+    
+            const labelData =  {            
+                id:componentsID, 
+                name:metadataName,
+                labelName:labelName,
+                metadataType:selectedMetadataOption,
+                LabelLevel:alignLevels(selectedLabelLevel),
+                projectID: loadedProject.id,
+                key: `${trimmedName}-${componentsID}`,           
+        
+            }
+            try {
+                await props.engine.mutate({
+                  resource: `dataStore/${config.dataStoreLabelName}/${trimmedName}-${componentsID}`,
+                  type: 'create',
+                  data: labelData,
+                });
+            
+
+    
+              } catch (error) {
+                // Handle error (log, show alert, etc.)
+                console.error('Error saving label:', error);
+              }
+
+
+
+
+            
+        }
+        if (action === 'update'){
+            const labelData =  {            
+                id:updatingID, 
+                name:metadataName,
+                labelName:labelName,
+                metadataType:selectedMetadataOption,
+                LabelLevel:alignLevels(selectedLabelLevel),
+                projectID: loadedProject.id,
+                key: selectedLabel,           
+        
+            }
+
+            updateDataStore(labelData, config.dataStoreLabelName, selectedLabel)
+        }
+
+
+
+        // Close the modal or perform any other actions upon success
+          handleCloseLabelModal();
+          LabelQueryDataRefetch()
+          setReloadLabels((prev) => !prev); 
+    
+
+
+
+    }
+
+   
     // Function to create Side Navigation
     const handleCreateSideNavigation = async () => {
 
@@ -1066,6 +1224,30 @@ console.log(ConditionsQueryData)
 
     }
 
+  
+
+    const handleDeleteLabel = async (KeyID) => {
+
+        try {
+            await props.engine.mutate({
+              resource: `dataStore/${config.dataStoreLabelName}/${KeyID}`,
+              type: 'delete',
+            });
+            console.log(`Label  "${KeyID}" deleted successfully.`);
+          //   handleCloseModal(); // Close the modal after successful deletion
+  
+          } catch (error) {
+            console.error('Error deleting label:', error);
+          }
+          LabelQueryDataRefetch(); // Refetch data after deletion
+          // setSelectedProject(null);
+          // setShowDeleteModal(false)
+          
+          console.log('Deleting label::', KeyID);
+
+    }
+
+
     const handleRemoveDataElementConfirmation = async (dataElement) => {
 
         // Filter out the dataElement with the specified ID
@@ -1141,10 +1323,11 @@ console.log(ConditionsQueryData)
         console.log('Handle Edit Template Btn Clicked')
     }
 
-    const handleEditExclusions = (template) => {
 
-        console.log('Handle Exclusion Btn Clicked')
-    }
+
+
+
+
     {/*  useDataQuery(query) exceptions */}
     
     if (error1 ) {
@@ -1160,7 +1343,7 @@ console.log(ConditionsQueryData)
   return (
     <Modal fluid onClose={handleCloseModal}>
       <ModalTitle>
-        Category Options and Navigations
+        Category Options and Navigations - {loadedProject.projectName}
 
         </ModalTitle>
           <ModalContent>
@@ -1180,8 +1363,6 @@ console.log(ConditionsQueryData)
             selected={selectedTab === 'dataElemenent-configuration'}
             onClick={() => {
                 newDataElementLaunch()
-
-
               }}
           >
             Configure Data Elements
@@ -1225,6 +1406,19 @@ console.log(ConditionsQueryData)
           >
             Exclusion Rules
           </Tab>
+          <Tab
+            label="Labels"
+            selected={selectedTab === 'Labels'}
+            onClick={() => {
+                setSelectedTab('Labels');
+                setEditMode(false)
+                setDirectClickTabDE(0);
+                setSelectSideNavigation(null);
+                setSelectFormComponents(null);
+              }}
+          >
+            &nbsp;&nbsp;Labels&nbsp;&nbsp;
+          </Tab>
         </TabBar>
 
         {selectedTab === 'dataElemenents-table' && (
@@ -1254,13 +1448,7 @@ console.log(ConditionsQueryData)
                             <TableRow className={classes.customTableRow} key={dataElement.id}>
                                 <TableCell className={classes.customTableCell}>{dataElement.name}</TableCell>
                                 <TableCell className={`${classes.customTableCell}`}>
-                                {/* <button
-                                    className={`${classes.buttonRight} ${classes.iconButton}`}
-                                    onClick={() => handleEditDataElement(dataElement)}
-                                    >
-                                    <IconEdit16 className={classes.icon} />
-                                    
-                                    </button> */}
+
                                     <TooltipComponent 
                                         IconType={IconEdit16} 
                                         btnFunc={handleEditDataElement}
@@ -1278,13 +1466,6 @@ console.log(ConditionsQueryData)
 
                                     />
 
-                                    {/* <button style={{ color: 'red', borderColor: 'red' }}
-                                    className={`${classes.buttonRight} ${classes.iconButton}`}
-                                    onClick={() => handleRemoveDataElementConfirmation(dataElement)}
-                                    >
-                                    <IconDelete16 className={classes.icon} />
-                                    
-                                    </button> */}
                                 </TableCell>
                             </TableRow>
                             ))
@@ -1392,6 +1573,8 @@ console.log(ConditionsQueryData)
                               setSelectSideNavigation={setSelectSideNavigation}
                               setSelectFormComponents={setSelectFormComponents}
                               loadedProject={loadedProject}
+                              setOveridingCategory={setOveridingCategory}
+
                                       />;
                               }
                           })()}
@@ -1428,6 +1611,7 @@ console.log(ConditionsQueryData)
                               return <HorizontalCategory
                                           selectedDataSet={selectedDataSet}
                                           selectedDataElementId={selectedDataElementId}
+                                          overidingCategory={overidingCategory}
                                           setfileredHorizontalCatComboLevel1={setfileredHorizontalCatComboLevel1}
                                           setfileredVerticalCatComboLevel1={setfileredVerticalCatComboLevel1}
                                           setSelectedHorizontalCategoryID0={setSelectedHorizontalCategoryID0}
@@ -1623,7 +1807,24 @@ console.log(ConditionsQueryData)
                               />
                           )}
 
-                            
+                        {typeof selectedVerticalCategoryIDLevel3 === 'string' && selectedVerticalCategoryIDLevel3.length >0 && isVerticalCategoryExpandedlevel3 && (
+                            <div className={classes.transferContainer}>
+                                <VerticalTransferLevel3                          
+                                    VerticalCategoryOptionsLevel3={VerticalCategoryOptionsLevel3}
+                                    fileredVerticalCatComboLevel3={fileredVerticalCatComboLevel3}
+                                    selectedDataElementId={selectedDataElementId}
+                                    loadedProject={loadedProject}
+                                    isVerticalCategoryExpandedlevel3={isVerticalCategoryExpandedlevel3}
+                                    setdictfileredVerticalCatComboLevel3={setdictfileredVerticalCatComboLevel3}
+                                    selectedDirectClickTabDE={selectedDirectClickTabDE}
+                                    selectedVerticalCategoryIDLevel3={selectedVerticalCategoryIDLevel3}
+                                    editMode={editMode}
+                                    setVerticalCategoryOptionsLevel3={setVerticalCategoryOptionsLevel3}
+                                />
+
+                        </div> 
+
+                        )}       
                       </div>
                   </div>
             </div>
@@ -1770,57 +1971,106 @@ console.log(ConditionsQueryData)
         )}
 
         {selectedTab === 'exclusion-rules' && (
+            <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
 
-        <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
+                    <Table className={classes.dataTable}>
+                            <TableHead>
+                            <TableRowHead>
+                                <TableCellHead className={classes.customTableCellHead}>
+                                    Exclusion Rules
+                                    <span className={classes.iconAdd}  onClick={() => setExclusionComponents(true)}>
+                                    <IconAddCircle24 />
 
-                <Table className={classes.dataTable}>
-                        <TableHead>
-                        <TableRowHead>
-                            <TableCellHead className={classes.customTableCellHead}>
-                                Exclusion Rules
-                                <span className={classes.iconAdd}  onClick={() => setExclusionComponents(true)}>
-                                <IconAddCircle24 />
+                                    </span>
+                                </TableCellHead>
+                                <TableCellHead>Actions</TableCellHead>
+                            </TableRowHead>
+                            </TableHead>
+                            <TableBody>
+                            {Array.isArray(ConditionsQueryData?.dataStore?.entries || []) &&
+                                ConditionsQueryData?.dataStore?.entries.map((exclusion) => (
+                                    // Check if navigation.dataSet is equal to selectedDataSet
+                                    exclusion.projectID === loadedProject.id && (
+                                        <TableRow key={exclusion.key} className={classes.customTableRow}>
+                                            <TableCell className={classes.customTableCell}>{exclusion.name}</TableCell>
+                                            <TableCell className={`${classes.customTableCell}`}>
 
-                                </span>
-                            </TableCellHead>
-                            <TableCellHead>Actions</TableCellHead>
-                        </TableRowHead>
-                        </TableHead>
-                        <TableBody>
-                        {Array.isArray(ConditionsQueryData?.dataStore?.entries || []) &&
-                            ConditionsQueryData?.dataStore?.entries.map((exclusion) => (
-                                // Check if navigation.dataSet is equal to selectedDataSet
-                                exclusion.projectID === loadedProject.id && (
-                                    <TableRow key={exclusion.key} className={classes.customTableRow}>
-                                        <TableCell className={classes.customTableCell}>{exclusion.name}</TableCell>
-                                        <TableCell className={`${classes.customTableCell}`}>
+                                            <TooltipComponent 
+                                            IconType={IconEdit16} 
+                                            btnFunc={handleEditExclusions}
+                                            project={exclusion.key}
+                                            dynamicText="Edit"
+                                            buttonMode="secondary"
 
-                                        <TooltipComponent 
-                                        IconType={IconEdit16} 
-                                        btnFunc={handleEditExclusions}
-                                        project={exclusion.key}
-                                        dynamicText="Edit"
-                                        buttonMode="secondary"
+                                            />
+                                            <TooltipComponent 
+                                            IconType={IconDelete16} 
+                                            btnFunc={handleDeleteExclusion}
+                                            project={exclusion.key}
+                                            dynamicText="Delete"
+                                            buttonMode="destructive"/>
 
-                                    />
-                                        <TooltipComponent 
-                                        IconType={IconDelete16} 
-                                        btnFunc={handleDeleteExclusion}
-                                        project={exclusion.key}
-                                        dynamicText="Delete"
-                                        buttonMode="destructive"/>
+                                            </TableCell>
+                                        </TableRow>
+                                    )
 
-                                        </TableCell>
-                                    </TableRow>
-                                )
-
-                            ))}
-                        </TableBody>
-            </Table>
-        </div>
+                                ))}
+                            </TableBody>
+                </Table>
+            </div>
 
         )}
 
+        {selectedTab === 'Labels' && (
+            <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
+
+                    <Table className={classes.dataTable}>
+                            <TableHead>
+                            <TableRowHead>
+                                <TableCellHead className={classes.customTableCellHead}>
+                                        Labels
+                                    <span className={classes.iconAdd}  onClick={() => setLabelComponents(true)}>
+                                    <IconAddCircle24 />
+
+                                    </span>
+                                </TableCellHead>
+                                <TableCellHead>Actions</TableCellHead>
+                            </TableRowHead>
+                            </TableHead>
+                            <TableBody>
+                            {Array.isArray(LabelQueryData?.dataStore?.entries || []) &&
+                                LabelQueryData?.dataStore?.entries.map((label) => (
+                                    // Check if navigation.dataSet is equal to selectedDataSet
+                                    label.projectID === loadedProject.id && (
+                                        <TableRow key={label.key} className={classes.customTableRow}>
+                                            <TableCell className={classes.customTableCell}>{label.name}</TableCell>
+                                            <TableCell className={`${classes.customTableCell}`}>
+
+                                            <TooltipComponent 
+                                            IconType={IconEdit16} 
+                                            btnFunc={handleEditLabel}
+                                            project={label.key}
+                                            dynamicText="Edit"
+                                            buttonMode="secondary"
+
+                                        />
+                                            <TooltipComponent 
+                                            IconType={IconDelete16} 
+                                            btnFunc={handleDeleteLabel}
+                                            project={label.key}
+                                            dynamicText="Delete"
+                                            buttonMode="destructive"/>
+
+                                            </TableCell>
+                                        </TableRow>
+                                    )
+
+                                ))}
+                            </TableBody>
+                </Table>
+            </div>
+
+        )}
         </ModalContent>
             {(selectedTab !== 'dataElemenent-configuration') && (
                         
@@ -1912,67 +2162,54 @@ console.log(ConditionsQueryData)
 
             {/* Modal for Exclusion Rules */}
             {showExclusionComponents && (
-                <Modal>
-                <ModalTitle>Create an Exclusion Rule</ModalTitle>
-                <ModalContent>
-                    {/* Add content for Exclusion Rule */}
-                    <div>
 
-                    <Input
-                              name="conditionName"
-                              placeholder="Condition Name"
-                              value={conditionName}
-                              onChange={({ value }) => setConditionName(value)}
-                              className={classes.inputField}
-                          />
+                <ExclusionRuleComponent
+                    editExclusionMode={editExclusionMode}
+                    conditionName={conditionName}
+                    setConditionName={setConditionName}
+                    condition={condition}
+                    setCondition={setCondition}
+                    selectedConditionLevel={selectedConditionLevel}
+                    handleConditionLevelChange={handleConditionLevelChange}
+                    exclude={exclude}
+                    setExclusion={setExclusion}
+                    selectedExclusionLevel={selectedExclusionLevel}
+                    handleExclusionLevelChange={handleExclusionLevelChange}
+                    exclusionLevels={exclusionLevels}
+                    handleCloseExclusionModal={handleCloseExclusionModal}
+                    handleCreateExclusion={handleCreateExclusion}
+                    selectedExclusion={selectedExclusion}
+                    setSelectedConditionLevel={setSelectedConditionLevel}
+                    setSelectedExclusionLevel={setSelectedExclusionLevel}                
+                />
 
-                        <Input
-                              name="condition"
-                              placeholder="Condition"
-                              value={condition}
-                              onChange={({ value }) => setCondition(value)}
-                              className={classes.inputField}
-                          />
-
-                        <select id="conditionLevel" value={selectedConditionLevel} onChange={handleConditionLevelChange} className={classes.selectField}>
-                                    <option value="">Select Condition Level</option>
-                                    {conditionLevels.map(level => (
-                                        <option key={level} value={level}>{level}</option>
-                                    ))}
-                                </select>
-
-                        <Input
-                              name="exclude"
-                              placeholder="Exclude"
-                              value={exclude}
-                              onChange={({ value }) => setExclusion(value)}
-                              className={classes.inputField}
-                          />
-
-                         <select id="conditionLevel" value={selectedExclusionLevel} onChange={handleExclusionLevelChange} className={classes.selectField}>
-                                    <option value="">Select Exclusion Level</option>
-                                    {exclusionLevels.map(level => (
-                                        <option key={level} value={level}>{level}</option>
-                                    ))}
-                                </select>
-
-
-                    </div>
-                </ModalContent>
-                <ModalActions>
-                    <ButtonStrip>
-                    <Button onClick={handleCloseExclusionModal}>Cancel</Button>
-                    {/* Add save changes logic here */}
-                    <Button primary onClick={handleCreateExclusion}>Create Exclusion
-                    
-                    
-
-                    </Button>
-                    </ButtonStrip>
-                </ModalActions>
-                </Modal>
             )}
 
+
+            {/* Modal for Form Name */}
+            {showLabelComponents && (
+                
+                <LabelComponent 
+
+                    selectedLabel={selectedLabel}
+                    editLabelMode={editLabelMode}                
+                    selectedMetadataOption={selectedMetadataOption}
+                    setSelectedMetadataOption={setSelectedMetadataOption}
+                    handleLabelLevelChange={handleLabelLevelChange}
+                    conditionLevels={conditionLevels}
+                    metadataName={metadataName}
+                    setMetadataName={setMetadataName}
+                    labelName={labelName}
+                    setLabelName={setLabelName}
+                    handleCloseLabelModal={handleCloseLabelModal}
+                    handleCreateLabel={handleCreateLabel}
+                    selectedLabelLevel={selectedLabelLevel}
+                    setSelectedlabelLevel={setSelectedlabelLevel}
+
+                
+                
+                />
+            )}
             {/* Modal for Creating Side Navigation */}
             {showSideNavigationForm && (
                 <Modal>

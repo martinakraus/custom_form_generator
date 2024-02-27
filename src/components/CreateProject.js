@@ -5,7 +5,7 @@ import React, { useState, useEffect  } from 'react';
 import { Input } from '@dhis2-ui/input'
 import classes from '../App.module.css'
 import { config, ProjectsFilters} from '../consts'
-import { generateRandomId, modifiedDate } from '../utils';
+import { generateRandomId, modifiedDate, createOrUpdateDataStore } from '../utils';
 
 /*  Query Parameters**/
 const query = {
@@ -40,7 +40,7 @@ const CreateProject = (props) => {
           // Now you can safely access dataStoreData.dataStore
           if (dataStoreData?.dataStore?.entries){
 
-            console.log(dataStoreData.dataStore.entries);
+            // console.log(dataStoreData.dataStore.entries);
             const projectsArray = dataStoreData.dataStore?.entries || [];
             const projectNameExists = (projectNameToCheck) => {
               return projectsArray.some(project => project.projectName.toLowerCase() === projectNameToCheck.toLowerCase());
@@ -92,24 +92,21 @@ const CreateProject = (props) => {
         const trimmedProjectName = projectName.replace(/\s+/g, '');
 
         const id = generateRandomId();
+        const keyID=`${trimmedProjectName}-${id}`
 
         const projectData = {
           projectName: projectName,
           id: id,
           dataSet:{id:selectedDataSet, name:selectedDataSetName.displayName},
-          key: `${trimmedProjectName}-${id}`,
+          key: keyID,
           dataElements:[],
           modifiedDate:modifiedDate(),
 
         };
-        console.log(projectData);
-      
+        // console.log(projectData);
+        
         try {
-          await props.engine.mutate({
-            resource: `dataStore/${config.dataStoreName}/${trimmedProjectName}-${id}`,
-            type: 'create',
-            data: projectData,
-          });
+          createOrUpdateDataStore(props.engine, projectData, config.dataStoreName, keyID, 'create')
       
           // Close the modal or perform any other actions upon success
           handleCloseModal();

@@ -31,8 +31,6 @@ const HorizontalTransfer = (props) => {
 
     
     const options_init_reordered = selected.map(id => filteredOptionsSelected.find(option => option.id === id));
-    console.log('here 2')
-    console.log(options_init_reordered)
     props.setdictfileredHorizontalCatCombo0(options_init_reordered)
 
   }
@@ -80,8 +78,6 @@ const HorizontalTransfer = (props) => {
             setSelectedKeys(metadata.map(option => option.value)); // Set all options to the right by default
             
             handleVerticalTransferChange(metadata.map(option => option.value))
-            console.log('here 1')
-            console.log(metadata.map(option => option.value))
        
         }else{
 
@@ -103,12 +99,6 @@ const HorizontalTransfer = (props) => {
         
   }, [props.fileredHorizontalCatCombo0, runTwice]);
 
-  // useEffect(() => {
-  //   // Resume normal operation after running twice
-  //   if (runTwice >= 2) {
-  //     // Additional logic or resetting state if needed
-  //   }
-  // }, [runTwice]);
 
   return (
     <div>

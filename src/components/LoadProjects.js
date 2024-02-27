@@ -2,6 +2,8 @@ import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
 import React, { useState, useEffect } from 'react';
 import ConfigureMetadata from './ConfigureMetadata'
 import TooltipComponent from './TooltipComponent'
+import { Input } from '@dhis2-ui/input'
+import {updateDataStore, generateRandomId, createDataStore} from '../utils'
 
 
 import {
@@ -21,11 +23,13 @@ import classes from '../App.module.css'
 
 const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects, reloadProjects, setReloadProjects }) => {
   const [projects, setProjects] = useState([]);
+  const [projectName, setProjectName] = useState('');
   const [selectedProject, setSelectedProject] = useState(null);
 
   const [selectedDataSet,setselectedDataSet] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showCopyModal, setShowCopyModal] = useState(false);
   const [showConfigureProject, setShowModalConfigureProject] = useState(false);
   const [filterText, setFilterText] = useState('');
   
@@ -75,18 +79,66 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
 
   const handleEditProject = (project) => {
     setSelectedProject(project);
+    setProjectName(project ? project.projectName : null)
     setShowEditModal(true);
   };
 
+  const handleCopyProjectConfirmation = (project) => {
+    setSelectedProject(project);
+    setShowCopyModal(true)
+
+  }
+
+  const handleCopyProject = (project) => {
+
+    console.log('Start creating a cpoy')
+    console.log(project)
+    
+    setSelectedProject(project); 
+       
+    project.id=generateRandomId()
+    project.projectName = project.projectName+'_Copy'
+    const lastIndex = project.projectName.lastIndexOf("-");
+    const removeID = project.projectName.substring(0, lastIndex);
+    project.key = removeID+generateRandomId()
+
+
+   
+    createDataStore (engine, project, config.dataStoreName, project.key)
+    setReloadProjects((prev) => !prev);
+
+    console.log('Project Copy Created')
+
+    handleCloseModal()
+  }
+
+  const handleRenaming = () =>{
+
+
+    if (!selectedProject.hasOwnProperty('projectName')) {
+      // If it doesn't exist, add it to the object
+      selectedProject.projectName = projectName;
+    } else {
+      // If it exists, update its value
+      selectedProject.projectName = projectName;
+    }
+    
+    updateDataStore (engine, selectedProject, config.dataStoreName, selectedProject.key)
+
+    handleCloseModal()
+
+  }
 
   const handleDeleteProjectConfirmation = async (project) => {
     // Implement delete project logic here
     setSelectedProject(project);
+
     setShowDeleteModal(true)
   };
   const handleConfigureProject = async (project) =>{
     // Implement configure project logic here
     setSelectedProject(project);
+
 
     console.log(project.key);
     setselectedDataSet(project.dataSet.id);
@@ -122,10 +174,12 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
     setSelectedProject(null);
     setShowEditModal(false);
     setShowDeleteModal(false);
+    setProjectName('')
+    setShowCopyModal(false)
   };
 
   return (
-    <div className={classes.tableContainer}>
+    <div className={classes.tableContainer_dataElements}>
       <InputField
         className={classes.filterInput}
         inputWidth={'20vw'}
@@ -159,42 +213,40 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
                     btnFunc={handleConfigureProject}
                     project={project}
                     dynamicText="Configure"
-                    buttonMode="primary"
+                    buttonMode="secondary"
+                    customIcon={true}
                     />
-                  {/* <Button primary onClick={() => handleConfigureProject(project)}
-                        className={`${classes.buttonRight} ${classes.iconButton}`}>
-                        
-                        <IconEdit16 className={classes.icon} />
-                        
-                        </Button> */}
                   <TooltipComponent 
                     IconType={IconTextHeading16} 
                     btnFunc={handleEditProject}
                     project={project}
                     dynamicText="Rename"
                     buttonMode="secondary"
+                    customIcon={true}
 
                     />
-                  {/* <Button secondary onClick={() => handleEditProject(project)}
-                        className={`${classes.buttonRight} ${classes.renamebutton}`} 
-                        >
-                        <IconTextHeading16 className={classes.icon} />
-                  </Button> */}
+
+                  <TooltipComponent 
+                    IconType={IconTextHeading16} 
+                    btnFunc={handleCopyProjectConfirmation}
+                    project={project}
+                    dynamicText="Copy"
+                    buttonMode="secondary"
+                    customIcon={true}
+
+                    />
+                  
 
                   <TooltipComponent 
                       IconType={IconDelete16} 
                       btnFunc={handleDeleteProjectConfirmation}
                       project={project}
-                      dynamicText="Delete Project"
+                      dynamicText="Delete"
                       buttonMode="destructive"
+                      customIcon={true}
 
                     />
-                  {/* <Button style={{ color: 'red', borderColor: 'red' }}
-                                    className={`${classes.buttonRight} ${classes.iconButton}`}
-                                    destructive onClick={() => handleDeleteProjectConfirmation(project)}>
 
-                                    <IconDelete16 className={classes.icon} />
-                                    </Button> */}
               </TableCell>
               </TableRow>
         ))}
@@ -207,13 +259,23 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
           <ModalTitle>Edit Project</ModalTitle>
           <ModalContent>
             {/* Add content for editing the selected project */}
-            <div>{selectedProject ? `Editing: ${selectedProject.projectName}` : null}</div>
+            <div>            
+            
+            
+            <Input
+                              name="renameName"
+                              placeholder="Rename Project"
+                              value={projectName}
+                              onChange={({ value }) => setProjectName(value)}
+                              className={classes.inputField}
+                          />
+            </div>
           </ModalContent>
           <ModalActions>
             <ButtonStrip>
-              <Button onClick={handleCloseModal}>Cancel</Button>
+              <Button onClick={handleCloseModal}>Close</Button>
               {/* Add save changes logic here */}
-              <Button primary>Save Changes</Button>
+              <Button primary onClick={() => handleRenaming()}>Rename</Button>
             </ButtonStrip>
           </ModalActions>
         </Modal>
@@ -243,6 +305,30 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
         </Modal>
       )}
 
+
+
+        {showCopyModal && (
+          <Modal>
+            <ModalTitle>Copy Project: Comfirmation</ModalTitle>
+            <ModalContent>
+              {/* Add content for editing the selected project */}
+              <div>{selectedProject ? `Are you sure you want to create of copy of: ${selectedProject.projectName}` : null}</div>
+            </ModalContent>
+            <ModalActions>
+              <ButtonStrip>
+                <Button onClick={handleCloseModal}>Cancel</Button>
+                {/* Add save changes logic here */}
+                <Button onClick={() =>
+                      handleCopyProject(
+                        selectedProject 
+                      )
+                    }
+                    primary>Create Project Copy
+                </Button>
+              </ButtonStrip>
+            </ModalActions>
+          </Modal>
+        )}
 
             {/* Modal for configuring projects */}
             {/* Offload Memory of data query when leaving this page */}

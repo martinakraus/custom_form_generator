@@ -409,6 +409,11 @@ min-height: 200px;
   width: 100%;
   padding: 0.5rem;
   font-size: 0.9rem;
-  color: #7A8492;
+  color: #3C434D;
   border-color: #A0ADBA;
+}
+
+.smallIcon {
+  width: 16px;
+  height: 12px  
 }
