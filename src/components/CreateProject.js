@@ -1,4 +1,4 @@
-import { useDataQuery } from '@dhis2/app-runtime'
+import { useDataQuery, useAlert } from '@dhis2/app-runtime'
 import { SingleSelect, SingleSelectOption  } from '@dhis2-ui/select'
 import { Modal, ModalTitle, ModalContent, ModalActions, ButtonStrip, Button } from '@dhis2/ui'
 import React, { useState, useEffect  } from 'react';
@@ -26,6 +26,10 @@ const dataStoreQuery = {
 
 
 const CreateProject = (props) => {
+  const { show } = useAlert(
+    ({ msg }) => msg,
+    ({ type }) => ({ [type]: true })
+  )
     const [projectName, setProjectName] = useState('');
     const [selectedDataSet,setselectedDataSet] = useState([]);
     const [selectedDataSetName,setselectedDataSetName] = useState([]);
@@ -45,6 +49,7 @@ const CreateProject = (props) => {
             const projectNameExists = (projectNameToCheck) => {
               return projectsArray.some(project => project.projectName.toLowerCase() === projectNameToCheck.toLowerCase());
             };
+
             setExistingProjects(projectNameExists(projectName))
             // console.log(existingProject);
           }
@@ -110,6 +115,7 @@ const CreateProject = (props) => {
       
           // Close the modal or perform any other actions upon success
           handleCloseModal();
+          show({ msg: 'Project Created :' +projectData.projectName, type: 'success' })
           props.setReloadProjects((prev) => !prev);
         } catch (error) {
           // Handle error (log, show alert, etc.)

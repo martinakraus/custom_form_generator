@@ -417,3 +417,13 @@ min-height: 200px;
   width: 16px;
   height: 12px  
 }
+
+.largeIcon {
+  width: 30px;
+  height: 26px  
+}
+
+.customImageContainer {
+  float: right; /* Aligns the container to the right */
+  cursor: pointer; /* Changes cursor to pointer on hover */
+}

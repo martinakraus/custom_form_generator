@@ -2,21 +2,30 @@ import copy from './Icons/copy.png'
 import delete_ from './Icons/delete_btn.png'
 import edit from './Icons/edit.png'
 import rename from './Icons/rename.png'
+import sync from './Icons/sync.png'
 import classes from './App.module.css'
 import { useDataQuery } from '@dhis2/app-runtime';
 
-export const customImage = (source) => {
+export const customImage = (source, size='small') => {
+      // Check the source and set iconClass accordingly
+  let iconClass = '';
+
+  iconClass = size === 'small' ? classes.smallIcon : size === 'large' ? classes.largeIcon : classes.smallIcon;
+
   if (source.toLowerCase()== 'copy'){
-    return <img src={copy} className={classes.smallIcon}/>
+    return <img src={copy} className={iconClass}/>
   }
   if (source.toLowerCase()== 'delete'){
-    return <img src={delete_} className={classes.smallIcon}/>
+    return <img src={delete_} className={iconClass}/>
   }
   if (source.toLowerCase()== 'rename'){
-    return <img src={rename} className={classes.smallIcon}/>
+    return <img src={rename} className={iconClass}/>
   }
   if (source.toLowerCase()== 'configure'){
-    return <img src={edit} className={classes.smallIcon}/>
+    return <img src={edit} className={iconClass}/>
+  }
+  if (source.toLowerCase()== 'sync'){
+    return <img src={sync} className={iconClass}/>
   }
 }
 
@@ -89,9 +98,12 @@ export const updateDataStore = async (engine, postObject, store, key) =>{
         data: postObject,
       });
 
+      return true
+
     } catch (error) {
       // Handle error (log, show alert, etc.)
       console.error('Error updating object:', error);
+      return false
     }
 }
 

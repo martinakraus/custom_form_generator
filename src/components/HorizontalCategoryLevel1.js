@@ -7,38 +7,9 @@ const HorizontalCategoryLevel1 = (props) => {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [horizontalCategories, setHorizontalCategories] = useState([]);
-  const [HorizontalCategoriesinit, setHorizontalCategoriesinit] = useState(0);
+  // const [HorizontalCategoriesinit, setHorizontalCategoriesinit] = useState(0);
   const [disabled, setDisabled] = useState(false)
 
-//     // Query to fetch data elements and their category information
-//     const query = {
-//       dataElement: {
-//         resource: 'dataElements',
-//         id: props.selectedDataElementId,
-//         params: {
-//           fields: 'id,categoryCombo[name,id,categories[id,name, categoryOptions[id,name]]]',
-//         },
-//       },
-//     };
-
-//   // Use the useDataQuery hook to fetch data from the DHIS2 API
-//   const { loading, error, data, refetch } = useDataQuery(query);
-//     // Effect to refetch data when the selectedDataElementId changes
-//   useEffect(() => {
-//       if (props.fileredHorizontalCatCombo0){
-//         if (data && data.dataElement) {
-//           console.log(data)
-//           const { categoryCombo } = data.dataElement;
-//           const categories1 = categoryCombo?.categories || [];
-//           // Update the state with the category data
-// //          setCategories(categories1);
-
-
-//         }
-//     console.log('********* props.fileredHorizontalCatCombo0 *********')
-//     console.log(props.fileredHorizontalCatCombo0)
-//       }
-//   }, [props.isHorizontalCategoryExpandedLevel1]);
 
   useEffect(() => {
       if(props.isHorizontalCategoryExpandedLevel1){
@@ -51,41 +22,42 @@ const HorizontalCategoryLevel1 = (props) => {
               const updatedDataElementsLevel1 = props.loadedProject.dataElements.filter(
                 (element) => element.id === props.selectedDataElementId
               );
-              const HorizontalCategoryObject = filteredCategories.find(
-                (element) => element.id === updatedDataElementsLevel1[0]?.HorizontalLevel1?.id
-              );
-              const savedCategory = HorizontalCategoryObject?.id
+              if (props.editMode){  
+                  const HorizontalCategoryObject = filteredCategories.find(
+                    (element) => element.id === updatedDataElementsLevel1[0]?.HorizontalLevel1?.id
+                  );
+                  const savedCategory = HorizontalCategoryObject?.id
 
-              if (savedCategory) {
-                // Populate notSelectedCategories
-                setDisabled(true)
-                notSelectedCategories.push(...filteredCategories.filter(category => category.id !== HorizontalCategoryObject.id));
-                // console.log('********* notSelectedCategories *********')
-                // console.log(notSelectedCategories)
-                // console.log('Effect triggered! 1a');
-                setSelectedCategory(HorizontalCategoryObject.id);
-                props.setSelectedHorizontalCategoryIDLevel1(HorizontalCategoryObject.id);
-                props.setSelectedHorizontalCategoryNameLevel1(HorizontalCategoryObject.name);
-              }
-              // else{
-              //   setSelectedCategory(null);
+                  if (savedCategory) {
+                    // Populate notSelectedCategories
+                    setDisabled(true)
+                    notSelectedCategories.push(...filteredCategories.filter(category => category.id !== HorizontalCategoryObject.id));
+                    // console.log('********* notSelectedCategories *********')
+                    // console.log(notSelectedCategories)
+                    // console.log('Effect triggered! 1a');
+                    setSelectedCategory(HorizontalCategoryObject.id);
+                    props.setSelectedHorizontalCategoryIDLevel1(HorizontalCategoryObject.id);
+                    props.setSelectedHorizontalCategoryNameLevel1(HorizontalCategoryObject.name);
+                  }
+                  // else{
+                  //   setSelectedCategory(null);
 
-              // }
-              // console.log('Effect triggered! 1b');
-              props.setfileredVerticalCatComboLevel1(notSelectedCategories)
+                  // }
+                  // console.log('Effect triggered! 1b');
+                  props.setfileredVerticalCatComboLevel1(notSelectedCategories)
 
-              setHorizontalCategoriesinit(1)                            
-        
+                  // setHorizontalCategoriesinit(1)                            
+            }
       }
   
   }, [props.isHorizontalCategoryExpandedLevel1]); // 
 
   // Clear selectCategory if HL0 is changed
-  useEffect(() =>{
+  // useEffect(() =>{
 
-    setSelectedCategory(null);
+  //   setSelectedCategory(null);
 
-  },[props.fileredHorizontalCatCombo0]);
+  // },[props.fileredHorizontalCatCombo0]);
 
 
   useEffect(() => {

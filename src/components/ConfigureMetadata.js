@@ -1,4 +1,4 @@
-import { useDataQuery } from '@dhis2/app-runtime'
+import { useDataQuery, useAlert } from '@dhis2/app-runtime'
 import { SingleSelect, SingleSelectOption  } from '@dhis2-ui/select'
 import React, { useState, useEffect } from 'react';
 import AppGetDEList from '../AppGetDEList'
@@ -18,7 +18,7 @@ import GenerateForm from './GenerateForm';
 import TooltipComponent from './TooltipComponent'
 import { Input } from '@dhis2-ui/input'
 import { IconEdit16, IconDelete16, IconAddCircle24} from '@dhis2/ui-icons';
-import { generateRandomId, modifiedDate,  alignLevels} from '../utils';
+import { generateRandomId, modifiedDate,  alignLevels, customImage} from '../utils';
 import SideNavigation from './SideNavigationSelection';
 import FormComponentSelection from './FormComponentSelection';
 
@@ -59,7 +59,10 @@ import LabelComponent from './LabelComponent';
   
 
 const ConfigureMetadata = (props) => {
-
+    const { show } = useAlert(
+        ({ msg }) => msg,
+        ({ type }) => ({ [type]: true })
+      )
     /*  Query Parameters**/
     const query = {
         dataSets: {
@@ -190,6 +193,7 @@ const ConfigureMetadata = (props) => {
     const [selectedLabelLevel, setSelectedlabelLevel] = useState(""); // State to store the selected level
     const [reloadLabels, setReloadLabels] = useState(false);
     const [existingMetadataName, setExistingMetadataName] = useState(false);
+    const [loadedLabels, setLoadedLabels] = useState([]);
 
 
     // To hold exclusion data from dataStore
@@ -199,7 +203,7 @@ const ConfigureMetadata = (props) => {
     const [reloadExclusions, setReloadExclusions] = useState(false);
 
   
-    // Constants for Horizontal Categories (Level 2 Inner)
+    // Constants for Horizontal Categories (Level 1 Inner)
     const [fileredHorizontalCatCombo0, setfileredHorizontalCatCombo0] = useState([]);
     const [dictfileredHorizontalCatCombo0, setdictfileredHorizontalCatCombo0] = useState([]); 
     const [selectedHorizontalCategoryID0, setSelectedHorizontalCategoryID0] = useState(null); 
@@ -231,7 +235,7 @@ const ConfigureMetadata = (props) => {
     const [fileredVerticalCatComboLevel2, setfileredVerticalCatComboLevel2] = useState([]);
 
 
-    // Constants for Vertical Categories (Level 2 Outer)
+    // Constants for Vertical Categories (Level 3 Outer)
     const [selectedVerticalCategoryIDLevel3, setSelectedVerticalCategoryIDLevel3] = useState(null);
     const [selectedVerticalCategoryNameLevel3, setSelectedVerticalCategoryNameLevel3] = useState(null);
     const [dictfileredVerticalCatComboLevel3, setdictfileredVerticalCatComboLevel3] = useState([]);
@@ -273,7 +277,16 @@ const ConfigureMetadata = (props) => {
         }
       }, [ConditionsQueryData, reloadExclusions, ]);
 
-
+      useEffect(() => {
+        LabelQueryDataRefetch();
+        if (LabelQueryData) {
+          // setProjects(data.dataStore ? [data.dataStore] : []);
+    
+              // Check if entries property exists in data.dataStore
+            const newLabels = LabelQueryData.dataStore?.entries.filter(entry => entry.projectID === loadedProject.id) || [];
+            setLoadedLabels(newLabels);
+        }
+      }, [LabelQueryData, reloadLabels, ]);
 
     useEffect(() => {
         refetch();
@@ -310,9 +323,6 @@ const ConfigureMetadata = (props) => {
     useEffect(() => {  
         if(!editMode){
             clearConstants()
-            
-
-            console.log('Processing: clearConstants() ' + savingDataElement)
         }  
     }, [editMode, savingDataElement]);
 
@@ -496,7 +506,7 @@ const ConfigureMetadata = (props) => {
                 setdictfileredVerticalCatComboLevel2([]);
                 setIsVerticalCategoryExpandedlevel2(false);
                 setVerticalCategoryOptionsLevel2([]);
-                setfileredVerticalCatComboLevel2([]); //
+                //setfileredVerticalCatComboLevel2([]); //
 
                 
         // Constants for Vertical Categories (Level 3 Outer)
@@ -511,12 +521,12 @@ const ConfigureMetadata = (props) => {
 
     useEffect(() => {
         // Constants for Vertical Categories (Level 3 Outer)
-        setSelectedVerticalCategoryIDLevel3(null);
-        setSelectedVerticalCategoryNameLevel3(null);
-        setdictfileredVerticalCatComboLevel3([]);
-        setIsVerticalCategoryExpandedlevel3(false);
-        setVerticalCategoryOptionsLevel3([]);
-        setfileredVerticalCatComboLevel3([]);
+        // setSelectedVerticalCategoryIDLevel3(null);
+        // setSelectedVerticalCategoryNameLevel3(null);
+        // setdictfileredVerticalCatComboLevel3([]);
+        // setIsVerticalCategoryExpandedlevel3(false);
+        // setVerticalCategoryOptionsLevel3([]);
+        // setfileredVerticalCatComboLevel3([]);
 
         },[selectedVerticalCategoryIDLevel2])
 
@@ -617,9 +627,11 @@ const ConfigureMetadata = (props) => {
 
     },[metadataName]);
 
+
     // Function to toggle the state
     const toggleSavingDataElementState = () => {
                 // Set the state to true
+        clearConstants()
         setSavingDataElementState(true);
         setSavingDataElementState(currentState => !currentState); // Negate the current state
     };
@@ -700,18 +712,24 @@ const ConfigureMetadata = (props) => {
                     const updatedDataElements = [...loadedProject.dataElements];
                     updatedDataElements[indexToUpdate] = projectData.dataElements.find(element => element.id === selectedDataElementId);
 
-                    updateDataStore({
+                    if (updateDataStore({
                         ...loadedProject,
                         ...projectData,
                         dataElements: updatedDataElements,
-                    }, config.dataStoreName, loadedProject.key)
+                    }, config.dataStoreName, loadedProject.key)){
+
+                        show({ msg: `Data Element  "${selectedDataElementId}" updated successfully.`, type: 'success' })
+                    }
                 } else {
 
-                    updateDataStore({
+                    if(updateDataStore({
                         ...loadedProject,
                         ...projectData,
                         dataElements: [...loadedProject.dataElements, ...projectData.dataElements],
-                    }, config.dataStoreName, loadedProject.key)
+                    }, config.dataStoreName, loadedProject.key)){
+
+                        show({ msg: `Data Element  "${selectedDataElementId}" added successfully.`, type: 'success' })
+                    }
 
                 }
                 toggleSavingDataElementState()
@@ -793,6 +811,20 @@ const ConfigureMetadata = (props) => {
         toggleSavingDataElementState()
     }
 
+    const handleDataElementRefreshClick = () => {
+        // Activate refresh button
+        AferProjectSave((prev) => !prev);
+
+
+        openDataElementList()
+
+        setDirectClickTabDE(1);
+        setRefreshing(false);
+        //update project saving state
+        toggleSavingDataElementState()
+    };
+
+
     // Function to update template name
     const GenerateHTMLHandler  = () => {
             refetch() 
@@ -838,7 +870,6 @@ const ConfigureMetadata = (props) => {
 
     }; 
 
-    
     //
     // Function to reset template name and close the modal
     const handleCloseExclusionModal = () => {
@@ -890,7 +921,7 @@ const ConfigureMetadata = (props) => {
                 });
             
                 // Close the modal or perform any other actions upon success
-  
+                show({ msg: 'Exclusion :' +trimmedName+ ' Created', type: 'success' })
     
               } catch (error) {
                 // Handle error (log, show alert, etc.)
@@ -925,8 +956,6 @@ const ConfigureMetadata = (props) => {
           setReloadExclusions((prev) => !prev); 
     
     }
-
-
 
     const handleEditExclusions = (key) => {
         setEditExclusionMode(true)
@@ -1023,7 +1052,6 @@ const ConfigureMetadata = (props) => {
 
 
     }
-
    
     // Function to create Side Navigation
     const handleCreateSideNavigation = async () => {
@@ -1047,7 +1075,7 @@ const ConfigureMetadata = (props) => {
 
         const SideNavigationData =  {            
                     id:componentsID, 
-                    sideNavName:trimmedSideNavigationName,                    
+                    sideNavName:sideNavigationName,                    
                     projectID: loadedProject.id,
                     key: `${trimmedSideNavigationName}-${loadedProject.id}`,           
             
@@ -1059,9 +1087,10 @@ const ConfigureMetadata = (props) => {
               type: 'create',
               data: SideNavigationData,
             });
-        
+            show({ msg: 'Side Navigation Created :' +sideNavigationName, type: 'success' })
             // Close the modal or perform any other actions upon success
             handleCloseSideandFormNavigationModal();
+
 
           } catch (error) {
             // Handle error (log, show alert, etc.)
@@ -1094,7 +1123,7 @@ const ConfigureMetadata = (props) => {
 
         const formComponentData =  {            
                     id:componentsID, 
-                    formComponentName:trimmedFormComponentName,                    
+                    formComponentName:formComponentName,                    
                     projectID: loadedProject.id,
                     key: `${trimmedFormComponentName}-${loadedProject.id}`,           
             
@@ -1108,6 +1137,7 @@ const ConfigureMetadata = (props) => {
             });
         
             // Close the modal or perform any other actions upon success
+            show({ msg: `Form Component  "${formComponentName}" created successfully.`, type: 'success' })
             handleCloseSideandFormNavigationModal();
 
           } catch (error) {
@@ -1118,13 +1148,11 @@ const ConfigureMetadata = (props) => {
 
     }
 
-
     // Function to handle "Save and Make Template" button click
     const handleSaveTemplate = () => {
             // Open the modal for entering the template name
         setShowTemplateNameModal(true);
     };
-
 
     const handleCloseModal = () => {
         console.log('Checking Closing')
@@ -1134,8 +1162,6 @@ const ConfigureMetadata = (props) => {
         setEditMode(false)      
 
     };
-
-
     
     const handleDeleteSideNavigation = async (KeyID) => {
 
@@ -1144,7 +1170,8 @@ const ConfigureMetadata = (props) => {
             resource: `dataStore/${config.dataStoreSideNavigations}/${KeyID}`,
             type: 'delete',
           });
-          console.log(`Side Navigation  "${sideNavigationName}" deleted successfully.`);
+        show({ msg: `Side Navigation  "${KeyID}" deleted successfully.`, type: 'success' })
+
         //   handleCloseModal(); // Close the modal after successful deletion
 
         } catch (error) {
@@ -1159,15 +1186,14 @@ const ConfigureMetadata = (props) => {
     
       };
 
-
-
     const handleDeleteFormComponent = async (KeyID) =>{
         try {
             await props.engine.mutate({
               resource: `dataStore/${config.dataStoreFormComponents}/${KeyID}`,
               type: 'delete',
             });
-            console.log(`Form Component  "${sideNavigationName}" deleted successfully.`);
+
+            show({ msg: `Form Component  "${KeyID}" deleted successfully.`, type: 'success' })
           //   handleCloseModal(); // Close the modal after successful deletion
   
           } catch (error) {
@@ -1189,7 +1215,7 @@ const ConfigureMetadata = (props) => {
               resource: `dataStore/${config.dataStoreTemplates}/${KeyID}`,
               type: 'delete',
             });
-            console.log(`Template  "${KeyID}" deleted successfully.`);
+            show({ msg: `Template  "${KeyID}" deleted successfully.`, type: 'success' })
           //   handleCloseModal(); // Close the modal after successful deletion
   
           } catch (error) {
@@ -1210,7 +1236,7 @@ const ConfigureMetadata = (props) => {
               resource: `dataStore/${config.dataStoreConditions}/${KeyID}`,
               type: 'delete',
             });
-            console.log(`Exclusion  "${KeyID}" deleted successfully.`);
+            show({ msg: `Exclusion  "${KeyID}" deleted successfully.`, type: 'success' })
           //   handleCloseModal(); // Close the modal after successful deletion
   
           } catch (error) {
@@ -1233,7 +1259,7 @@ const ConfigureMetadata = (props) => {
               resource: `dataStore/${config.dataStoreLabelName}/${KeyID}`,
               type: 'delete',
             });
-            console.log(`Label  "${KeyID}" deleted successfully.`);
+            show({ msg: `Label  "${KeyID}" deleted successfully.`, type: 'success' })
           //   handleCloseModal(); // Close the modal after successful deletion
   
           } catch (error) {
@@ -1243,7 +1269,7 @@ const ConfigureMetadata = (props) => {
           // setSelectedProject(null);
           // setShowDeleteModal(false)
           
-          console.log('Deleting label::', KeyID);
+
 
     }
 
@@ -1261,19 +1287,19 @@ const ConfigureMetadata = (props) => {
             ...loadedProject,
             dataElements: updatedDataElements,
         };
-        console.log(modifiedbject)
-        console.log(modifiedbject.key)
+
         try {
             await props.engine.mutate({
               resource: `dataStore/${config.dataStoreName}/${modifiedbject.key}`,
               type: 'update',
               data: modifiedbject,
             });
+            show({ msg: `dataElement  "${modifiedbject.key}" deleted successfully.`, type: 'success' })
 
 
           } catch (error) {
             // Handle error (log, show alert, etc.)
-            console.error('Error updating project:', error);
+            show({ msg: `dataElement  "${modifiedbject.key}" deleting failed.`, type: 'critical' })
           }
         AferProjectSave((prev) => !prev);
             
@@ -1300,7 +1326,7 @@ const ConfigureMetadata = (props) => {
     }
 
     const openDataElementList = () =>{
-
+        clearConstants()
         setSelectedTab('dataElemenents-table')        
         setEditMode(false)
         setSelectSideNavigation(null);
@@ -1323,13 +1349,7 @@ const ConfigureMetadata = (props) => {
         console.log('Handle Edit Template Btn Clicked')
     }
 
-
-
-
-
-
-    {/*  useDataQuery(query) exceptions */}
-    
+  
     if (error1 ) {
         return <span>ERROR: {error1?.message }</span>;
     }
@@ -1427,6 +1447,9 @@ const ConfigureMetadata = (props) => {
           {/* <button onClick={handleRefresh} disabled={refreshing}>
                 <IconSync24 className={classes.icon} />
             </button> */}
+                <div className={classes.customImageContainer} onClick={handleDataElementRefreshClick}>
+                    {customImage('sync', 'large')}
+                </div>
                   <Table className={classes.dataTable}>
                     <TableHead>
                     <TableRowHead>
@@ -1574,6 +1597,7 @@ const ConfigureMetadata = (props) => {
                               setSelectFormComponents={setSelectFormComponents}
                               loadedProject={loadedProject}
                               setOveridingCategory={setOveridingCategory}
+                              isHorizontalCategoryExpanded0={isHorizontalCategoryExpanded0}
 
                                       />;
                               }
@@ -1680,6 +1704,7 @@ const ConfigureMetadata = (props) => {
                                     loadedProject={loadedProject}
                                     selectedDataElementId={selectedDataElementId}
                                     fileredHorizontalCatCombo0={fileredHorizontalCatCombo0}
+                                    editMode={editMode}
                                     
                               />
                           )}
@@ -1790,8 +1815,6 @@ const ConfigureMetadata = (props) => {
                   </button>
                   <div className={classes.baseMargin}>
                       <div className={`${classes.content} ${isVerticalCategoryExpandedlevel3 ? classes.active : ''}`}>
-                          <h3>{fileredVerticalCatComboLevel3.length}</h3>
-
                           {fileredVerticalCatComboLevel3.length > 0 && (
                               <VerticalCategoryLevel3
                               fileredVerticalCatComboLevel3={fileredVerticalCatComboLevel3} 
@@ -2279,6 +2302,7 @@ const ConfigureMetadata = (props) => {
                     loadedProject={loadedProject}
                     setShowGenerateForm={setShowGenerateForm}
                     loadedRules={loadedRules}
+                    loadedLabels={loadedLabels}
                     />                    
             )}
     </Modal>

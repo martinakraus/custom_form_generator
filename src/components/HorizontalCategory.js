@@ -23,13 +23,6 @@ const HorizontalCategory = (props) => {
         },
       },
 
-      // dataSet: {
-      //   resource: 'dataSets',
-      //   params: ({dataSet})=>({
-      //     fields: 'id,name',
-      //     filter: `id:eq:${dataSet}`,
-      //   }),
-      // },
       categoryCombo: {
         resource: 'categoryCombos',
         params: ({categoryCombo})=>({
@@ -37,9 +30,6 @@ const HorizontalCategory = (props) => {
           filter: `id:eq:${categoryCombo}`,
         }),
       },
-
-
-
 
     };
 
@@ -68,15 +58,15 @@ const HorizontalCategory = (props) => {
   //   console.log(catData)
   // }
   useEffect(() => {
-    catRefresh({id: props.selectedDataElementId}) 
-  
-    setDataElement(props.selectedDataElementId)},[catRefresh])
+    catRefresh({id: props.selectedDataElementId})    
+    console.log('catData: ',catData)
+    console.log('data: ',data)  
+    setDataElement(props.selectedDataElementId)
+  },[catRefresh])
 
   useEffect(() => {
     catRefresh({id: props.selectedDataElementId}) 
     loader()
-
-    
   },[props.isHorizontalCategoryExpanded0,props.selectedDataElementId, dataElemntID, catRefresh])
 
 
@@ -107,7 +97,7 @@ const HorizontalCategory = (props) => {
     props.setdictfileredHorizontalCatComboLevel1([])
 
     // Update the state with the filtered categories Vertical 1
-    props.setfileredVerticalCatComboLevel1([]);
+    // props.setfileredVerticalCatComboLevel1([]);
     props.setVerticalCategoryOptionsLevel1([]);
     props.setSelectedVerticalCategoryIDLevel1([]);
 
@@ -123,31 +113,34 @@ const HorizontalCategory = (props) => {
     setDataElement(props.selectedDataElementId)   
     setCategories([]); 
       if (data){
-        // the selected dataElement with the specified ID
-        if (props.loadedProject.dataElements){
-          const updatedDataElements = props.loadedProject.dataElements.filter(
-                (element) => element.id === props.selectedDataElementId
-            );   
+          // the selected dataElement with the specified ID
+          if (props.loadedProject.dataElements){
+            const updatedDataElements = props.loadedProject.dataElements.filter(
+                  (element) => element.id === props.selectedDataElementId
+              );   
 
 
-          let categories1 = []
-            // If overiding exist
-          if (data && data?.categoryCombo?.categoryCombos[0]){
-            categories1 = data?.categoryCombo?.categoryCombos[0]?.categories || [];
-            setCategories(categories1);
+            let categories1 = []
+            console.log('*** overidingCategory ***')
+            console.log(props.overidingCategory)
+            console.log('catData: ',catData)
+            console.log('data: ',data)  
+            if (data && data?.categoryCombo?.categoryCombos[0]){
+              categories1 = data?.categoryCombo?.categoryCombos[0]?.categories || [];
+              setCategories(categories1);
+              
+            }
+            else{
+              const { categoryCombo } = catData?.dataElement;
+              categories1 = categoryCombo?.categories || [];
+              setCategories(categories1);
+            }
             
-          }
-          else{
-            const { categoryCombo } = catData?.dataElement;
-            categories1 = categoryCombo?.categories || [];
-            setCategories(categories1);
-          }
-          
-          
-          if (props.editMode){    
-          const HorizontalCategoryObject = categories1.filter(
-            (element) => element.id === updatedDataElements[0].HorizontalLevel0.id
-          ) || [];
+            
+            if (props.editMode){    
+            const HorizontalCategoryObject = categories1.filter(
+              (element) => element.id === updatedDataElements[0].HorizontalLevel0.id
+            ) || [];
     
             const savedCategory = HorizontalCategoryObject[0].id
             props.setSelectedHorizontalCategoryID0(savedCategory);
@@ -171,29 +164,7 @@ const HorizontalCategory = (props) => {
     }
   }
 
-    // Effect to process data when it is fetched
-  // useEffect(() => {
-  //   if (!props.editMode){
-  //     console.log('Loader 3')
-  //     if (data && data?.categoryCombo.categoryCombos[0]?.id){
-  //       console.log(data.categoryCombo.categoryCombos)
-  //       const categories1 = data.categoryCombo?.categoryCombos || [];
-  //       setCategories(categories1);
-        
-  //     }else if (data && data.dataElement) {
-  //       const { categoryCombo } = data.dataElement;
-  //       const categories1 = categoryCombo?.categories || [];
-  //       // Update the state with the category data
-  //       setCategories(categories1);
 
-  //     }else{
-
-  //       setCategories([]);
-  //     }
-
-  //   }
-
-  // }, [data]);
 
 
 
@@ -221,14 +192,7 @@ const HorizontalCategory = (props) => {
 
   
    
-  // // Run on expand
-  // useEffect(() => {
 
-  //   // loader()
-  //   console.log('Processing dataElement ....')
-
-
-  // },[props.isHorizontalCategoryExpanded0, props.selectedDataElementId])
 
 
   

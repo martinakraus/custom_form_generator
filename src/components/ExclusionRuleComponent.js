@@ -1,4 +1,4 @@
-import { useDataQuery } from '@dhis2/app-runtime'
+import { useDataQuery} from '@dhis2/app-runtime'
 import { SingleSelect, SingleSelectOption  } from '@dhis2-ui/select'
 import { config, 
   exclusionRuleFilter,   
@@ -16,6 +16,7 @@ import {alignLevelsReverse} from '../utils'
 
 
 const ExclusionRuleComponent = (props) => {
+
   const [componentID, setComponentID] = useState("");
   const [loadedExclusion, setLoadedExclusion] = useState(false);
 
@@ -69,7 +70,18 @@ const ExclusionRuleComponent = (props) => {
                   onChange={({ value }) => props.setConditionName(value)}
                   className={classes.inputField}
               />
-
+            <select id="catCombo" value={props.selectedConditionLevel} onChange={props.handleConditionLevelChange} className={classes.selectField}>
+                        <option value="">Select Condition Level</option>
+                        {conditionLevels.map(level => (
+                            <option key={level} value={level}>{level}</option>
+                        ))}
+                    </select>
+            <select id="dataElement" value={props.selectedConditionLevel} onChange={props.handleConditionLevelChange} className={classes.selectField}>
+                <option value="">Select Condition Level</option>
+                {conditionLevels.map(level => (
+                    <option key={level} value={level}>{level}</option>
+                ))}
+            </select>
             <Input
                   name="condition"
                   placeholder="Condition"

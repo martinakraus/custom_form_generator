@@ -41,15 +41,14 @@ const AppGetDEList = props => {
         if (props.editMode){
           setDisable(!!props.selectedDataElementId);
         }        
-    }, [props.selectedDataSet, props.selectedDataElementId]);
+    }, [props.selectedDataSet, props.selectedDataElementId,props.isHorizontalCategoryExpanded0]);
 
     useEffect(() => {
-
-
       if (catData){
         for (const dataSetElement of catData.dataElement.dataSetElements) {
           if (dataSetElement.dataSet.id === props.selectedDataSet && dataSetElement.categoryCombo) {
             props.setOveridingCategory(dataSetElement.categoryCombo.id)
+            console.log('catData: DataElement =>',catData)
             break; // Stop the loop since we found the desired dataSetElement
           }else{
             props.setOveridingCategory('xxxxx')
@@ -58,7 +57,7 @@ const AppGetDEList = props => {
         }        
       }
      
-    }, [catData]);
+    }, [catData,props.isHorizontalCategoryExpanded0]);
 
 
     const handleDataElementChange = (selected) => {
@@ -94,7 +93,13 @@ const AppGetDEList = props => {
     if (loading) {
         return <span>Loading...</span>
     }
-    if (cateEerror){}
+    // if (cateEerror){
+    //   return <span>ERROR: {cateEerror.message}</span>
+    // }
+    if(catLoading)
+    {
+      return <span>Loading...</span>
+    }
  
 
     const dataElements = data.targetedEntity.dataSets[0]?.dataSetElements || [];

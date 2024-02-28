@@ -1,9 +1,9 @@
-import { useDataQuery, useDataMutation } from '@dhis2/app-runtime'
+import { useDataQuery, useDataMutation, useAlert } from '@dhis2/app-runtime'
 import React, { useState, useEffect } from 'react';
 import ConfigureMetadata from './ConfigureMetadata'
 import TooltipComponent from './TooltipComponent'
 import { Input } from '@dhis2-ui/input'
-import {updateDataStore, generateRandomId, createDataStore} from '../utils'
+import {updateDataStore, generateRandomId, createDataStore, customImage} from '../utils'
 
 
 import {
@@ -22,6 +22,10 @@ import { IconEdit16, IconDelete16, IconTextHeading16} from '@dhis2/ui-icons';
 import classes from '../App.module.css'
 
 const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects, reloadProjects, setReloadProjects }) => {
+  const { show } = useAlert(
+    ({ msg }) => msg,
+    ({ type }) => ({ [type]: true })
+  )
   const [projects, setProjects] = useState([]);
   const [projectName, setProjectName] = useState('');
   const [selectedProject, setSelectedProject] = useState(null);
@@ -49,7 +53,9 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
       // setProjects(data.dataStore ? [data.dataStore] : []);
   }
   useEffect(() => {
-      refetch();
+    console.log('Refreshing Project Table')  
+    refetch();
+
   }, [reloadProjects, refetch]);
 
 
@@ -105,9 +111,8 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
 
    
     createDataStore (engine, project, config.dataStoreName, project.key)
+    show({ msg: 'Project Copy Created :' +project.projectName, type: 'success' })
     setReloadProjects((prev) => !prev);
-
-    console.log('Project Copy Created')
 
     handleCloseModal()
   }
@@ -124,6 +129,8 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
     }
     
     updateDataStore (engine, selectedProject, config.dataStoreName, selectedProject.key)
+    show({ msg: 'Project Renamed:' +selectedProject.projectName, type: 'success' })
+    setReloadProjects((prev) => !prev);
 
     handleCloseModal()
 
@@ -155,7 +162,8 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
         resource: `dataStore/${config.dataStoreName}/${KeyID}`,
         type: 'delete',
       });
-      console.log(`Project "${projectName}" deleted successfully.`);
+      show({ msg: 'Project deleted successfully:' +projectName, type: 'success' })
+      setReloadProjects((prev) => !prev);
       handleCloseModal(); // Close the modal after successful deletion
       refetch(); // Refetch data after deletion
     } catch (error) {
@@ -178,6 +186,12 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
     setShowCopyModal(false)
   };
 
+  const handleCustomImageClick = () => {
+    // Handle the click event for the custom image
+    refetch();
+    setReloadProjects((prev) => !prev);
+  };
+
   return (
     <div className={classes.tableContainer_dataElements}>
       <InputField
@@ -188,6 +202,12 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
         value={filterText}
         onChange={(e) => handleFilterChange(e.value)}
       />
+
+    <div className={classes.customImageContainer} onClick={handleCustomImageClick}>
+        {customImage('sync', 'large')}
+      </div>
+
+
       
       <Table className={classes.dataTable}>
         <TableHead>
