@@ -9,59 +9,61 @@ const dataSets = {
       resource: 'dataSets',
       params: ({dataSet})=>({
         fields: 'id,name,dataSetElements(dataElement(id,displayName))',
-        paging: 'false',
         filter: `id:eq:${dataSet}`,
       }),
 
     },
   }
 
+  const catComboQuery = {
+    dataElement: {
+      resource: 'dataElements',
+      id: ({id})=>(id),
+      params: {
+        fields: 'id,dataSetElements,categoryCombo[name,id,categories[id,name, categoryOptions[id,name]]]',
+      },
+    },
+  }
+
 
 
 const AppGetDEList = props => {
-  const [dataElementState, setDataElementState]=useState(props.selectedDataElementId)
 
-    const dataElementQuery = {
-
-      dataElement: {
-        resource: 'dataElements',
-        params: ({dataElementID})=>({
-          fields: 'id,categoryCombo[name,id]',
-          filter: `id:eq:${dataElementID}`,
-        }),
-      },
-
-
-    }
     const [disabled, setDisable] = useState(false)
+    const [dataElemntID, setDataElement] = useState('xxxxx')
     const {loading: loading, error: error, data: data, refetch: refetch } = useDataQuery(dataSets, {variables: {dataSet: props.selectedDataSet}})
-    const {loading: dataElementLoading, error: dataElementError, data: dataElementData, refetch: dataElementRefetch } = useDataQuery(dataElementQuery, {variables: {dataElementID: props.selectedDataElementId}})
+    const {loading: catLoading, error: cateEerror, data: catData, refetch: catRefetch } = useDataQuery(catComboQuery, {variables: {id: dataElemntID}})
 
     useEffect(() => {
-
+        setDataElement(props.selectedDataElementId)
         refetch({dataSet: props.selectedDataSet})
-        // setdataElementList(data.targetedEntity.dataSets[0]?.dataSetElements || []);
-        // console.log('Use Effect Running Once')
+        catRefetch({id: dataElemntID})
         if (props.editMode){
-
-          // converts the value of props.selectedDataElementId into a boolean
           setDisable(!!props.selectedDataElementId);
-          // console.log('******** Loaded Project **********')
-          // const selectedDataElement = props.loadedProject.dataElements.find(dataElement => dataElement.dataElement.id === props.selectedDataElementId);
-          // props.setSelectFormComponents(selectedDataElement.dataElement.displayName.formComponent)
-          // props.setSelectSideNavigation(selectedDataElement.dataElement.displayName.sideNavigation)
-        }
-        // console.log(props.selectedDataElementId)
+        }        
+    }, [props.selectedDataSet, props.selectedDataElementId,props.isHorizontalCategoryExpanded0]);
 
-        dataElementRefetch({dataElementID: props.selectedDataElementId})
-        
-    }, [props.selectedDataSet, props.selectedDataElementId]);
+    useEffect(() => {
+      if (catData){
+        for (const dataSetElement of catData.dataElement.dataSetElements) {
+          if (dataSetElement.dataSet.id === props.selectedDataSet && dataSetElement.categoryCombo) {
+            props.setOveridingCategory(dataSetElement.categoryCombo.id)
+            console.log('catData: DataElement =>',catData)
+            break; // Stop the loop since we found the desired dataSetElement
+          }else{
+            props.setOveridingCategory('xxxxx')
+
+          }
+        }        
+      }
+     
+    }, [catData,props.isHorizontalCategoryExpanded0]);
 
 
     const handleDataElementChange = (selected) => {
-
-
         props.setSelectedDataElementId(selected);
+        setDataElement(selected)
+        console.log('props.setSelectedDataElementId updated: ', selected)
 
         // Find the record with the matching id
         const selectedDataElement = dataElements.find(dataElement => dataElement.dataElement.id === selected);
@@ -80,30 +82,7 @@ const AppGetDEList = props => {
 
           props.setSelectedDataElement('');
         }
-
-        // {dataElementSelection.map(({ dataElement }) => (
-        //   // setdataElementList(dataElement.displayName)
-        //   console.log(dataElement.displayName)
-        //   const updatedCategories = categories.filter(category => category.id !== selected);
-
-        //   ))}
-
-        // {dataElementSelection.filter(dataElement => dataElement.id.includes(selected)).map(
-        //   ({ id, displayName }) => (                    
-        //       // setselectedDataSetName({displayName})
-        //       setdataElementList(displayName)
-        //       // props.setSelectedDataElement(selected);
-        //                               )
-        //   )
-        // }
-
-        // {data.dataSets.dataSetElements.filter(dataElement => dataElement.id.includes(selected)).map(
-        //   ({ id, displayName }) => (                    
-        //       // setselectedDataSetName({displayName})
-        //       props.setSelectedDataElement(displayName)
-        //       // props.setSelectedDataElement(selected);
-        //                               )
-        //   )}
+      
 
       };
 
@@ -114,9 +93,14 @@ const AppGetDEList = props => {
     if (loading) {
         return <span>Loading...</span>
     }
-    if (dataElementError) {
-        console.log(error)
+    // if (cateEerror){
+    //   return <span>ERROR: {cateEerror.message}</span>
+    // }
+    if(catLoading)
+    {
+      return <span>Loading...</span>
     }
+ 
 
     const dataElements = data.targetedEntity.dataSets[0]?.dataSetElements || [];
 

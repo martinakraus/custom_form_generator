@@ -13,6 +13,33 @@ const [disabled, setDisabled] = useState(false)
 
 useEffect(() => {
 
+  setHorizontalCategories(filteredCategories);
+  if(props.selectedDirectClickTabDE === 0
+    ){
+      const updatedDataElementsLevel1 = props.loadedProject.dataElements.filter(
+        (element) => element.id === props.selectedDataElementId
+      ) || [];
+      if (updatedDataElementsLevel1[0].verticalLevel3.id !== null){
+          const VerticalCategoryObject = filteredCategories.filter(
+          (element) => element.id === updatedDataElementsLevel1[0]?.verticalLevel3?.id
+          ) || [];
+          const savedCategory = VerticalCategoryObject[0]?.id
+          if (savedCategory){
+            setDisabled(true)
+            const SelectedCategories = filteredCategories.filter(category => category.id === savedCategory);
+            // const notSelectedCategories = filteredCategories.filter(category => category.id !== savedCategory);
+            // console.log('********* notSelectedCategories *********')
+            // console.log(notSelectedCategories)
+            // props.setfileredVerticalCatComboLevel3(notSelectedCategories)
+            props.setSelectedVerticalCategoryIDLevel3(savedCategory)
+            props.setSelectedVerticalCategoryNameLevel3(SelectedCategories[0].name || '')
+            setSelectedCategory(savedCategory)
+
+          }
+
+      }
+    }
+
   }, [props.fileredVerticalCatComboLevel3, props.isVerticalCategoryExpandedlevel3]);
 
 
@@ -22,6 +49,9 @@ useEffect(() => {
     const SelectedCategories = filteredCategories.filter(category => category.id === selected);
     props.setSelectedVerticalCategoryNameLevel3(SelectedCategories[0].name || '')
     props.setVerticalCategoryOptionsLevel3([])
+
+
+    
   }
 
   return (
