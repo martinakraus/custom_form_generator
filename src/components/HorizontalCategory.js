@@ -59,8 +59,8 @@ const HorizontalCategory = (props) => {
   // }
   useEffect(() => {
     catRefresh({id: props.selectedDataElementId})    
-    console.log('catData: ',catData)
-    console.log('data: ',data)  
+    // console.log('catData: ',catData)
+    // console.log('data: ',data)  
     setDataElement(props.selectedDataElementId)
   },[catRefresh])
 
@@ -121,18 +121,20 @@ const HorizontalCategory = (props) => {
 
 
             let categories1 = []
-            console.log('*** overidingCategory ***')
-            console.log(props.overidingCategory)
-            console.log('catData: ',catData)
-            console.log('data: ',data)  
+            // console.log('*** overidingCategory ***')
+            // console.log(props.overidingCategory)
+            // console.log('catData: ',catData)
+            // console.log('data: ',data)  
             if (data && data?.categoryCombo?.categoryCombos[0]){
               categories1 = data?.categoryCombo?.categoryCombos[0]?.categories || [];
+              props.setCategoryComboNameID({ id: data?.categoryCombo?.categoryCombos[0]?.id ?? '', name: data?.categoryCombo?.categoryCombos[0]?.name ?? '' });
               setCategories(categories1);
               
             }
             else{
               const { categoryCombo } = catData?.dataElement;
               categories1 = categoryCombo?.categories || [];
+              props.setCategoryComboNameID({ id: categoryCombo?.id ?? '', name: categoryCombo?.name ?? '' })
               setCategories(categories1);
             }
             
