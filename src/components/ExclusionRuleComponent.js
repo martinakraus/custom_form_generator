@@ -7,7 +7,7 @@ import { Divider } from '@dhis2-ui/divider'
 import { Card } from '@dhis2-ui/card'
 
 import { config, 
-  exclusionRuleFilter,   
+  exclusionRuleMore,   
   conditionLevels,
   exclusionLevels, } from '../consts'
 import React, { useState, useEffect } from 'react';
@@ -52,14 +52,26 @@ const ExclusionRuleComponent = (props) => {
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [categoryOptionsToProcess, setCategoryOptionsToProcess] = useState([]);
   const [selectedKeysToProcess, setSelectedKeysToProcess] = useState([]);
-  const [processingCategory, setProcessingCategory] = useState("xxxxx");
-  
-  
+
+
+  const initparts = props.selectedExclusion.split('-val:-');
+
+  // The first part should be the catCombo.id
+  const initKeyID = initparts[0];
+  const initCoCID = initparts[1];
+
+
+
+  // const [processingCategory, setProcessingCategory] = useState(initCoCID !== undefined ? initCoCID : props.loadedProjectCombos[0].id);
+  const [processingCategory, setProcessingCategory] = useState(initCoCID);
+
+  // console.log('initCoCIDs: ',initCoCID)
+  // console.log('props.loadedProjectCombos: ',props.loadedProjectCombos[0].id)
   
 
   const ExclusionQuery = {
     dataStore: {
-        resource: `dataStore/${config.dataStoreConditions}?${exclusionRuleFilter}&filter=key:eq:${props.selectedExclusion}`,
+        resource: `dataStore/${config.dataStoreConditions}?${exclusionRuleMore}&filter=key:eq:${initKeyID}`,
     }
   };
 
@@ -71,8 +83,12 @@ const ExclusionRuleComponent = (props) => {
 
 
   useEffect(() =>{
+
+    console.log('processingCategory: ', processingCategory)
     catRefetch({categoryCombo: processingCategory})
+
     const extracted = catData?.categoryCombo?.categoryCombos[0]?.categories || [];
+    console.log('extracted: ',extracted)
 
     if (extracted.length > 1){
       setCategoryList(extracted)
@@ -80,6 +96,23 @@ const ExclusionRuleComponent = (props) => {
     }       
 
   },[processingCategory, catRefetch, loader])
+
+
+  const handleCustomImageClick = () => {
+    setLoader(true);
+    console.log('processingCategory: ', processingCategory)
+    catRefetch({categoryCombo: processingCategory})
+
+    const extracted = catData?.categoryCombo?.categoryCombos[0]?.categories || [];
+    console.log('extracted: ',extracted)
+
+    if (extracted.length > 1){
+      setCategoryList(extracted)
+      // console.log('extracted: ',extracted)
+    }   
+    // catRefetch({categoryCombo: processingCategoryToProcess})
+};
+
 
   useEffect(() =>{
     setLoadingTransfer(true)
@@ -310,10 +343,7 @@ const ExclusionRuleComponent = (props) => {
     }
 
 
-  const handleCustomImageClick = () => {
-      setLoader((prev) => !prev);
-      catRefetch({categoryCombo: processingCategoryToProcess})
-  };
+
 
 
   if (error) {

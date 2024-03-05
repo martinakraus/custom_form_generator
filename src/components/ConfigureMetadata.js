@@ -287,6 +287,7 @@ const ConfigureMetadata = (props) => {
     useEffect(() => {
         ConditionsQueryDataRefetch();
         if (ConditionsQueryData) {
+            // console.log("ConditionsQueryData: ", ConditionsQueryData)
           // setProjects(data.dataStore ? [data.dataStore] : []);
     
               // Check if entries property exists in data.dataStore
@@ -1012,20 +1013,19 @@ const ConfigureMetadata = (props) => {
         const trimmedconditionName= conditionName.replace(/\s+/g, '');
         console.log(excludeToProcess)
 
-        // if (selectedExclusionMetadataOption === "CategoryOption"){
-        //     if (!trimmedconditionName.trim() 
-        //     || !exclude[0]
-        //     || !conditionCOIDName[0] 
-        //     || !conditionDEIDName
-        //     || !categoryExclusionToProcess
-        //     || !excludeToProcess[0]
+        if (selectedExclusionMetadataOption === "CategoryOption"){
+            if (!trimmedconditionName.trim() 
+            || !exclude[0]
+            || !conditionCOIDName[0] 
+            || !categoryExclusionToProcess
+            || !excludeToProcess[0]
             
-        //     ) {
-        //         console.log('Please enter all rule parameters: CategoryOption');
-        //         return;
-        //     }      
+            ) {
+                console.log('Please enter all rule parameters: CategoryOption');
+                return;
+            }      
 
-        // }
+        }
         if (selectedExclusionMetadataOption === "DataElement"){
             if (!trimmedconditionName.trim() 
                 || !conditionCOIDName[0] 
@@ -2234,7 +2234,7 @@ const ConfigureMetadata = (props) => {
                                             <TooltipComponent 
                                             IconType={IconEdit16} 
                                             btnFunc={handleEditExclusions}
-                                            project={exclusion.key}
+                                            project={`${exclusion.key}-val:-${exclusion.conditionCoC[0].id}`}
                                             dynamicText="Edit"
                                             buttonMode="secondary"
 

@@ -20,6 +20,7 @@ import { Modal, ModalTitle, ModalContent, ModalActions, ButtonStrip, Button } fr
 import { config, ProjectsFiltersMore } from '../consts'
 import { IconEdit16, IconDelete16, IconTextHeading16} from '@dhis2/ui-icons';
 import classes from '../App.module.css'
+import CleaningServices from './CleaningServices';
 
 const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects, reloadProjects, setReloadProjects }) => {
   const { show } = useAlert(
@@ -36,6 +37,9 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [showConfigureProject, setShowModalConfigureProject] = useState(false);
   const [filterText, setFilterText] = useState('');
+  const [projectID, setProjectID] = useState('');
+  const [cleaner, setCleaner] = useState(false);
+  
   
     // Define your data store query
   const dataStoreQuery = {
@@ -48,12 +52,11 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
     // Fetch the projects using useDataQuery
   const { loading, error, data, refetch } = useDataQuery(dataStoreQuery);
   if (data) {
-      // console.log(data);
-      // console.log('Data exist');
+      console.log(data);
+      console.log('Data exist');
       // setProjects(data.dataStore ? [data.dataStore] : []);
   }
   useEffect(() => {
-    console.log('Refreshing Project Table')  
     refetch();
 
   }, [reloadProjects, refetch]);
@@ -96,9 +99,6 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
   }
 
   const handleCopyProject = (project) => {
-
-    console.log('Start creating a cpoy')
-    console.log(project)
     
     setSelectedProject(project); 
        
@@ -155,23 +155,27 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
 
 
   }
-  const handleDeleteProject = async (projectName, KeyID) => {
+  const handleDeleteProject = async (projectName, KeyID, projectID) => {
+    console.log('projectID:',projectID)
+    setProjectID(projectID)
+    setCleaner(true)
 
-    try {
-      await engine.mutate({
-        resource: `dataStore/${config.dataStoreName}/${KeyID}`,
-        type: 'delete',
-      });
-      show({ msg: 'Project deleted successfully:' +projectName, type: 'success' })
-      setReloadProjects((prev) => !prev);
-      handleCloseModal(); // Close the modal after successful deletion
-      refetch(); // Refetch data after deletion
-    } catch (error) {
-      console.error('Error deleting project:', error);
-    }
+    // try {
+    //   await engine.mutate({
+    //     resource: `dataStore/${config.dataStoreName}/${KeyID}`,
+    //     type: 'delete',
+    //   });
+    //   show({ msg: 'Project deleted successfully:' +projectName, type: 'success' })
+    //   setReloadProjects((prev) => !prev);
+    //   handleCloseModal(); // Close the modal after successful deletion
+    //   refetch(); // Refetch data after deletion
+    // } catch (error) {
+    //   console.error('Error deleting project:', error);
+    // }
+    // setProjectID(projectID)
 
-    setSelectedProject(null);
-    setShowDeleteModal(false)
+    // setSelectedProject(null);
+    // setShowDeleteModal(false)
     
     console.log('Deleting project:', KeyID);
 
@@ -307,6 +311,7 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
           <ModalContent>
             {/* Add content for editing the selected project */}
             <div>{selectedProject ? `Are you sure you want to permanently delete: ${selectedProject.projectName}` : null}</div>
+            {cleaner && (<CleaningServices projectID={projectID} setCleaner={setCleaner}/>)}
           </ModalContent>
           <ModalActions>
             <ButtonStrip>
@@ -315,7 +320,8 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
               <Button destructive onClick={() =>
                     handleDeleteProject(
                       selectedProject ? selectedProject.projectName : '',
-                      selectedProject ? selectedProject.key : ''
+                      selectedProject ? selectedProject.key : '',
+                      selectedProject ? selectedProject.id : ''
                     )
                   }
                   primary>Delete Project
@@ -325,7 +331,7 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
         </Modal>
       )}
 
-
+        {cleaner && (<CleaningServices projectID={projectID} setCleaner={setCleaner}/>)}
 
         {showCopyModal && (
           <Modal>
