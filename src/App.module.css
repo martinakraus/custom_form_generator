@@ -258,6 +258,19 @@ div.app-shell-app.jsx-1964929281 {
   cursor: pointer; /* Show hand cursor on hover */
 }
 
+.cardboxExclusion {
+  border: 1px solid black; /* Add a border for visualization */
+  padding: 10px; /* Add padding for some spacing */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cardboxExclusion:hover {
+  background-color: #DBDFEA;
+  cursor: pointer; /* Show hand cursor on hover */
+}
+
 
 .flexContainer {
   display: flex;
@@ -427,3 +440,4 @@ min-height: 200px;
   float: right; /* Aligns the container to the right */
   cursor: pointer; /* Changes cursor to pointer on hover */
 }
+
