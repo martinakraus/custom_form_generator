@@ -12,7 +12,7 @@ export const sideNavigationFilter = 'fields=sideNavName,projectID';
 export const formComponentFilter = 'fields=formComponentName,projectID,';
 export const TemplateFilter = 'fields=key,name,projectID,catCombo';
 export const TemplateNoFilter = 'fields=key,name,projectID,sideNavigation,formComponent,catCombo,HorizontalLevel0,HorizontalLevel1,verticalLevel1,verticalLevel2';
-export const exclusionRuleFilter = 'fields=id,key,name,projectID,condition,conditionLevel,exclusion,exclusionLevel,metadata,categoryExclusion,associatedExclusionDataElement';
+export const exclusionRuleFilter = 'fields=id,key,name,projectID,metadata,conditionCoC,conditionDE,conditionCategoryOption,categoryExclusionToProcess,categoryExclusionOptionToProcess,category';
 export const labelNameFilter = 'fields=id,key,name,projectID,labelName,metadataType,LabelLevel';
 
 // Array of condition levels

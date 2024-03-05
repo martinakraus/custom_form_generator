@@ -46,6 +46,7 @@ import {
 import { TabBar , Tab} from '@dhis2-ui/tab'
 import classes from '../App.module.css'
 import { Divider } from '@dhis2-ui/divider'
+
 import { config, 
     sideNavigationFilter, 
     formComponentFilter, 
@@ -180,15 +181,21 @@ const ConfigureMetadata = (props) => {
 
     // For Exclusion Rules
     const [showExclusionComponents, setExclusionComponents] = useState(false);
-    const [condition, setCondition] = useState('');
+    const [conditionDE, setConditionDE] = useState('');
+    const [conditionDEIDName, setConditionDEIDName] = useState('');
+
+    const [conditionCoC, setConditionCoC] = useState('');
+    const [conditionCoCIDName, setConditionCoCIDName] = useState([]);
+    const [conditionCOIDName, setConditionCOIDName] = useState([]);
     const [categoryExclusion, setCategoryExclusion] = useState('');
+    const [categoryExclusionToProcess, setCategoryExclusionToProcess] = useState([]);
     const [conditionName, setConditionName] = useState('');
     const [exclude, setExclusion] = useState([]);
+    const [excludeToProcess, setExclusionToProcess] = useState([]);
     const [existingConditionName, setExistingConditionName] = useState(false);
     const [selectedExclusionMetadataOption, setSelectedExclusionMetadataOption] = useState("");
     const [selectedConditionLevel, setSelectedConditionLevel] = useState(""); // State to store the selected level
     const [selectedExclusionLevel, setSelectedExclusionLevel] = useState(""); // State to store the selected level
-    const [associatedExclusionDataElement, setAssociatedExclusionDataElement] = useState('');
     
 
        // For Label Rules
@@ -853,8 +860,16 @@ const ConfigureMetadata = (props) => {
         setRefreshing(false);
         //update project saving state
         toggleSavingDataElementState()
+
     };
 
+
+    
+    const handleExclusionRuleRefreshClick = () => {
+
+
+        ConditionsQueryDataRefetch()
+    };
 
     // Function to update template name
     const GenerateHTMLHandler  = () => {
@@ -876,25 +891,77 @@ const ConfigureMetadata = (props) => {
     };
 
     // Function to update Exclusion Data Element
-    const handleSelectedExclusion = (event) => {
+    const handleSelectedExclusionDE = (event) => {
+        const selectedValue = event.target.value;
 
-        setCondition(event.target.value);
+        // Split the selected value using the separator "val:-"
+        const parts = selectedValue.split('-val:-');
+        
+        // The first part should be the catCombo.id
+        const deId = parts[0];
+
+
+        const deName = parts[1];
+
+        setConditionDE(selectedValue);
+        setConditionDEIDName([{id:deId, name:deName}])
     };
 
-    // Function to update Exclusion Data Element
-    const handleSelectedAssociatedElementExclusion = (event) => {
+    const handleSelectedExclusionCoC = (event) => {
+        const selectedValue = event.target.value;
 
-        setAssociatedExclusionDataElement(event.target.value);
+        // Split the selected value using the separator "val:-"
+        const parts = selectedValue.split('-val:-');
+        
+        // The first part should be the catCombo.id
+        const catComboId = parts[0];
+
+
+        const catComboName = parts[1];
+
+        setConditionCoC(selectedValue);
+        setConditionCoCIDName([{id:catComboId, name:catComboName}])
     };
+
+    
+
     
 
     // Function to update Exclusion Data Element
     const handleSelectedExclusionCategory = (event) => {
+        const selectedValue = event.target.value;
 
-        setCategoryExclusion(event.target.value);
-        console.log('Selected Exclusion', event.target.value)
+        // Split the selected value using the separator "val:-"
+        const parts = selectedValue.split('-val:-');
+        
+        // The first part should be the catCombo.id
+        const catComboId = parts[0];
+        // The first part should be the catCombo.id
+
+        const catComboName = parts[1];
+        setConditionCOIDName([{id:catComboId, name:catComboName}])
+
+        setCategoryExclusion(catComboId);
+
     };
     
+        // Function to update Exclusion Data Element
+        const handleSelectedExclusionCategoryToProcess = (event) => {
+            const selectedValue = event.target.value;
+
+            // Split the selected value using the separator "val:-"
+            const parts = selectedValue.split('-val:-');
+            
+            // The first part should be the catCombo.id
+            const optionID = parts[0];
+            // The first part should be the catCombo.id
+    
+            const optionName = parts[1];
+
+
+            setCategoryExclusionToProcess([{id:optionID, name:optionName}]);
+            console.log('Selected Exclusion', event.target.value)
+        };
 
     // Function to update condition level
     const handleConditionLevelChange = (event) => {
@@ -927,28 +994,43 @@ const ConfigureMetadata = (props) => {
     const handleCloseExclusionModal = () => {
         setExclusionComponents(false);
         setExclusion([]);
-        setCondition('');
+        setConditionDE('');
+        setConditionCoC('');
         setCategoryExclusion('');
+        setCategoryExclusionToProcess('');
         setConditionName('');
-        setEditExclusionMode(false)
-        setSelectedExclusion('')
-        setSelectedExclusionMetadataOption('')
-        setAssociatedExclusionDataElement('')
+        setEditExclusionMode(false);
+        setSelectedExclusion('');
+        setSelectedExclusionMetadataOption('');
+        setConditionCoCIDName([]);
+        setConditionCOIDName([]);
 
     };
 
     const handleCreateExclusion = async (action, updatingID='') => {
                     // Remove spaces from const
         const trimmedconditionName= conditionName.replace(/\s+/g, '');
-        if (selectedExclusionMetadataOption === "CategoryOption"){
-            if (!trimmedconditionName.trim() || !condition || !exclude) {
-                console.log('Please enter all rule parameters');
-                return;
-            }      
+        console.log(excludeToProcess)
 
-        }
+        // if (selectedExclusionMetadataOption === "CategoryOption"){
+        //     if (!trimmedconditionName.trim() 
+        //     || !exclude[0]
+        //     || !conditionCOIDName[0] 
+        //     || !conditionDEIDName
+        //     || !categoryExclusionToProcess
+        //     || !excludeToProcess[0]
+            
+        //     ) {
+        //         console.log('Please enter all rule parameters: CategoryOption');
+        //         return;
+        //     }      
+
+        // }
         if (selectedExclusionMetadataOption === "DataElement"){
-            if (!trimmedconditionName.trim() || !condition) {
+            if (!trimmedconditionName.trim() 
+                || !conditionCOIDName[0] 
+                || !conditionCoCIDName
+                || !exclude[0]) {
                 console.log('Please enter all rule parameters');
                 return;
             }      
@@ -978,8 +1060,13 @@ const ConfigureMetadata = (props) => {
                 conditionData =  {            
                     id:componentsID,
                     metadata: selectedExclusionMetadataOption,
+                    // categoryExclusion:categoryExclusion,
                     name:conditionName,
-                    condition:condition,
+                    conditionDE:conditionDEIDName,
+                    category:conditionCOIDName,
+                    conditionCoC:conditionCoCIDName,
+                    conditionCategoryOption:exclude,
+
                     projectID: loadedProject.id,
                     key: `${trimmedName}-${componentsID}`,     
             
@@ -990,12 +1077,16 @@ const ConfigureMetadata = (props) => {
                     id:componentsID,
                     metadata: selectedExclusionMetadataOption,
                     name:conditionName,
-                    condition:condition,
-                    conditionLevel:alignLevels(selectedConditionLevel),
-                    categoryExclusion:categoryExclusion,
-                    exclusion:exclude,
-                    exclusionLevel:alignLevels(selectedExclusionLevel),
-                    associatedExclusionDataElement:associatedExclusionDataElement,
+                    conditionDE:conditionDEIDName,
+                    category:conditionCOIDName,
+
+                    conditionCoC:conditionCoCIDName,
+                    // conditionLevel:alignLevels(selectedConditionLevel),
+                    // categoryExclusion:categoryExclusion,
+                    conditionCategoryOption:exclude,
+                    categoryExclusionToProcess:categoryExclusionToProcess,
+                    categoryExclusionOptionToProcess:excludeToProcess,
+                    // exclusionLevel:alignLevels(selectedExclusionLevel),
                     projectID: loadedProject.id,
                     key: `${trimmedName}-${componentsID}`,     
             
@@ -1025,8 +1116,12 @@ const ConfigureMetadata = (props) => {
                 conditionData =  {            
                     id:updatingID,
                     metadata: selectedExclusionMetadataOption,
+                    // categoryExclusion:categoryExclusion,
                     name:conditionName,
-                    condition:condition,
+                    category:conditionCOIDName,
+                    conditionDE:conditionDEIDName,
+                    conditionCoC:conditionCoCIDName,
+                    conditionCategoryOption:exclude,
                     projectID: loadedProject.id,
                     key: selectedExclusion 
             
@@ -1037,14 +1132,19 @@ const ConfigureMetadata = (props) => {
                     id:updatingID, 
                     metadata: selectedExclusionMetadataOption,
                     name:conditionName,
-                    condition:condition,
-                    conditionLevel:alignLevels(selectedConditionLevel),
-                    categoryExclusion:categoryExclusion,
-                    exclusion:exclude,
-                    exclusionLevel:alignLevels(selectedExclusionLevel),
-                    associatedExclusionDataElement:associatedExclusionDataElement,
+                    category:conditionCOIDName,
+                    conditionDE:conditionDEIDName,
+                    conditionCoC:conditionCoCIDName,
+                    // conditionLevel:alignLevels(selectedConditionLevel),
+                    // categoryExclusion:categoryExclusion,
+                    conditionCategoryOption:exclude,
+                    categoryExclusionToProcess:categoryExclusionToProcess,
+                    categoryExclusionOptionToProcess:excludeToProcess,
+                    // exclusionLevel:alignLevels(selectedExclusionLevel),
                     projectID: loadedProject.id,
                     key: selectedExclusion 
+
+                
             
                 };
             }
@@ -2104,7 +2204,9 @@ const ConfigureMetadata = (props) => {
 
         {selectedTab === 'exclusion-rules' && (
             <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
-
+                <div className={classes.customImageContainer} onClick={handleExclusionRuleRefreshClick}>
+                    {customImage('sync', 'large')}
+                </div>
                     <Table className={classes.dataTable}>
                             <TableHead>
                             <TableRowHead>
@@ -2303,8 +2405,10 @@ const ConfigureMetadata = (props) => {
                     editExclusionMode={editExclusionMode}
                     conditionName={conditionName}
                     setConditionName={setConditionName}
-                    condition={condition}
-                    setCondition={setCondition}
+                    conditionDE={conditionDE}
+                    conditionCoC={conditionCoC}
+                    setConditionCoC={setConditionCoC}
+                    setConditionDE={setConditionDE}
                     selectedConditionLevel={selectedConditionLevel}
                     handleConditionLevelChange={handleConditionLevelChange}
                     exclude={exclude}
@@ -2319,15 +2423,20 @@ const ConfigureMetadata = (props) => {
                     setSelectedExclusionLevel={setSelectedExclusionLevel}
                     setSelectedExclusionMetadataOption={setSelectedExclusionMetadataOption}
                     selectedExclusionMetadataOption={selectedExclusionMetadataOption}
-                    handleSelectedExclusion={handleSelectedExclusion}
+                    handleSelectedExclusionCoC={handleSelectedExclusionCoC}
+                    handleSelectedExclusionDE={handleSelectedExclusionDE}
                     setCategoryExclusion={setCategoryExclusion}
                     categoryExclusion={categoryExclusion}
+                    setCategoryExclusionToProcess={setCategoryExclusionToProcess}
+                    categoryExclusionToProcess={categoryExclusionToProcess}
+                    excludeToProcess={excludeToProcess}
+                    setExclusionToProcess={setExclusionToProcess}
                     handleSelectedExclusionCategory={handleSelectedExclusionCategory}
-                    handleSelectedAssociatedElementExclusion={handleSelectedAssociatedElementExclusion}
-                    setAssociatedExclusionDataElement={setAssociatedExclusionDataElement}
-                    associatedExclusionDataElement={associatedExclusionDataElement}
+                    handleSelectedExclusionCategoryToProcess={handleSelectedExclusionCategoryToProcess}
+                    setConditionCOIDName={setConditionCOIDName}
+                    setConditionCoCIDName={setConditionCoCIDName}
+                    setConditionDEIDName={setConditionDEIDName}
 
-                                    
                 />
 
             )}
