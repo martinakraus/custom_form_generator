@@ -14,10 +14,11 @@ import { config,
 
 const CleaningServices = (props) => {
     // Define your data store query
+    const [projectID, setProjectID] = useState(props.projectID);
     console.log('Cleaning Services',props.projectID)
     const SideNavigationQuery = {
         dataStore: {
-        resource: `dataStore/${config.dataStoreSideNavigations}?${sideNavigationFilter}&filter=projectID:eq:${props.projectID}`,
+        resource: `dataStore/${config.dataStoreSideNavigations}?${sideNavigationFilter}&filter=projectID:eq:TFDUHVEXT0P`,
         },
     }
 
@@ -50,6 +51,14 @@ const CleaningServices = (props) => {
 
     }
 
+    const { loading, error, data } = useDataQuery({
+        dataStore: 'yourDataStoreName',
+        query: {
+          resources: 'yourResourceName',
+          fields: 'id,projectID', // Adjust the fields you need
+        },
+      });
+
     const { data: SideNavigationQueryData, refetch:SideNavigationQueryDataRefetch} = useDataQuery(SideNavigationQuery); // Use separate hook for dataStoreQuery
     const { data: FormComponentQueryData, refetch:FormComponentQueryDataRefetch } = useDataQuery(FormComponentQuery); // Use separate hook for dataStoreQuery
     const { data: TemaplateQueryData, refetch:TemaplateQueryDataRefetch} = useDataQuery(TemplateQuery); // Use separate hook for dataStoreQuery
@@ -59,38 +68,44 @@ const CleaningServices = (props) => {
 
     useEffect(() =>{
 
+
+        SideNavigationQueryDataRefetch()
+        FormComponentQueryDataRefetch()
+        TemaplateQueryDataRefetch()
+        ConditionsQueryDataRefetch()
+        LabelQueryDataRefetch()
+
+
         console.log('SideNavigationQueryData: ',SideNavigationQueryData)
-        if (SideNavigationQueryData){
-            const newExclusion = SideNavigationQueryData.dataStore?.entries.filter(entry => entry.projectID === loadedProject.id) || [];
-            console.log('SideNavigationQueryData: ',newExclusion)
-        }
-        if (FormComponentQueryData){
-            const newExclusion = FormComponentQueryData.dataStore?.entries.filter(entry => entry.projectID === loadedProject.id) || [];
-            console.log('FormComponentQueryData: ',newExclusion)
-            
-        }
-        if (TemaplateQueryData){
-            const newExclusion = TemaplateQueryData.dataStore?.entries.filter(entry => entry.projectID === loadedProject.id) || [];
-            console.log('TemaplateQueryData: ',newExclusion)
-        }
-        if (ConditionsQueryData){
-            const newExclusion = ConditionsQueryData.dataStore?.entries.filter(entry => entry.projectID === loadedProject.id) || [];
-            console.log('ConditionsQueryData: ',newExclusion)
-        }
-        if (LabelQueryData){
-            const newExclusion = LabelQueryData.dataStore?.entries.filter(entry => entry.projectID === loadedProject.id) || [];
-            console.log('LabelQueryData: ',newExclusion)
-        }
+        console.log('FormComponentQueryData: ',FormComponentQueryData)
+        console.log('TemaplateQueryData: ',TemaplateQueryData)
+        console.log('ConditionsQueryData: ',ConditionsQueryData)
+        console.log('LabelQueryData: ',LabelQueryData)
 
-   
-    
-      },[props.projectID])
+      },[props.projectID, props.cleanToggle])
+
+    const clickCleaningAction = async () =>{
+        // Assuming you have an API to query and delete based on a filter
+        const entriesToDelete = await props.engine.query({
+            resource: `dataStore/${config.dataStoreSideNavigations}`,
+            type: 'query',
+            filter: {
+            fieldName: 'projectID',
+            operator: 'equals',
+            value:props.projectID, // Your projectID
+            },
+        });
+
+        console.log(entriesToDelete)
 
 
+        props.setCleanerToggle((prev) => !prev)
+
+    }
     return (
     <div>
 
-
+    <h1 onClick={clickCleaningAction}>DELETING SECTION</h1>
 
 
     </div>

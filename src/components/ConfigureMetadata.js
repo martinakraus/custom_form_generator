@@ -51,7 +51,7 @@ import { config,
     sideNavigationFilter, 
     formComponentFilter, 
     TemplateFilter, 
-    exclusionRuleFilter,
+    exclusionRuleMore,
     conditionLevels,
     exclusionLevels,
     labelNameFilter} from '../consts'
@@ -112,7 +112,7 @@ const ConfigureMetadata = (props) => {
     // Define your data store query
     const ConditionQuery = {
         dataStore: {
-        resource: `dataStore/${config.dataStoreConditions}?${exclusionRuleFilter}`,
+        resource: `dataStore/${config.dataStoreConditions}?${exclusionRuleMore}`,
         },
     }
     
