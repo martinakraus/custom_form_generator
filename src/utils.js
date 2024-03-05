@@ -3,6 +3,7 @@ import delete_ from './Icons/delete_btn.png'
 import edit from './Icons/edit.png'
 import rename from './Icons/rename.png'
 import sync from './Icons/sync.png'
+import cleaning from './Icons/cleaning.png'
 import classes from './App.module.css'
 import { useDataQuery } from '@dhis2/app-runtime';
 
@@ -26,6 +27,9 @@ export const customImage = (source, size='small') => {
   }
   if (source.toLowerCase()== 'sync'){
     return <img src={sync} className={iconClass}/>
+  }
+  if (source.toLowerCase()== 'cleaning'){
+    return <img src={cleaning} className={iconClass}/>
   }
 }
 
