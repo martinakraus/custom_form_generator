@@ -13,9 +13,9 @@ export const formComponentFilter = 'fields=formComponentName,projectID,';
 export const TemplateFilter = 'fields=key,name,projectID,catCombo';
 export const TemplateNoFilter = 'fields=key,name,projectID,sideNavigation,formComponent,catCombo,HorizontalLevel0,HorizontalLevel1,verticalLevel1,verticalLevel2';
 export const exclusionRuleFilter = 'fields=id,key,name,projectID,metadata,conditionCoC';
-export const exclusionRuleMore = 'fields=id,key,name,projectID,metadata,conditionCoC,conditionDE,conditionCategoryOption,categoryExclusionToProcess,categoryExclusionOptionToProcess,category';
+export const exclusionRuleMore = 'fields=id,key,name,projectID,metadata,conditionCoC,conditionDE,conditionCategoryOption,conditionCategoryOption2,categoryExclusionToProcess,categoryExclusionOptionToProcess,category,category2';
 
-export const labelNameFilter = 'fields=id,key,name,projectID,labelName,metadataType,LabelLevel';
+export const labelNameFilter = 'fields=id,key,name,projectID,labelName,metadataType,labelDEIDName,labelCategoryIDName,labelComboIDName,labelOptionIDName';
 
 // Array of condition levels
 export   const conditionLevels = ["Horizontal Level 1", "Horizontal Level 2", "Vertical Level 1", "Vertical Level 2", "Vertical Level 3"];

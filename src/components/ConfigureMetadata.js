@@ -170,6 +170,7 @@ const ConfigureMetadata = (props) => {
     const [editMode, setEditMode] = useState(false);
     const [editExclusionMode, setEditExclusionMode] = useState(false);
     const [selectedExclusion, setSelectedExclusion] = useState("");
+    const [selectedExclusionEditInit, setSelectedExclusionEditInit] = useState("");
     const [selectedLabel, setSelectedLabel] = useState("");
     const [editLabelMode, setEditLabelMode] = useState(false);
 
@@ -187,10 +188,13 @@ const ConfigureMetadata = (props) => {
     const [conditionCoC, setConditionCoC] = useState('');
     const [conditionCoCIDName, setConditionCoCIDName] = useState([]);
     const [conditionCOIDName, setConditionCOIDName] = useState([]);
+    const [conditionCOIDName2, setConditionCOIDName2] = useState([]);
     const [categoryExclusion, setCategoryExclusion] = useState('');
+    const [categoryExclusion2, setCategoryExclusion2] = useState('');
     const [categoryExclusionToProcess, setCategoryExclusionToProcess] = useState([]);
     const [conditionName, setConditionName] = useState('');
     const [exclude, setExclusion] = useState([]);
+    const [exclude2, setExclusion2] = useState([]);
     const [excludeToProcess, setExclusionToProcess] = useState([]);
     const [existingConditionName, setExistingConditionName] = useState(false);
     const [selectedExclusionMetadataOption, setSelectedExclusionMetadataOption] = useState("");
@@ -203,12 +207,18 @@ const ConfigureMetadata = (props) => {
     const [selectedMetadataOption, setSelectedMetadataOption] = useState("");
 	const [metadataName, setMetadataName] = useState('');
 	const [labelName, setLabelName] = useState('');
-    const [selectedLabelLevel, setSelectedlabelLevel] = useState(""); // State to store the selected level
+    const [labelDEIDName, setLabelDEIDName] = useState('');
+    const [labelCategoryIDName, setLabelCategoryIDName] = useState('');
+    
+
+
     const [reloadLabels, setReloadLabels] = useState(false);
     const [existingMetadataName, setExistingMetadataName] = useState(false);
     const [loadedLabels, setLoadedLabels] = useState([]);
-
-
+    const [labelComboIDName, setLabelComboIDName] = useState([]);
+    const [labelOptionIDName, setLabelOptionIDName] = useState([]);
+    
+    
     // To hold exclusion data from dataStore
     const [loadedRules, setLoadedRules] = useState([]);
 
@@ -871,7 +881,20 @@ const ConfigureMetadata = (props) => {
 
         ConditionsQueryDataRefetch()
     };
+    
+    const handleLabelRefreshClick = () => {
 
+
+        LabelQueryDataRefetch()
+    };
+
+    const handleNavigatioFormComponentRefreshClick = () => {
+
+
+        SideNavigationQueryrefetch()
+        FormComponentQueryrefetch()
+    };
+    
     // Function to update template name
     const GenerateHTMLHandler  = () => {
             refetch() 
@@ -945,6 +968,24 @@ const ConfigureMetadata = (props) => {
         setCategoryExclusion(catComboId);
 
     };
+
+        // Function to update Exclusion Data Element
+        const handleSelectedExclusionCategory2 = (event) => {
+            const selectedValue = event.target.value;
+    
+            // Split the selected value using the separator "val:-"
+            const parts = selectedValue.split('-val:-');
+            
+            // The first part should be the catCombo.id
+            const catComboId = parts[0];
+            // The first part should be the catCombo.id
+    
+            const catComboName = parts[1];
+            setConditionCOIDName2([{id:catComboId, name:catComboName}])
+    
+            setCategoryExclusion2(catComboId);
+    
+        };
     
         // Function to update Exclusion Data Element
         const handleSelectedExclusionCategoryToProcess = (event) => {
@@ -970,11 +1011,7 @@ const ConfigureMetadata = (props) => {
         setSelectedConditionLevel(event.target.value);
     };
 
-    // Function to update condition level
-    const handleLabelLevelChange = (event) => {
 
-        setSelectedlabelLevel(event.target.value);
-    };
     // Function to reset template name and close the modal
     const handleCloseTemplateNameModal = () => {
         setTemplateName('');
@@ -995,9 +1032,11 @@ const ConfigureMetadata = (props) => {
     const handleCloseExclusionModal = () => {
         setExclusionComponents(false);
         setExclusion([]);
+        setExclusion2([]);
         setConditionDE('');
         setConditionCoC('');
         setCategoryExclusion('');
+        setCategoryExclusion2('');
         setCategoryExclusionToProcess('');
         setConditionName('');
         setEditExclusionMode(false);
@@ -1005,6 +1044,8 @@ const ConfigureMetadata = (props) => {
         setSelectedExclusionMetadataOption('');
         setConditionCoCIDName([]);
         setConditionCOIDName([]);
+        setConditionCOIDName2([]);
+        setConditionDEIDName([]);
 
     };
 
@@ -1044,6 +1085,8 @@ const ConfigureMetadata = (props) => {
         }
 
         if (action === "new"){
+
+            console.log(action, ' Rule Object')
             const componentsID = generateRandomId();  
         
 
@@ -1064,9 +1107,10 @@ const ConfigureMetadata = (props) => {
                     name:conditionName,
                     conditionDE:conditionDEIDName,
                     category:conditionCOIDName,
+                    category2:conditionCOIDName2,
                     conditionCoC:conditionCoCIDName,
                     conditionCategoryOption:exclude,
-
+                    conditionCategoryOption2:exclude2,
                     projectID: loadedProject.id,
                     key: `${trimmedName}-${componentsID}`,     
             
@@ -1079,11 +1123,12 @@ const ConfigureMetadata = (props) => {
                     name:conditionName,
                     conditionDE:conditionDEIDName,
                     category:conditionCOIDName,
-
+                    category2:conditionCOIDName2,
                     conditionCoC:conditionCoCIDName,
                     // conditionLevel:alignLevels(selectedConditionLevel),
                     // categoryExclusion:categoryExclusion,
                     conditionCategoryOption:exclude,
+                    conditionCategoryOption2:exclude2,
                     categoryExclusionToProcess:categoryExclusionToProcess,
                     categoryExclusionOptionToProcess:excludeToProcess,
                     // exclusionLevel:alignLevels(selectedExclusionLevel),
@@ -1110,6 +1155,7 @@ const ConfigureMetadata = (props) => {
 
         }
         if (action === "update"){
+            console.log(action, ' Rule Object')
 
             let conditionData;
             if (selectedExclusionMetadataOption === 'DataElement') {
@@ -1119,9 +1165,11 @@ const ConfigureMetadata = (props) => {
                     // categoryExclusion:categoryExclusion,
                     name:conditionName,
                     category:conditionCOIDName,
+                    category2:conditionCOIDName2,
                     conditionDE:conditionDEIDName,
                     conditionCoC:conditionCoCIDName,
                     conditionCategoryOption:exclude,
+                    conditionCategoryOption2:exclude2,
                     projectID: loadedProject.id,
                     key: selectedExclusion 
             
@@ -1133,11 +1181,13 @@ const ConfigureMetadata = (props) => {
                     metadata: selectedExclusionMetadataOption,
                     name:conditionName,
                     category:conditionCOIDName,
+                    category2:conditionCOIDName2,
                     conditionDE:conditionDEIDName,
                     conditionCoC:conditionCoCIDName,
                     // conditionLevel:alignLevels(selectedConditionLevel),
                     // categoryExclusion:categoryExclusion,
                     conditionCategoryOption:exclude,
+                    conditionCategoryOption2:exclude2,
                     categoryExclusionToProcess:categoryExclusionToProcess,
                     categoryExclusionOptionToProcess:excludeToProcess,
                     // exclusionLevel:alignLevels(selectedExclusionLevel),
@@ -1165,7 +1215,9 @@ const ConfigureMetadata = (props) => {
 
     const handleEditExclusions = (key) => {
         setEditExclusionMode(true)
-        setSelectedExclusion(key)
+        setSelectedExclusionEditInit(key)
+        const initparts = key.split('-val:-');
+        setSelectedExclusion(initparts[0])
         setExclusionComponents(true)
     }
     const handleCloseLabelModal =() =>{
@@ -1175,6 +1227,10 @@ const ConfigureMetadata = (props) => {
         setLabelName('');
         setEditLabelMode(false)
         setSelectedLabel('')
+        setLabelDEIDName([])
+        setLabelComboIDName([])
+        setLabelCategoryIDName([])
+        setLabelOptionIDName([])
     }
 
 
@@ -1192,7 +1248,7 @@ const ConfigureMetadata = (props) => {
         
             // Remove spaces from const
             const trimmedLabelName= labelName.replace(/\s+/g, '');
-            if (!trimmedLabelName.trim() || !selectedLabelLevel || !metadataName || !selectedLabelLevel || !selectedMetadataOption) {
+            if (!trimmedLabelName.trim() || !metadataName  || !selectedMetadataOption) {
                 console.log('Please enter all label parameters');
                 return;
             }
@@ -1206,9 +1262,12 @@ const ConfigureMetadata = (props) => {
             const labelData =  {            
                 id:componentsID, 
                 name:metadataName,
+                labelDEIDName:labelDEIDName,
+                labelComboIDName:labelComboIDName,
+                labelCategoryIDName:labelCategoryIDName,
+                labelOptionIDName:labelOptionIDName,
                 labelName:labelName,
                 metadataType:selectedMetadataOption,
-                LabelLevel:alignLevels(selectedLabelLevel),
                 projectID: loadedProject.id,
                 key: `${trimmedName}-${componentsID}`,           
         
@@ -1236,9 +1295,12 @@ const ConfigureMetadata = (props) => {
             const labelData =  {            
                 id:updatingID, 
                 name:metadataName,
+                labelDEIDName:labelDEIDName,
+                labelComboIDName:labelComboIDName,
+                labelOptionIDName:labelOptionIDName,
+                labelCategoryIDName:labelCategoryIDName,
                 labelName:labelName,
                 metadataType:selectedMetadataOption,
-                LabelLevel:alignLevels(selectedLabelLevel),
                 projectID: loadedProject.id,
                 key: selectedLabel,           
         
@@ -2065,9 +2127,9 @@ const ConfigureMetadata = (props) => {
         {selectedTab === 'form-components' && (
             <div className={classes.tableContainer_dataElements}>
                 <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
-                    {/* <button onClick={handleRefresh} disabled={refreshing}>
-                        <IconSync24 className={classes.icon} />
-                    </button> */}
+                <div className={classes.customImageContainer} onClick={handleNavigatioFormComponentRefreshClick}>
+                    {customImage('sync', 'large')}
+                </div>
                     <Table className={classes.dataTable}>
                         <TableHead>
                         <TableRowHead>
@@ -2108,9 +2170,7 @@ const ConfigureMetadata = (props) => {
                     </Table>
                 </div>
                 <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
-                    {/* <button onClick={handleRefresh} disabled={refreshing}>
-                        <IconSync24 className={classes.icon} />
-                    </button> */}
+
                     <Table className={classes.dataTable}>
                         <TableHead>
                         <TableRowHead>
@@ -2259,6 +2319,9 @@ const ConfigureMetadata = (props) => {
 
         {selectedTab === 'Labels' && (
             <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
+                <div className={classes.customImageContainer} onClick={handleLabelRefreshClick}>
+                    {customImage('sync', 'large')}
+                </div>
 
                     <Table className={classes.dataTable}>
                             <TableHead>
@@ -2270,6 +2333,7 @@ const ConfigureMetadata = (props) => {
 
                                     </span>
                                 </TableCellHead>
+
                                 <TableCellHead>Actions</TableCellHead>
                             </TableRowHead>
                             </TableHead>
@@ -2279,7 +2343,10 @@ const ConfigureMetadata = (props) => {
                                     // Check if navigation.dataSet is equal to selectedDataSet
                                     label.projectID === loadedProject.id && (
                                         <TableRow key={label.key} className={classes.customTableRow}>
-                                            <TableCell className={classes.customTableCell}>{label.name}</TableCell>
+                                            <TableCell className={classes.customTableCell}>
+                                            {label.labelName}<br/>
+                                            {label.name}</TableCell>
+
                                             <TableCell className={`${classes.customTableCell}`}>
 
                                             <TooltipComponent 
@@ -2413,6 +2480,7 @@ const ConfigureMetadata = (props) => {
                     handleConditionLevelChange={handleConditionLevelChange}
                     exclude={exclude}
                     setExclusion={setExclusion}
+                    setExclusion2={setExclusion2}
                     selectedExclusionLevel={selectedExclusionLevel}
                     handleExclusionLevelChange={handleExclusionLevelChange}
                     exclusionLevels={exclusionLevels}
@@ -2426,6 +2494,7 @@ const ConfigureMetadata = (props) => {
                     handleSelectedExclusionCoC={handleSelectedExclusionCoC}
                     handleSelectedExclusionDE={handleSelectedExclusionDE}
                     setCategoryExclusion={setCategoryExclusion}
+                    setCategoryExclusion2={setCategoryExclusion2}
                     categoryExclusion={categoryExclusion}
                     setCategoryExclusionToProcess={setCategoryExclusionToProcess}
                     categoryExclusionToProcess={categoryExclusionToProcess}
@@ -2434,8 +2503,11 @@ const ConfigureMetadata = (props) => {
                     handleSelectedExclusionCategory={handleSelectedExclusionCategory}
                     handleSelectedExclusionCategoryToProcess={handleSelectedExclusionCategoryToProcess}
                     setConditionCOIDName={setConditionCOIDName}
+                    setConditionCOIDName2={setConditionCOIDName2}
                     setConditionCoCIDName={setConditionCoCIDName}
                     setConditionDEIDName={setConditionDEIDName}
+                    selectedExclusionEditInit={selectedExclusionEditInit}
+                    handleSelectedExclusionCategory2={handleSelectedExclusionCategory2}
 
                 />
 
@@ -2446,12 +2518,12 @@ const ConfigureMetadata = (props) => {
             {showLabelComponents && (
                 
                 <LabelComponent 
-
+                    loadedProjectCombos={loadedProject.catCombos}
+                    loadedProjectDataElements={loadedProject.dataElements.map(({ id, name }) => ({ id, name }))}
                     selectedLabel={selectedLabel}
                     editLabelMode={editLabelMode}                
                     selectedMetadataOption={selectedMetadataOption}
                     setSelectedMetadataOption={setSelectedMetadataOption}
-                    handleLabelLevelChange={handleLabelLevelChange}
                     conditionLevels={conditionLevels}
                     metadataName={metadataName}
                     setMetadataName={setMetadataName}
@@ -2459,10 +2531,10 @@ const ConfigureMetadata = (props) => {
                     setLabelName={setLabelName}
                     handleCloseLabelModal={handleCloseLabelModal}
                     handleCreateLabel={handleCreateLabel}
-                    selectedLabelLevel={selectedLabelLevel}
-                    setSelectedlabelLevel={setSelectedlabelLevel}
-
-                
+                    setLabelDEIDName={setLabelDEIDName}
+                    setLabelComboIDName={setLabelComboIDName}
+                    setLabelCategoryIDName={setLabelCategoryIDName}
+                    setLabelOptionIDName={setLabelOptionIDName}              
                 
                 />
             )}

@@ -42,25 +42,30 @@ const ExclusionRuleComponent = (props) => {
   const [loadingTransfer, setLoadingTransfer] = useState(false);
   const [loadingTransferToProcess, setLoadingTransferToProcess] = useState(false);
   const [categoryOptions, setCategoryOptions] = useState([]);
+  const [categoryOptions2, setCategoryOptions2] = useState([]);
   const [categoryExclusion, setCategoryExclusion] = useState('');
+  const [categoryExclusion2, setCategoryExclusion2] = useState('');
   const [categoryExclusionToProcess, setCategoryExclusionToProcess] = useState('');
   const [processingCategoryToProcess, setProcessingCategoryToProcess] = useState('');
   const [loader, setLoader]= useState(false);
   const [onEditload, setOnEditLoader]= useState(false);
+  const [isCondition2Expanded, setIsCondition2Expanded]= useState(false);
+
 
 
   const [selectedKeys, setSelectedKeys] = useState([]);
+  const [selectedKeys2, setSelectedKeys2] = useState([]);
   const [categoryOptionsToProcess, setCategoryOptionsToProcess] = useState([]);
   const [selectedKeysToProcess, setSelectedKeysToProcess] = useState([]);
 
 
-  const initparts = props.selectedExclusion.split('-val:-');
+  const initparts = props.selectedExclusionEditInit.split('-val:-');
 
   // The first part should be the catCombo.id
-  const initKeyID = initparts[0];
+  const initKeyID = initparts[0] !== '' ? initparts[0] : 'xxxxx';
   const initCoCID = initparts[1];
 
-
+console.log(selectedKeys.length > 0)
 
   // const [processingCategory, setProcessingCategory] = useState(initCoCID !== undefined ? initCoCID : props.loadedProjectCombos[0].id);
   const [processingCategory, setProcessingCategory] = useState(initCoCID);
@@ -90,7 +95,7 @@ const ExclusionRuleComponent = (props) => {
     const extracted = catData?.categoryCombo?.categoryCombos[0]?.categories || [];
     console.log('extracted: ',extracted)
 
-    if (extracted.length > 1){
+    if (extracted.length > 0){
       setCategoryList(extracted)
       // console.log('extracted: ',extracted)
     }       
@@ -106,7 +111,7 @@ const ExclusionRuleComponent = (props) => {
     const extracted = catData?.categoryCombo?.categoryCombos[0]?.categories || [];
     console.log('extracted: ',extracted)
 
-    if (extracted.length > 1){
+    if (extracted.length > 0){
       setCategoryList(extracted)
       // console.log('extracted: ',extracted)
     }   
@@ -133,6 +138,26 @@ const ExclusionRuleComponent = (props) => {
    
 
   },[categoryExclusion, categoryList, loader])
+
+  useEffect(() =>{
+    setLoadingTransfer(true)
+
+    const filteredArray = categoryList.filter(
+      (element) => element.id === categoryExclusion2
+    );
+
+
+    const catOptions = filteredArray[0]?.categoryOptions?.map(option => ({
+      value: option.id,
+      label: option.name,
+    })) || [];
+
+    setCategoryOptions2(catOptions)
+
+    setLoadingTransfer(false)
+   
+
+  },[categoryExclusion2, categoryList, loader])
 
 
  // to exclude
@@ -165,6 +190,14 @@ const ExclusionRuleComponent = (props) => {
 
   },[selectedKeys])
 
+  useEffect(() =>{
+    if (onEditload){
+    const filteredOptions = categoryOptions2.filter(option => selectedKeys2.includes(option.value)).map(({ value, label }) => ({ id:value, name:label }));;
+    props.setExclusion2(filteredOptions)
+    }
+
+  },[selectedKeys2])
+
   // to exclude
   useEffect(() =>{
     if (onEditload){
@@ -194,25 +227,27 @@ const ExclusionRuleComponent = (props) => {
   // on load
   useEffect(()=>{
     setReloadExclusion((prev) => !prev)
+
+
     if (data){
       if (props.selectedExclusion !== 'xxxxx'){
-
         const selectedExclusion = data.dataStore?.entries || [];       
         setComponentID(selectedExclusion[0].id)  
         props.setConditionName(selectedExclusion[0]?.name || [])
         let conditionLoadingDE = selectedExclusion[0]?.conditionDE[0] || []
         props.setConditionDE(`${conditionLoadingDE.id}-val:-${conditionLoadingDE.name}`)
-        props.setConditionDEIDName(selectedExclusion[0]?.conditionDE || [])
+        props.setConditionDEIDName([conditionLoadingDE])
         // props.setSelectedConditionLevel(alignLevelsReverse(selectedExclusion[0].conditionLevel))
 
         props.setSelectedExclusionMetadataOption(selectedExclusion[0]?.metadata || '') // update onload
    
         let conditionLoadingCoC = selectedExclusion[0]?.conditionCoC[0] || []
-        props.setConditionCoCIDName(selectedExclusion[0]?.conditionCoC || [])
+        props.setConditionCoCIDName([conditionLoadingCoC])
         props.setConditionCoC(`${conditionLoadingCoC.id}-val:-${conditionLoadingCoC.name}`)
 
 
         props.setExclusion(selectedExclusion[0]?.conditionCategoryOption || [])
+        props.setExclusion2(selectedExclusion[0]?.conditionCategoryOption2 || [])
         let metadataLoading = selectedExclusion[0]?.metadata || ''
         if  (metadataLoading=== "DataElement"){
             setShowCatCombo(false)
@@ -224,11 +259,16 @@ const ExclusionRuleComponent = (props) => {
 
         // props.setSelectedExclusionLevel(alignLevelsReverse(selectedExclusion[0].exclusionLevel))
         let categoryExclusionLoading = selectedExclusion[0]?.category[0] || []
-        props.setConditionCOIDName(selectedExclusion[0]?.category || [])
+        let categoryExclusionLoading2 = selectedExclusion[0]?.category2[0] || []
+        props.setConditionCOIDName2([categoryExclusionLoading2])
+        props.setConditionCOIDName([categoryExclusionLoading])
         props.setCategoryExclusion(`${categoryExclusionLoading.id}-val:-${categoryExclusionLoading.name}`)
+        props.setCategoryExclusion2(`${categoryExclusionLoading2.id}-val:-${categoryExclusionLoading2.name}`)
         setCategoryExclusion(categoryExclusionLoading.id)
+        setCategoryExclusion2(categoryExclusionLoading2.id)
         // for the category options
         let categoryListLoading = selectedExclusion[0]?.conditionCategoryOption || []
+        let categoryListLoading2 = selectedExclusion[0]?.conditionCategoryOption2 || []
 
         // for the exclusion options
         let categoryExclusionOptionToProcessLoading = selectedExclusion[0]?.categoryExclusionOptionToProcess || []
@@ -244,7 +284,6 @@ const ExclusionRuleComponent = (props) => {
         if(metadataLoading === "CategoryOption"){ 
 
           let categoryExclusionToProcessLoading = selectedExclusion[0]?.categoryExclusionToProcess[0] || []
-          console.log('Reached here')
           props.setCategoryExclusionToProcess(selectedExclusion[0]?.categoryExclusionToProcess || [])
           setCategoryExclusionToProcess(`${categoryExclusionToProcessLoading.id}-val:-${categoryExclusionToProcessLoading.name}`)
           setProcessingCategoryToProcess(categoryExclusionToProcessLoading.id) // Id to get option List
@@ -253,6 +292,7 @@ const ExclusionRuleComponent = (props) => {
 
         
         setProcessingCategory(conditionLoadingCoC.id);
+        console.log('Exclusion Edit Mode')
         catRefetch({categoryCombo: conditionLoadingCoC.id})
 
 
@@ -263,9 +303,13 @@ const ExclusionRuleComponent = (props) => {
           value: option.id,
           label: option.name,
         })) || [];
-
+        // Now, allCategoryOptions contains all the category options
+        const optionsExclusion2 = categoryListLoading2?.map(option => ({
+          value: option.id,
+          label: option.name,
+        })) || [];
         setSelectedKeys(optionsExclusion.map(option => option.value)); // Set all options to the right by default
-
+        setSelectedKeys2(optionsExclusion2.map(option => option.value));
 
       }
     }
@@ -289,6 +333,7 @@ const ExclusionRuleComponent = (props) => {
   
     // Now you have the catCombo.id, you can set it in state or perform any other operations
     setProcessingCategory(catComboId);
+    console.log('Category Changed')
 
     catRefetch({categoryCombo: catComboId})
   }
@@ -309,6 +354,22 @@ const ExclusionRuleComponent = (props) => {
 
   }
 
+
+  const handleSelectedExclusionCategory2 = (event) =>{
+    const selectedValue = event.target.value;
+
+    // Split the selected value using the separator "val:-"
+    const parts = selectedValue.split('-val:-');
+    
+    // The first part should be the catCombo.id
+    const catComboId = parts[0];
+    props.setCategoryExclusion2(selectedValue)
+    setCategoryExclusion2(catComboId)
+  
+
+  }
+
+  
 
   
 
@@ -332,6 +393,14 @@ const ExclusionRuleComponent = (props) => {
       setSelectedKeys(selected);
   
     }
+
+        // Function to handle the change of the selected category
+        const handleVerticalTransferCoCChange2 = (selected) => {
+          setOnEditLoader(true);
+    
+          setSelectedKeys2(selected);
+      
+        }
     
 
     // Function to handle the change of the selected category
@@ -343,7 +412,29 @@ const ExclusionRuleComponent = (props) => {
     }
 
 
+   const handleClearConstants = () =>{
+    setDataElementList([])
+    setComboList([])
+    setCategoryList([])
+    setShowDataElement(false)
+    setShowCatCombo(false)
+    setReloadExclusion(false)
+    setLoadingTransfer(false)
+    setLoadingTransferToProcess(false)
+    setCategoryOptions([])
+    setCategoryOptions2([])
+    setCategoryExclusion('')
+    setCategoryExclusion2('')
+    setCategoryExclusionToProcess('')
+    setProcessingCategoryToProcess('')
+    setLoader(false)
+    setOnEditLoader(false)
+    setSelectedKeys([])
+    setSelectedKeys2([])
+    setCategoryOptionsToProcess([])
+    setSelectedKeysToProcess([])
 
+   }
 
 
   if (error) {
@@ -433,7 +524,7 @@ const ExclusionRuleComponent = (props) => {
       </div>)}
 
             {loader && (showCatCombo || showDataElement) && (<div>
-              Conditions
+              Conditions One
             </div>)}
             {loader && (showCatCombo || showDataElement) && (<Box min-height="358px" min-width="358px">
             <Card className={classes.cardboxExclusion}>
@@ -444,7 +535,7 @@ const ExclusionRuleComponent = (props) => {
               handleSelectedExclusionCategory(event); 
               }} 
               className={classes.selectField}>
-                <option value="">Select Category Condition</option>
+                <option value="">Select Category Condition One</option>
                 {categoryList.map(categoryExclusion => (
                     <option key={`${categoryExclusion.id}-val:-${categoryExclusion.name}`} value={`${categoryExclusion.id}-val:-${categoryExclusion.name}`}>{categoryExclusion.name}</option>
                 ))}
@@ -468,7 +559,52 @@ const ExclusionRuleComponent = (props) => {
     
             </Card> 
 </Box>)}
+{loader && showCatCombo && (<Divider/>)} 
+{loader && showCatCombo && (selectedKeys.length > 0) && (<button onClick={() => setIsCondition2Expanded((prev) => !prev)}>
+                      {isCondition2Expanded ? '-' : '+'} 
+                  </button>)} 
+                  &nbsp;
+                  
+                  {loader && isCondition2Expanded && (selectedKeys.length > 0) ? 'Hide another condition' : ''} 
 
+  
+                  {loader && showCatCombo && (<Divider/>)} 
+{loader && isCondition2Expanded && (selectedKeys.length > 0) &&(showCatCombo || showDataElement) && (<div>
+              Conditions Two
+            </div>)}
+            {loader && isCondition2Expanded  && (showCatCombo || showDataElement) && (<Box min-height="358px" min-width="358px">
+            <Card className={classes.cardboxExclusion}>
+              <select id="categoryExclusion" 
+              value={props.categoryExclusion2}  
+              onChange={(event) => {
+              props.handleSelectedExclusionCategory2(event);
+              handleSelectedExclusionCategory2(event); 
+              }} 
+              className={classes.selectField}>
+                <option value="">Select Category Condition Two</option>
+                {categoryList.map(categoryExclusion => (
+                    <option key={`${categoryExclusion.id}-val:-${categoryExclusion.name}`} value={`${categoryExclusion.id}-val:-${categoryExclusion.name}`}>{categoryExclusion.name}</option>
+                ))}
+                  </select>
+            <div>
+              <Transfer
+                filterable
+                filterablePicked
+                loading={loadingTransfer}
+                enableOrderChange
+                options={categoryOptions2}
+                selected={selectedKeys2}
+                onChange={({ selected }) => {
+                  handleVerticalTransferCoCChange2(selected);
+                  // Add your logic to handle selected options
+                }}
+                className={classes.inputField}
+                // selectedEmptyComponent={<p style={{textAlign: 'center'}}>You have not selected anything yet<br /></p>}
+              />
+            </div>  
+    
+            </Card> 
+</Box>)}
   
 {loader && showCatCombo && (<Divider/>)}                   
 
@@ -528,9 +664,14 @@ const ExclusionRuleComponent = (props) => {
         </ModalContent>
         <ModalActions>
             <ButtonStrip>
-            <Button onClick={props.handleCloseExclusionModal}>Cancel</Button>
+            <Button onClick={()=>{
+              
+              handleClearConstants()
+              props.handleCloseExclusionModal()}}>
+                Cancel</Button>
             {/* Add save changes logic here */}
             <Button primary onClick={() => {
+              handleClearConstants()
               props.handleCreateExclusion(props.editExclusionMode ? 'update' : 'new', componentID)
               setReloadExclusion((prev) => !prev)
           }}>

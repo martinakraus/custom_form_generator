@@ -1,64 +1,76 @@
-import { useDataQuery } from '@dhis2/app-runtime'
-import React, { useState, useEffect } from 'react';
+import { useDataQuery, useAlert } from '@dhis2/app-runtime'
+import React, { useEffect } from 'react';
+import {deleteObjects} from '../utils'
 
 import { config, 
     sideNavigationFilter, 
     formComponentFilter, 
     TemplateFilter, 
     exclusionRuleFilter,
-    labelNameFilter} from '../consts'
+    labelNameFilter,
+    ProjectsFilters} from '../consts'
 
-
+    import { 
+        Modal, 
+        ModalTitle, 
+        ModalContent, 
+        ModalActions, 
+        ButtonStrip, 
+        Button
+    } from '@dhis2/ui';
 
 
 
 const CleaningServices = (props) => {
-    // Define your data store query
-    const [projectID, setProjectID] = useState(props.projectID);
-    console.log('Cleaning Services',props.projectID)
+    const { show } = useAlert(
+        ({ msg }) => msg,
+        ({ type }) => ({ [type]: true })
+      )
+
     const SideNavigationQuery = {
         dataStore: {
-        resource: `dataStore/${config.dataStoreSideNavigations}?${sideNavigationFilter}&filter=projectID:eq:TFDUHVEXT0P`,
+        resource: `dataStore/${config.dataStoreSideNavigations}?${sideNavigationFilter}`,
         },
     }
 
     // Define your data store query
     const FormComponentQuery = {
         dataStore: {
-        resource: `dataStore/${config.dataStoreFormComponents}?${formComponentFilter}&filter=projectID:eq:${props.projectID}`,
+        resource: `dataStore/${config.dataStoreFormComponents}?${formComponentFilter}`,
         },
     }
 
     // Define your data store query
     const TemplateQuery = {
         dataStore: {
-        resource: `dataStore/${config.dataStoreTemplates}?${TemplateFilter}&filter=projectID:eq:${props.projectID}`,
+        resource: `dataStore/${config.dataStoreTemplates}?${TemplateFilter}`,
         },
     }
 
     // Define your data store query
     const ConditionQuery = {
         dataStore: {
-        resource: `dataStore/${config.dataStoreConditions}?${exclusionRuleFilter}&filter=projectID:eq:${props.projectID}`,
+        resource: `dataStore/${config.dataStoreConditions}?${exclusionRuleFilter}`,
         },
     }
     
 
     const LabelQuery = {
         dataStore: {
-            resource: `dataStore/${config.dataStoreLabelName}?${labelNameFilter}&filter=projectID:eq:${props.projectID}`,
+            resource: `dataStore/${config.dataStoreLabelName}?${labelNameFilter}`,
             },
 
     }
 
-    const { loading, error, data } = useDataQuery({
-        dataStore: 'yourDataStoreName',
-        query: {
-          resources: 'yourResourceName',
-          fields: 'id,projectID', // Adjust the fields you need
+        // Define your data store query
+    const dataStoreQuery = {
+        dataStore: {
+        resource: `dataStore/${config.dataStoreName}?${ProjectsFilters}`,
         },
-      });
+    }
 
+
+    const { data: ProjectQueryData, refetch:ProjectQueryDataRefetch} = useDataQuery(dataStoreQuery); // Use separate hook for dataStoreQuery
     const { data: SideNavigationQueryData, refetch:SideNavigationQueryDataRefetch} = useDataQuery(SideNavigationQuery); // Use separate hook for dataStoreQuery
     const { data: FormComponentQueryData, refetch:FormComponentQueryDataRefetch } = useDataQuery(FormComponentQuery); // Use separate hook for dataStoreQuery
     const { data: TemaplateQueryData, refetch:TemaplateQueryDataRefetch} = useDataQuery(TemplateQuery); // Use separate hook for dataStoreQuery
@@ -68,7 +80,7 @@ const CleaningServices = (props) => {
 
     useEffect(() =>{
 
-
+        ProjectQueryDataRefetch()
         SideNavigationQueryDataRefetch()
         FormComponentQueryDataRefetch()
         TemaplateQueryDataRefetch()
@@ -76,39 +88,95 @@ const CleaningServices = (props) => {
         LabelQueryDataRefetch()
 
 
-        console.log('SideNavigationQueryData: ',SideNavigationQueryData)
-        console.log('FormComponentQueryData: ',FormComponentQueryData)
-        console.log('TemaplateQueryData: ',TemaplateQueryData)
-        console.log('ConditionsQueryData: ',ConditionsQueryData)
-        console.log('LabelQueryData: ',LabelQueryData)
 
-      },[props.projectID, props.cleanToggle])
+      },[props.cleanToggle])
 
-    const clickCleaningAction = async () =>{
+    const handleCloseModal = async () =>{
         // Assuming you have an API to query and delete based on a filter
-        const entriesToDelete = await props.engine.query({
-            resource: `dataStore/${config.dataStoreSideNavigations}`,
-            type: 'query',
-            filter: {
-            fieldName: 'projectID',
-            operator: 'equals',
-            value:props.projectID, // Your projectID
-            },
-        });
+        props.setCleaner(false)
 
-        console.log(entriesToDelete)
-
-
-        props.setCleanerToggle((prev) => !prev)
 
     }
+
+    const handleDeleteUnusedProjectcomponents = async () =>{
+        props.setCleanerToggle((prev) => !prev)
+        const Projects = ProjectQueryData.dataStore?.entries || [];
+        const projectIds = Projects.map(entry => entry.id);
+        const SideNavigations = SideNavigationQueryData?.dataStore?.entries || [];
+        
+        const filteredSideNavigations = SideNavigations.filter(entry => !projectIds.includes(entry.projectID));
+
+        const FormComponents = FormComponentQueryData?.dataStore?.entries || [];
+        const filteredFormComponents = FormComponents.filter(entry => !projectIds.includes(entry.projectID));
+        
+        const Templates = TemaplateQueryData?.dataStore?.entries || [];
+        const filteredTemaplates = Templates.filter(entry => !projectIds.includes(entry.projectID));
+        
+        const Conditions = ConditionsQueryData?.dataStore?.entries || [];
+        const filteredConditions = Conditions.filter(entry => !projectIds.includes(entry.projectID));
+        
+        const Labels = LabelQueryData?.dataStore?.entries || [];
+        const filteredLabels = Labels.filter(entry => !projectIds.includes(entry.projectID));
+
+
+        if (filteredSideNavigations.length > 0){
+            filteredSideNavigations.forEach(SideNavigations => {
+
+                deleteObjects(props.engine, config.dataStoreSideNavigations, SideNavigations.key, 'Side Navigation')
+            });  
+        }
+
+        if (filteredFormComponents.length > 0){
+            filteredFormComponents.forEach(form => {
+                deleteObjects(props.engine, config.dataStoreFormComponents, form.key, 'Form Component')
+            });   
+
+        }
+
+        if (filteredTemaplates.length > 0){    
+            filteredTemaplates.forEach(template => {
+                deleteObjects(props.engine, config.dataStoreTemplates, template.key, 'Template')
+            });             
+
+        }
+
+        if (filteredConditions.length > 0){     
+            filteredConditions.forEach(condition => {
+                deleteObjects(props.engine, config.dataStoreConditions, condition.key, 'Condition')
+            });          
+
+        }
+        if (filteredLabels.length > 0){ 
+            
+            filteredLabels.forEach(label => {
+                deleteObjects(props.engine, config.dataStoreLabelName, label.key, 'Label')
+            });
+
+        }
+        handleCloseModal()
+        show({ msg: 'Cleaning Successfully Completed:', type: 'success' })
+
+    }
+
+
     return (
-    <div>
-
-    <h1 onClick={clickCleaningAction}>DELETING SECTION</h1>
-
-
-    </div>
+        <Modal>
+        <ModalTitle>Maintenance Comfirmation</ModalTitle>
+        <ModalContent>
+          <div>Proceed to maintenance task. All isolated items will be removed permanently. This procedure is safe</div>
+        </ModalContent>
+        <ModalActions>
+          <ButtonStrip>
+            <Button onClick={handleCloseModal}>Cancel</Button>
+            {/* Add save changes logic here */}
+            <Button destructive onClick={() =>
+                  handleDeleteUnusedProjectcomponents()
+                }
+                primary>Clean
+            </Button>
+          </ButtonStrip>
+        </ModalActions>
+      </Modal>
     );
 
 }

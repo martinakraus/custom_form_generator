@@ -182,3 +182,17 @@ export const queryCatCombo = async (catCombo) =>{
 
 
 }
+
+
+export const deleteObjects = async (engine, store, key, obj) =>{
+
+  try {
+    await engine.mutate({
+      resource: `dataStore/${store}/${key}`,
+      type: 'delete',
+    });
+    console.log(`${obj} ${key} deleted`);
+  } catch (error) {
+    console.error(`Error deleting ${key}`, error);
+  }
+}

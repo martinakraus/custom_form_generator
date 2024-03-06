@@ -20,7 +20,7 @@ import { Modal, ModalTitle, ModalContent, ModalActions, ButtonStrip, Button } fr
 import { config, ProjectsFiltersMore } from '../consts'
 import { IconEdit16, IconDelete16, IconTextHeading16} from '@dhis2/ui-icons';
 import classes from '../App.module.css'
-// import CleaningServices from './CleaningServices';
+import CleaningServices from './CleaningServices';
 
 const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects, reloadProjects, setReloadProjects }) => {
   const { show } = useAlert(
@@ -37,7 +37,7 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [showConfigureProject, setShowModalConfigureProject] = useState(false);
   const [filterText, setFilterText] = useState('');
-  const [projectID, setProjectID] = useState('');
+
   const [cleaner, setCleaner] = useState(false);
   const [cleanToggle, setCleanerToggle] = useState(false);
   
@@ -157,9 +157,8 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
 
   }
   const handleDeleteProject = async (projectName, KeyID, projectID) => {
-    console.log('projectID:',projectID)
+
     setCleanerToggle((prev) => !prev);
-    setProjectID(projectID)
     setCleaner(true)
 
     try {
@@ -174,7 +173,7 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
     } catch (error) {
       console.error('Error deleting project:', error);
     }
-    setProjectID(projectID)
+
 
     setSelectedProject(null);
     setShowDeleteModal(false)
@@ -211,6 +210,12 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
 
     <div className={classes.customImageContainer} onClick={handleCustomImageClick}>
         {customImage('sync', 'large')}
+      </div>
+
+      <div className={classes.customImageContainer} onClick={() => {
+              setCleaner(true)
+          }}>
+        {customImage('cleaning', 'large')}
       </div>
 
 
@@ -331,6 +336,12 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
             </ButtonStrip>
           </ModalActions>
         </Modal>
+      )}
+
+    {cleaner && (
+
+            <CleaningServices engine={engine} setCleaner={setCleaner} setCleanerToggle={setCleanerToggle} cleanToggle={cleanToggle}/>
+
       )}
             
 
