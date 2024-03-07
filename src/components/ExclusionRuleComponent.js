@@ -14,7 +14,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, ModalTitle, ModalContent, ModalActions, ButtonStrip, Button, Box } from '@dhis2/ui';
 import { Input } from '@dhis2-ui/input'
 import classes from '../App.module.css'
-import {alignLevelsReverse, customImage} from '../utils'
+import {customImage} from '../utils'
 
 
 
@@ -292,7 +292,7 @@ console.log(selectedKeys.length > 0)
 
         
         setProcessingCategory(conditionLoadingCoC.id);
-        console.log('Exclusion Edit Mode')
+        // console.log('Exclusion Edit Mode')
         catRefetch({categoryCombo: conditionLoadingCoC.id})
 
 

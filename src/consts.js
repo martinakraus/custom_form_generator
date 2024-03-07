@@ -11,7 +11,7 @@ export const ProjectsFiltersMore = 'fields=id,projectName,dataSet,modifiedDate,d
 export const sideNavigationFilter = 'fields=sideNavName,projectID';
 export const formComponentFilter = 'fields=formComponentName,projectID,';
 export const TemplateFilter = 'fields=key,name,projectID,catCombo';
-export const TemplateNoFilter = 'fields=key,name,projectID,sideNavigation,formComponent,catCombo,HorizontalLevel0,HorizontalLevel1,verticalLevel1,verticalLevel2';
+export const TemplateNoFilter = 'fields=key,name,overidingCategory,projectID,sideNavigation,formComponent,catCombo,HorizontalLevel0,HorizontalLevel1,verticalLevel1,verticalLevel2';
 export const exclusionRuleFilter = 'fields=id,key,name,projectID,metadata,conditionCoC';
 export const exclusionRuleMore = 'fields=id,key,name,projectID,metadata,conditionCoC,conditionDE,conditionCategoryOption,conditionCategoryOption2,categoryExclusionToProcess,categoryExclusionOptionToProcess,category,category2';
 

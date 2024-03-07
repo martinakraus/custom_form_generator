@@ -112,6 +112,22 @@ export const updateDataStore = async (engine, postObject, store, key) =>{
 }
 
 
+// const updateDataStore = async (postObject, store, key) =>{
+
+//   try {
+//       await props.engine.mutate({
+//         resource: `dataStore/${store}/${key}`,
+//         type: 'update',
+//         data: postObject,
+//       });
+
+//     } catch (error) {
+//       // Handle error (log, show alert, etc.)
+//       console.error('Error updating object:', error);
+//     }
+// }
+
+
 export const createDataStore = async (engine, postObject, store, key) =>{
 
   if (!postObject.hasOwnProperty('modifiedDate')) {

@@ -139,7 +139,10 @@ const HorizontalCategory = (props) => {
             }
             
             
-            if (props.editMode){    
+            if (props.editMode){
+
+
+            
             const HorizontalCategoryObject = categories1.filter(
               (element) => element.id === updatedDataElements[0].HorizontalLevel0.id
             ) || [];
@@ -161,6 +164,23 @@ const HorizontalCategory = (props) => {
             props.setfileredHorizontalCatComboLevel1(updatedCategories);
             props.setfileredHorizontalCatCombo0(selectedCategory1);
             props.setSelectedHorizontalCategoryName0(selectedCategory1[0].name)
+
+            // Check if updatedDataElements exists and has the expected structure
+            if (updatedDataElements && updatedDataElements.length > 0) {
+              const result = updatedDataElements[0];
+              // const horizontalLevel0 = result?.HorizontalLevel0?.id || 'notExist';
+              // const horizontalLevel1 = result?.HorizontalLevel1?.id || 'notExist';
+              // const verticalLevel1 = result?.verticalLevel1?.id || 'notExist';
+              const verticalLevel2 = result?.verticalLevel2?.id || 'notExist';
+              const verticalLevel3 = result?.verticalLevel3?.id || 'notExist';
+
+              // Populate CategoryChecker array with the outcomes
+              const outcomes = [verticalLevel2, verticalLevel3];
+              props.setCategoryChecker(outcomes);
+            } else {
+              // Handle case when updatedDataElements is undefined or empty
+              console.error("updatedDataElements is undefined or empty");
+            }
         }    
       }
     }
