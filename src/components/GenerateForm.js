@@ -17,11 +17,11 @@ const getCombo = (allCombinations, index) => {
 };
 
 const formatDatElement = (labels, de) => {
-    return labels.find(l => l.metadataType === 'DataElement' && l.id === de.id)?.labelName || de.name
+    return labels.find(l => l.metadataType === 'DataElement' && l.labelDEIDName[0].id === de.id)?.labelName || de.name
 }
 
 const formatOption = (labels, option) => {
-    return labels.find(l => l.metadataType === 'CategoryOption' && l.id === option.id)?.labelName || option.name
+    return labels.find(l => l.metadataType === 'CategoryOption' && l.labelOptionIDName[0].id === option.id)?.labelName || option.name
 }
 
 const skipOption = (rules, dataElement, value, level1, level2, level3, level4) => {
@@ -30,16 +30,38 @@ const skipOption = (rules, dataElement, value, level1, level2, level3, level4) =
         if (rule.categoryExclusionOptionToProcess) {
             for (let ci = 0; ci < rule.conditionCategoryOption.length; ci++) {
                 const condition = rule.conditionCategoryOption[ci].id;
-                if (condition === level1 || condition === level2 || condition === level3 || condition === level4) {
-                    for (let ei = 0; ei < rule.categoryExclusionOptionToProcess.length; ei++) {
-                        const exclusion = rule.categoryExclusionOptionToProcess[ei].id;
-                        const dataElements = rule.conditionDE?.map(de => de.id) || [];
+                if (rule.conditionCategoryOption2 && rule.conditionCategoryOption2.length) {
+                    for (let ci2 = 0; ci2 < rule.conditionCategoryOption2.length; ci2++) {
+                        const condition2 = rule.conditionCategoryOption2[ci2].id;
+                        if (condition === level1 || condition === level2 || condition === level3 || condition === level4) {
+                            if (condition2 === level1 || condition2 === level2 || condition2 === level3 || condition2 === level4) {
+                                for (let ei = 0; ei < rule.categoryExclusionOptionToProcess.length; ei++) {
+                                    const exclusion = rule.categoryExclusionOptionToProcess[ei].id;
+                                    const dataElements = rule.conditionDE?.map(de => de.id) || [];
 
-                        if (exclusion === value) {
-                            if (!dataElements.length) {
-                                return true;
-                            } else if (dataElements.includes(dataElement)) {
-                                return true;
+                                    if (exclusion === value) {
+                                        if (!dataElements.length) {
+                                            return true;
+                                        } else if (dataElements.includes(dataElement)) {
+                                            return true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if (condition === level1 || condition === level2 || condition === level3 || condition === level4) {
+                        for (let ei = 0; ei < rule.categoryExclusionOptionToProcess.length; ei++) {
+                            const exclusion = rule.categoryExclusionOptionToProcess[ei].id;
+                            const dataElements = rule.conditionDE?.map(de => de.id) || [];
+
+                            if (exclusion === value) {
+                                if (!dataElements.length) {
+                                    return true;
+                                } else if (dataElements.includes(dataElement)) {
+                                    return true;
+                                }
                             }
                         }
                     }
@@ -783,7 +805,6 @@ const GenerateForm = (props) => {
                 idMap.set(combi, {name: coc.name, id: coc.id})
             })
         }
-        console.log('ID map', idMap)
         //Build list of distinct side navigation
         const sideNav = new Set();
         for (let i = 0; i < props.loadedProject.dataElements.length; i++) {
@@ -909,7 +930,7 @@ const GenerateForm = (props) => {
                                                     <div class="INFOLINK_Form_Container">
                                                           <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">${formatOption(props.loadedLabels, level5.metadata[e])}</div>`;
                                                 for (let d = 0; d < level4.metadata.length; d++) {
-                                                    const skip = skipOption(props.loadedRules, dataElement.id, level4.metadata[d].id, navs[a].id, level2.metadata[b].id, level3.metadata[c].id, '')
+                                                    const skip = skipOption(props.loadedRules, dataElement.id, level4.metadata[d].id, navs[a].id, level2.metadata[b].id, level3.metadata[c].id, level5.metadata[e].id)
                                                     if (skip) {
                                                         continue
                                                     }
