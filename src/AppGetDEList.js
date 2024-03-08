@@ -68,7 +68,7 @@ const AppGetDEList = props => {
     const handleDataElementChange = (selected) => {
         props.setSelectedDataElementId(selected);
         setDataElement(selected)
-        console.log('props.setSelectedDataElementId updated: ', selected)
+        // console.log('props.setSelectedDataElementId updated: ', selected)
 
         // Find the record with the matching id
         const selectedDataElement = dataElements.find(dataElement => dataElement.dataElement.id === selected);
@@ -114,11 +114,12 @@ const AppGetDEList = props => {
     const dataElements = data.targetedEntity.dataSets[0]?.dataSetElements || [];
 
     return (
-      
+ 
         <div className={classes.baseMargin}>
-                {(<div className={classes.customImageContainer} onClick={handleCustomImageClick}>
-        {customImage('sync', 'large')}
-      </div>)}
+          {/* <h1>{dataElemntID} {dataElemntID} - {dataElemntID.length}</h1> */}
+                {(props.selectedDataElementId.length > 0) && (<div className={classes.customImageContainer} onClick={handleCustomImageClick}>
+                    {customImage('sync', 'large')}
+                </div>)}
           
                     <SingleSelect
                             className="select"

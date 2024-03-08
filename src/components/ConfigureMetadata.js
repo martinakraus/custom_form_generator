@@ -2656,6 +2656,7 @@ const ConfigureMetadata = (props) => {
                     setShowGenerateForm={setShowGenerateForm}
                     loadedRules={loadedRules}
                     loadedLabels={loadedLabels}
+                    showGenerateForm={showGenerateForm}
                     />                    
             )}
     </Modal>
