@@ -3,6 +3,7 @@ import {useState, useEffect } from 'react';
 import React from 'react'
 import classes from './App.module.css'
 import { SingleSelect, SingleSelectOption, SingleSelectField  } from '@dhis2-ui/select'
+import {customImage} from './utils'
 
 const dataSets = {
     targetedEntity: {
@@ -31,6 +32,8 @@ const AppGetDEList = props => {
 
     const [disabled, setDisable] = useState(false)
     const [dataElemntID, setDataElement] = useState('xxxxx')
+    const [updateCombos, setUpdateCombos] = useState(false)
+    setUpdateCombos
     const {loading: loading, error: error, data: data, refetch: refetch } = useDataQuery(dataSets, {variables: {dataSet: props.selectedDataSet}})
     const {loading: catLoading, error: cateEerror, data: catData, refetch: catRefetch } = useDataQuery(catComboQuery, {variables: {id: dataElemntID}})
 
@@ -41,14 +44,16 @@ const AppGetDEList = props => {
         if (props.editMode){
           setDisable(!!props.selectedDataElementId);
         }        
-    }, [props.selectedDataSet, props.selectedDataElementId,props.isHorizontalCategoryExpanded0]);
+    }, [props.selectedDataSet, props.selectedDataElementId,props.isHorizontalCategoryExpanded0, updateCombos]);
 
     useEffect(() => {
+      // console.log('catData: DataElement =>',catData)
       if (catData){
         for (const dataSetElement of catData.dataElement.dataSetElements) {
           if (dataSetElement.dataSet.id === props.selectedDataSet && dataSetElement.categoryCombo) {
             props.setOveridingCategory(dataSetElement.categoryCombo.id)
-            console.log('catData: DataElement =>',catData)
+            // console.log('catData: DataElement =>',catData)
+            // console.log('OveridingCategory: ', dataSetElement.categoryCombo.id)
             break; // Stop the loop since we found the desired dataSetElement
           }else{
             props.setOveridingCategory('xxxxx')
@@ -57,7 +62,7 @@ const AppGetDEList = props => {
         }        
       }
      
-    }, [catData,props.isHorizontalCategoryExpanded0]);
+    }, [catData,props.isHorizontalCategoryExpanded0,updateCombos]);
 
 
     const handleDataElementChange = (selected) => {
@@ -85,7 +90,11 @@ const AppGetDEList = props => {
       
 
       };
+      const handleCustomImageClick = () => {
 
+          setUpdateCombos((prev) => !prev)
+
+      }
     if (error) {
         return <span>ERROR: {error.message}</span>
     }
@@ -107,6 +116,10 @@ const AppGetDEList = props => {
     return (
       
         <div className={classes.baseMargin}>
+                {(<div className={classes.customImageContainer} onClick={handleCustomImageClick}>
+        {customImage('sync', 'large')}
+      </div>)}
+          
                     <SingleSelect
                             className="select"
                             filterable

@@ -18,7 +18,7 @@ import GenerateForm from './GenerateForm';
 import TooltipComponent from './TooltipComponent'
 import { Input } from '@dhis2-ui/input'
 import { IconEdit16, IconDelete16, IconAddCircle24} from '@dhis2/ui-icons';
-import { generateRandomId, modifiedDate,  alignLevels, customImage} from '../utils';
+import { generateRandomId, modifiedDate,  alignLevels, customImage, updateDataStore} from '../utils';
 import SideNavigation from './SideNavigationSelection';
 import FormComponentSelection from './FormComponentSelection';
 
@@ -231,7 +231,8 @@ const ConfigureMetadata = (props) => {
     const [dictfileredHorizontalCatCombo0, setdictfileredHorizontalCatCombo0] = useState([]); 
     const [selectedHorizontalCategoryID0, setSelectedHorizontalCategoryID0] = useState(null); 
     const [selectedHorizontalCategoryName0, setSelectedHorizontalCategoryName0] = useState(null); 
-    const [isHorizontalCategoryExpanded0, setIsHorizontalCategoryExpanded0] = useState(false); 
+    const [isHorizontalCategoryExpanded0, setIsHorizontalCategoryExpanded0] = useState(false);
+    const [categoryChecker, setCategoryChecker] = useState([]); 
 
     // Constants for Horizontal Categories (Level 2 Outer)
     const [dictfileredHorizontalCatComboLevel1, setdictfileredHorizontalCatComboLevel1] = useState([]);
@@ -256,6 +257,7 @@ const ConfigureMetadata = (props) => {
     const [isVerticalCategoryExpandedlevel2, setIsVerticalCategoryExpandedlevel2] = useState(false);
     const [VerticalCategoryOptionsLevel2, setVerticalCategoryOptionsLevel2] = useState([]);
     const [fileredVerticalCatComboLevel2, setfileredVerticalCatComboLevel2] = useState([]);
+    const [isCategoryChecker1, setCategoryChecker1] = useState(false); 
 
 
     // Constants for Vertical Categories (Level 3 Outer)
@@ -265,6 +267,7 @@ const ConfigureMetadata = (props) => {
     const [isVerticalCategoryExpandedlevel3, setIsVerticalCategoryExpandedlevel3] = useState(false);
     const [VerticalCategoryOptionsLevel3, setVerticalCategoryOptionsLevel3] = useState([]);
     const [fileredVerticalCatComboLevel3, setfileredVerticalCatComboLevel3] = useState([]);
+    const [isCategoryChecker2, setCategoryChecker2] = useState(false); 
 
 
     const [isDataSetsExpanded, setIsDataSetsExpanded] = useState(false);
@@ -666,20 +669,20 @@ const ConfigureMetadata = (props) => {
         setSavingDataElementState(currentState => !currentState); // Negate the current state
     };
 
-    const updateDataStore = async (postObject, store, key) =>{
+    // const updateDataStore = async (postObject, store, key) =>{
 
-        try {
-            await props.engine.mutate({
-              resource: `dataStore/${store}/${key}`,
-              type: 'update',
-              data: postObject,
-            });
+    //     try {
+    //         await props.engine.mutate({
+    //           resource: `dataStore/${store}/${key}`,
+    //           type: 'update',
+    //           data: postObject,
+    //         });
 
-          } catch (error) {
-            // Handle error (log, show alert, etc.)
-            console.error('Error updating object:', error);
-          }
-    }
+    //       } catch (error) {
+    //         // Handle error (log, show alert, etc.)
+    //         console.error('Error updating object:', error);
+    //       }
+    // }
 
     /** Prepare data to Update DHIS2 Object */
     const handleSaveToConfiguration = async (action, templateName = '') => {
@@ -693,6 +696,7 @@ const ConfigureMetadata = (props) => {
                         {
                         "id":selectedDataElementId, 
                         "name":selectedDataElement,
+                        "overidingCategory":overidingCategory,
                         "sideNavigation": selectedSideNavigation || 'Default',
                         "formComponent":selectedFormComponents || 'Default',
                         "HorizontalLevel0": {                                
@@ -761,7 +765,7 @@ const ConfigureMetadata = (props) => {
                     const updatedDataElements = [...loadedProject.dataElements];
                     updatedDataElements[indexToUpdate] = projectData.dataElements.find(element => element.id === selectedDataElementId);
 
-                    if (updateDataStore({
+                    if (updateDataStore(props.engine, {
                         ...loadedProject,
                         ...projectData,
                         dataElements: updatedDataElements,
@@ -771,7 +775,7 @@ const ConfigureMetadata = (props) => {
                     }
                 } else {
 
-                    if(updateDataStore({
+                    if(updateDataStore(props.engine, {
                         ...loadedProject,
                         ...projectData,
                         dataElements: [...loadedProject.dataElements, ...projectData.dataElements],
@@ -790,8 +794,9 @@ const ConfigureMetadata = (props) => {
        
                     const TemplateData =  {
                         "id":Templateid,
-                        "key": templateName+'-'+Templateid,
+                        "key": trimmedTemplateName+'-'+Templateid,
                         "name":templateName,
+                        "overidingCategory":overidingCategory,
                         "projectID":loadedProject.id,
                         "catCombo":fileredHorizontalCatCombo0[0].id,
                         "modifiedDate":modifiedDate(),
@@ -887,6 +892,14 @@ const ConfigureMetadata = (props) => {
 
         LabelQueryDataRefetch()
     };
+
+
+    const handleTemplateRefreshClick = () => {
+
+
+        TemaplateQueryrefetch()
+    };
+    
 
     const handleNavigatioFormComponentRefreshClick = () => {
 
@@ -1198,7 +1211,7 @@ const ConfigureMetadata = (props) => {
             
                 };
             }
-            updateDataStore(conditionData, config.dataStoreConditions, selectedExclusion)
+            updateDataStore(props.engine, conditionData, config.dataStoreConditions, selectedExclusion)
             
 
             // id:componentsID, 
@@ -1306,7 +1319,7 @@ const ConfigureMetadata = (props) => {
         
             }
 
-            updateDataStore(labelData, config.dataStoreLabelName, selectedLabel)
+            updateDataStore(props.engine, labelData, config.dataStoreLabelName, selectedLabel)
         }
 
 
@@ -1613,10 +1626,7 @@ const ConfigureMetadata = (props) => {
 
 
     }
-    const handleEditTemplate = (template) => {
 
-        console.log('Handle Edit Template Btn Clicked')
-    }
 
   
     if (error1 ) {
@@ -1873,7 +1883,7 @@ const ConfigureMetadata = (props) => {
                           })()}
                       </div>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                  {!editMode &&(<div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
                   <Button 
                         className={classes.loadTemplateButton} 
                         onClick={() => setShowModalMetadataTemplate(true)}
@@ -1882,12 +1892,16 @@ const ConfigureMetadata = (props) => {
                         Load Template
                     </Button>
                   </div>
+                   )}
                   {showModalMetadataTemplate && 
                       (<MetadataTemplating 
+                          engine={props.engine}
+                          handleDataElementRefreshClick={handleDataElementRefreshClick}
                           showModalMetadataTemplate={showModalMetadataTemplate}
                           setShowModalMetadataTemplate={setShowModalMetadataTemplate}
-                          loadedProjectid={loadedProject.id}
+                          loadedProject={loadedProject}
                           selectedDataElementId={selectedDataElementId}
+                          selectedDataElement={selectedDataElement}
                           fileredHorizontalCatCombo0={fileredHorizontalCatCombo0}/>                    
                   )}
 
@@ -1925,6 +1939,7 @@ const ConfigureMetadata = (props) => {
                                           setVerticalCategoryOptionsLevel2={setVerticalCategoryOptionsLevel2}
                                           setSelectedVerticalCategoryIDLevel2={setSelectedVerticalCategoryIDLevel2}
                                           setCategoryComboNameID={setCategoryComboNameID}
+                                          setCategoryChecker={setCategoryChecker}
                                           
 
                                       />;
@@ -2035,12 +2050,14 @@ const ConfigureMetadata = (props) => {
                           )}                             
                       </div>
                   </div>
-
+                  {/* {(categoryChecker[0] === 'notExist') && (editMode) && (<button onClick={() => setCategoryChecker1((prev) => !prev)}>
+                      {isCategoryChecker1 ? '-' : '+'} 
+                  </button>)} */}
 
                 <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel2((prev) => !prev)}>
                       {isVerticalCategoryExpandedlevel2 ? '-' : '+'} Vertical Category 2 (Outer)
                   </button>
-                    <div className={classes.baseMargin}>
+                {isVerticalCategoryExpandedlevel2 && (<div className={classes.baseMargin}>
                         <div className={`${classes.content} ${isVerticalCategoryExpandedlevel2 ? classes.active : ''}`}>
                             <h3></h3>
 
@@ -2077,12 +2094,22 @@ const ConfigureMetadata = (props) => {
                             )}                             
                         </div>
                   </div>
-
+                  )}
+                 {/* <h3></h3>
+                  {(categoryChecker[1] === 'notExist') && (editMode) && (<Button onClick={() => setCategoryChecker2((prev) => !prev)}>
+                      {isCategoryChecker2 ? '-' : '+'} 
+                  </Button>)} */}
 	
+                        <h3></h3>
 
-                  <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel3((prev) => !prev)}>
+                    <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel3((prev) => !prev)}>
                       {isVerticalCategoryExpandedlevel3 ? '-' : '+'} Vertical Category 3 (Outer)
                   </button>
+
+
+
+
+                {isVerticalCategoryExpandedlevel3 && (
                   <div className={classes.baseMargin}>
                       <div className={`${classes.content} ${isVerticalCategoryExpandedlevel3 ? classes.active : ''}`}>
                       <h3></h3>
@@ -2121,6 +2148,7 @@ const ConfigureMetadata = (props) => {
                         )}       
                       </div>
                   </div>
+                  )}
             </div>
         )}
     
@@ -2217,7 +2245,9 @@ const ConfigureMetadata = (props) => {
         {selectedTab === 'template-configuration' && (
 
         <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
-
+                <div className={classes.customImageContainer} onClick={handleTemplateRefreshClick}>
+                    {customImage('sync', 'large')}
+                </div>
                 <Table className={classes.dataTable}>
                         <TableHead>
                         <TableRowHead>
@@ -2236,14 +2266,7 @@ const ConfigureMetadata = (props) => {
                                         <TableCell className={classes.customTableCell}>{template.name}</TableCell>
                                         <TableCell className={`${classes.customTableCell}`}>
 
-                                        <TooltipComponent 
-                                        IconType={IconEdit16} 
-                                        btnFunc={handleEditTemplate}
-                                        project={template.key}
-                                        dynamicText="Edit"
-                                        buttonMode="secondary"
 
-                                    />
                                         <TooltipComponent 
                                         IconType={IconDelete16} 
                                         btnFunc={handleDeleteTemplate}
@@ -2405,12 +2428,37 @@ const ConfigureMetadata = (props) => {
                         <div className={classes.baseMargin}>
                             <ButtonStrip>
                             <Button onClick={() => handleCloseModal()}>Close</Button>
-                            <Button primary  
+                            <Button
+                            primary
                             onClick={() => handleSaveToConfiguration('save')}
+                            disabled={
+                                (
+                                !isHorizontalCategoryExpanded0 ||
+                                !isHorizontalCategoryExpandedLevel1 ||
+                                !isVerticalCategoryExpandedlevel1 ||
+                                !isVerticalCategoryExpandedlevel2
+                                ) && (categoryChecker[1] === 'notExist')
+                                ||
+                                (categoryChecker[1] !== 'notExist' && !isVerticalCategoryExpandedlevel3)
+                            }
                             >
-                                Save
+                            Save
                             </Button>
-                            <Button primary  onClick={() => handleSaveTemplate()}>
+
+                            <Button primary  onClick={() => handleSaveTemplate()}
+                            
+                            
+                            disabled={
+                                (
+                                !isHorizontalCategoryExpanded0 ||
+                                !isHorizontalCategoryExpandedLevel1 ||
+                                !isVerticalCategoryExpandedlevel1 ||
+                                !isVerticalCategoryExpandedlevel2
+                                ) && (categoryChecker[1] === 'notExist')
+                                ||
+                                (categoryChecker[1] !== 'notExist' && !isVerticalCategoryExpandedlevel3)
+                            }
+                            >
                                 Save and Make Template
                             </Button>
                             <Button 
