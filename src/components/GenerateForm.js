@@ -28,43 +28,17 @@ const skipOption = (rules, dataElement, value, level1, level2, level3, level4) =
     for (let ri = 0; ri < rules.length; ri++) {
         const rule = rules[ri];
         if (rule.categoryExclusionOptionToProcess) {
-            for (let ci = 0; ci < rule.conditionCategoryOption.length; ci++) {
-                const condition = rule.conditionCategoryOption[ci].id;
-                if (rule.conditionCategoryOption2 && rule.conditionCategoryOption2.length) {
-                    for (let ci2 = 0; ci2 < rule.conditionCategoryOption2.length; ci2++) {
-                        const condition2 = rule.conditionCategoryOption2[ci2].id;
-                        if (condition === level1 || condition === level2 || condition === level3 || condition === level4) {
-                            if (condition2 === level1 || condition2 === level2 || condition2 === level3 || condition2 === level4) {
-                                for (let ei = 0; ei < rule.categoryExclusionOptionToProcess.length; ei++) {
-                                    const exclusion = rule.categoryExclusionOptionToProcess[ei].id;
-                                    const dataElements = rule.conditionDE?.map(de => de.id) || [];
-
-                                    if (exclusion === value) {
-                                        if (!dataElements.length) {
-                                            return true;
-                                        } else if (dataElements.includes(dataElement)) {
-                                            return true;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    if (condition === level1 || condition === level2 || condition === level3 || condition === level4) {
-                        for (let ei = 0; ei < rule.categoryExclusionOptionToProcess.length; ei++) {
-                            const exclusion = rule.categoryExclusionOptionToProcess[ei].id;
-                            const dataElements = rule.conditionDE?.map(de => de.id) || [];
-
-                            if (exclusion === value) {
-                                if (!dataElements.length) {
-                                    return true;
-                                } else if (dataElements.includes(dataElement)) {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
+            const exclusions = rule.categoryExclusionOptionToProcess.map(e => e.id);
+            const dataElements = rule.conditionDE?.map(de => de.id) || [];
+            if (exclusions.includes(value) && ((dataElements.length && dataElements.includes(dataElement)) || !dataElements.length)) {
+                const conditions1 = rule.conditionCategoryOption.map(c => c.id) || [];
+                const conditions2 = (rule.conditionCategoryOption2 || []).map(c => c.id);
+                const levels = [level1, level2, level3, level4];
+                if (conditions1.length && !conditions2.length) {
+                    return conditions1.some(c => c && levels.includes(c))
+                }
+                if (conditions1.length && conditions2.length) {
+                    return conditions1.some(c => c && levels.includes(c)) && conditions2.some(c => c && levels.includes(c))
                 }
             }
         }
