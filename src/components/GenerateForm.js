@@ -50,12 +50,8 @@ const skipDE = (rules, value, level1) => {
     for (let ri = 0; ri < rules.length; ri++) {
         const rule = rules[ri];
         if (!rule.categoryExclusionOptionToProcess) {
-            for (let ci = 0; ci < rule.conditionCategoryOption.length; ci++) {
-                const condition = rule.conditionCategoryOption[ci].id;
-                if ((rule.conditionDE?.map(de => de.id) || []).includes(value) && condition === level1) {
-                    return true;
-                }
-            }
+            const conditions = rule.conditionCategoryOption.map(c => c.id) || [];
+            return (rule.conditionDE?.map(de => de.id) || []).includes(value) && conditions.some(c => c === level1);
         }
     }
     return false;
