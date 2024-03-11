@@ -17,7 +17,7 @@ import {
   InputField,
 } from '@dhis2/ui';
 import { Modal, ModalTitle, ModalContent, ModalActions, ButtonStrip, Button } from '@dhis2/ui';
-import { config, ProjectsFiltersMore } from '../consts'
+import { config, ProjectsFiltersMore ,dataStoreQueryMore, SideNavigationQuery, FormComponentQuery, TemplateQueryMore, ConditionQueryMore, LabelQuery} from '../consts'
 import { IconEdit16, IconDelete16, IconTextHeading16} from '@dhis2/ui-icons';
 import classes from '../App.module.css'
 import CleaningServices from './CleaningServices';
@@ -42,16 +42,15 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
   const [cleanToggle, setCleanerToggle] = useState(false);
   
   
-    // Define your data store query
-  const dataStoreQuery = {
-      dataStore: {
-        resource: `dataStore/${config.dataStoreName}?${ProjectsFiltersMore}`,
-      },
-  }
 
    
     // Fetch the projects using useDataQuery
-  const { loading, error, data, refetch } = useDataQuery(dataStoreQuery);
+  const { loading, error, data, refetch } = useDataQuery(dataStoreQueryMore);
+  const { data: SideNavigationQueryData, refetch:SideNavigationQueryDataRefetch} = useDataQuery(SideNavigationQuery); // Use separate hook for dataStoreQuery
+  const { data: FormComponentQueryData, refetch:FormComponentQueryDataRefetch } = useDataQuery(FormComponentQuery); // Use separate hook for dataStoreQuery
+  const { data: TemaplateQueryData, refetch:TemaplateQueryDataRefetch} = useDataQuery(TemplateQueryMore); // Use separate hook for dataStoreQuery
+  const { data: ConditionsQueryData, refetch:ConditionsQueryDataRefetch} = useDataQuery(ConditionQueryMore); // Use separate hook for dataStoreQuery
+  const { data: LabelQueryData, refetch:LabelQueryDataRefetch} = useDataQuery(LabelQuery); // Use separate hook for dataStoreQuery
   if (data) {
       // console.log(data);
       // console.log('Data exist');
@@ -99,9 +98,11 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
 
   }
 
-  const handleCopyProject = (project) => {
+  const handleCopyProject = async (project) => {
     
     setSelectedProject(project); 
+
+    const init_projectID = project.id
        
     project.id=generateRandomId()
     project.projectName = project.projectName+'_Copy'
@@ -110,8 +111,96 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
     project.key = removeID+generateRandomId()
 
 
-   
+    const projectIds = [init_projectID];
+    const SideNavigations = SideNavigationQueryData?.dataStore?.entries || [];
+    
+    const filteredSideNavigations = SideNavigations.filter(entry => projectIds.includes(entry.projectID));
+
+    console.log('filteredSideNavigations: ', filteredSideNavigations)
+
+    const FormComponents = FormComponentQueryData?.dataStore?.entries || [];
+    const filteredFormComponents = FormComponents.filter(entry => projectIds.includes(entry.projectID));
+    console.log('filteredFormComponents: ', filteredFormComponents)
+    
+    const Templates = TemaplateQueryData?.dataStore?.entries || [];
+    const filteredTemaplates = Templates.filter(entry => projectIds.includes(entry.projectID));
+    console.log('filteredTemaplates: ', filteredTemaplates)
+    
+    const Conditions = ConditionsQueryData?.dataStore?.entries || [];
+    const filteredConditions = Conditions.filter(entry => projectIds.includes(entry.projectID));
+    console.log('filteredConditions: ', filteredConditions)
+    
+    const Labels = LabelQueryData?.dataStore?.entries || [];
+    const filteredLabels = Labels.filter(entry => projectIds.includes(entry.projectID));
+    console.log('filteredLabels: ', filteredLabels)
+
     createDataStore (engine, project, config.dataStoreName, project.key)
+
+    if (filteredSideNavigations.length > 0){
+      filteredSideNavigations.forEach(SideNavigations => {
+          SideNavigations.projectID = project.id
+          const key = `${SideNavigations.sideNavName}-${SideNavigations.projectID}`
+          SideNavigations.key=key
+
+          createDataStore (engine, SideNavigations, config.dataStoreSideNavigations, key)
+      });  
+    }
+
+    if (filteredFormComponents.length > 0){
+        filteredFormComponents.forEach(form => {
+          form.projectID = project.id
+          const key = `${form.formComponentName}-${form.projectID}`
+          form.key=key
+
+            createDataStore (engine, form, config.dataStoreFormComponents, key)
+        });   
+
+    }
+
+    if (filteredTemaplates.length > 0){    
+        filteredTemaplates.forEach(template => {
+          template.projectID = project.id
+          template.id = generateRandomId();
+          const trimmedTemplateName = template.name.replace(/\s+/g, '');
+          const key = `${trimmedTemplateName}-${template.id}`
+          template.key=key
+
+            createDataStore (engine, template, config.dataStoreTemplates, key)
+        });             
+
+    }
+
+    if (filteredConditions.length > 0){     
+        filteredConditions.forEach(condition => {
+          condition.projectID = project.id
+          condition.id = generateRandomId();
+          const trimmedConditionName = condition.name.replace(/\s+/g, '');
+          const key = `${trimmedConditionName}-${condition.id}`
+            condition.key=key
+
+            createDataStore (engine, condition, config.dataStoreConditions, key)
+        });          
+
+    }
+    if (filteredLabels.length > 0){ 
+        
+        filteredLabels.forEach(label => {
+          label.projectID = project.id
+          label.id = generateRandomId();
+          // Maximum length for the trimmed string is 15
+          // Remove spaces from const
+          const trimmedLabelName= label.labelName.replace(/\s+/g, '');
+          const trimmedName = trimmedLabelName.substring(0, 15);
+          const key = `${trimmedName}-${label.id}`
+          label.key=key
+
+            createDataStore (engine, label, config.dataStoreLabelName, key)
+        });
+
+    }
+
+
+
     show({ msg: 'Project Copy Created :' +project.projectName, type: 'success' })
     setReloadProjects((prev) => !prev);
 

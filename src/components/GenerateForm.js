@@ -58,7 +58,45 @@ const skipDE = (rules, value, level1) => {
 }
 
 const GenerateForm = (props) => {
-    console.log('Props', props)
+
+  const [dataEntryFormObj, setDataEntryFormObj] = useState('');
+  const [htmlContent, setHtmlContent] = useState('');
+  const [activatePost, setActivatePost] = useState(false);
+  const [showPostForm, setShowPostForm] = useState(false);
+  const [count, setCount] = useState(0);
+
+
+
+
+  const {loading: loadingDataSets, error: errorDataSets, data: dataDataSets, refetch: refetchDataSets } = useDataQuery(dataSets, {variables: {dataSet: props.loadedProject.dataSet.id}})
+
+
+  useEffect(() => {
+
+
+        if(dataDataSets){
+            const FormObj = dataDataSets?.targetedEntity?.dataSets[0]?.dataEntryForm || [];
+            console.log('dataDataSets: ', dataDataSets)
+            const dataFormID = FormObj?.id || ''
+            setDataEntryFormObj(dataFormID)
+            refetchDataSets({dataSet: props.loadedProject.dataSet.id})
+            // console.log('dataSet: ', props.loadedProject.dataSet.id)
+            // console.log('dataEntryFormObj : ',dataEntryFormObj)
+          }
+  }, [props.loadedProject.dataSet.id, dataDataSets, activatePost]);
+
+  useEffect(() => {
+
+
+  },[dataDataSets, ])
+
+  useEffect(() => {
+    let openPost = true
+    setShowPostForm(openPost)
+
+  },[htmlContent, activatePost])
+
+
     /**generate Template */
     const query = {
         dataElements: {
@@ -1052,6 +1090,20 @@ const GenerateForm = (props) => {
 
         // Set the download attribute with the desired file name
         link.download = 'hello_world_template.html';
+    const handleGenerateHTMLTemplate = async () => {
+
+          // Increment count and generate template
+      const newCount = count + 20;
+      setCount(newCount);
+      const template = `<h1>Hello World ${newCount}!</h1>`;
+
+      setHtmlContent(template)
+
+      console.log('********** DataSet Object **************')
+      console.log(props.loadedProject)
+      console.log(props.loadedRules)
+      console.log(props.loadedLabels)
+      setActivatePost((prev) => !prev)
 
         // Append the link to the document
         document.body.appendChild(link);
@@ -1062,30 +1114,10 @@ const GenerateForm = (props) => {
         // Remove the link from the document
         document.body.removeChild(link);
         handleCloseModal();
-
-        const updateDataStore = async (postObject) => {
-
-            try {
-                await props.engine.mutate({
-                    resource: `dataSets/${props.loadedProject.dataSet.id}/form`,
-                    type: 'update',
-                    contentType: 'text/html',
-                    data: postObject,
-                });
-
-
-            } catch (error) {
-                // Handle error (log, show alert, etc.)
-                console.error('Error updating project:', error);
-            }
-
-        }
-
-        updateDataStore({dataEntryForm: template})
     };
-
+    
     const handleCloseModal = () => {
-        props.setShowGenerateForm(false)
+        props.setShowGenerateForm(false)      
 
     };
 

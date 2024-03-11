@@ -212,3 +212,37 @@ export const deleteObjects = async (engine, store, key, obj) =>{
     console.error(`Error deleting ${key}`, error);
   }
 }
+
+
+export const updateDataEntryForm = {
+  type: 'update',
+  partial: true,
+  resource: 'dataEntryForms',
+  id: ({ id }) => id,
+  data: ({ htmlCode }) => ({ htmlCode }),
+}
+
+//   id: 'kdUSL5XHBPo',
+
+// data: {
+//   htmlCode: htmlContent,
+// },
+const updateMutation = {
+  type: 'update',
+  partial: true,
+  resource: 'datasets',
+  id: 'xyz123',
+  data: {
+      name: 'MyNewName',
+  },
+}
+
+
+export const addCodeMutation = {
+  type: 'update',
+  resource: 'dataElements',
+  id: ({ id }) => id,
+  partial: true,
+  data: ({ code }) => (code),
+}
+

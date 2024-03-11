@@ -1,14 +1,9 @@
 import { useDataQuery, useAlert } from '@dhis2/app-runtime'
 import React, { useEffect } from 'react';
-import {deleteObjects} from '../utils'
+import {deleteObjects, } from '../utils'
 
-import { config, 
-    sideNavigationFilter, 
-    formComponentFilter, 
-    TemplateFilter, 
-    exclusionRuleFilter,
-    labelNameFilter,
-    ProjectsFilters} from '../consts'
+import { config, dataStoreQuery,
+    SideNavigationQuery, FormComponentQuery, TemplateQuery, ConditionQuery, LabelQuery} from '../consts'
 
     import { 
         Modal, 
@@ -27,47 +22,7 @@ const CleaningServices = (props) => {
         ({ type }) => ({ [type]: true })
       )
 
-    const SideNavigationQuery = {
-        dataStore: {
-        resource: `dataStore/${config.dataStoreSideNavigations}?${sideNavigationFilter}`,
-        },
-    }
 
-    // Define your data store query
-    const FormComponentQuery = {
-        dataStore: {
-        resource: `dataStore/${config.dataStoreFormComponents}?${formComponentFilter}`,
-        },
-    }
-
-    // Define your data store query
-    const TemplateQuery = {
-        dataStore: {
-        resource: `dataStore/${config.dataStoreTemplates}?${TemplateFilter}`,
-        },
-    }
-
-    // Define your data store query
-    const ConditionQuery = {
-        dataStore: {
-        resource: `dataStore/${config.dataStoreConditions}?${exclusionRuleFilter}`,
-        },
-    }
-    
-
-    const LabelQuery = {
-        dataStore: {
-            resource: `dataStore/${config.dataStoreLabelName}?${labelNameFilter}`,
-            },
-
-    }
-
-        // Define your data store query
-    const dataStoreQuery = {
-        dataStore: {
-        resource: `dataStore/${config.dataStoreName}?${ProjectsFilters}`,
-        },
-    }
 
 
     const { data: ProjectQueryData, refetch:ProjectQueryDataRefetch} = useDataQuery(dataStoreQuery); // Use separate hook for dataStoreQuery

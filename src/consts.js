@@ -23,4 +23,67 @@ export   const conditionLevels = ["Horizontal Level 1", "Horizontal Level 2", "V
 // Array of Exclusion levels
 export    const exclusionLevels = ["Horizontal Level 2", "Vertical Level 1", "Vertical Level 2", "Vertical Level 3"];
 
+export const SideNavigationQuery = {
+    dataStore: {
+    resource: `dataStore/${config.dataStoreSideNavigations}?${sideNavigationFilter}`,
+    },
+  }
+  
+  // Define your data store query
+  export const FormComponentQuery = {
+    dataStore: {
+    resource: `dataStore/${config.dataStoreFormComponents}?${formComponentFilter}`,
+    },
+  }
+  
+  // Define your data store query
+  export const TemplateQuery = {
+    dataStore: {
+    resource: `dataStore/${config.dataStoreTemplates}?${TemplateFilter}`,
+    },
+  }
 
+    // Define your data store query
+    export const TemplateQueryMore = {
+        dataStore: {
+        resource: `dataStore/${config.dataStoreTemplates}?${TemplateNoFilter}`,
+        },
+      }
+  
+  // Define your data store query
+  export const ConditionQuery = {
+    dataStore: {
+    resource: `dataStore/${config.dataStoreConditions}?${exclusionRuleFilter}`,
+    },
+  }
+
+    // Define your data store query
+    export const ConditionQueryMore = {
+        dataStore: {
+        resource: `dataStore/${config.dataStoreConditions}?${exclusionRuleMore}`,
+        },
+      }
+  
+  
+  export const LabelQuery = {
+    dataStore: {
+        resource: `dataStore/${config.dataStoreLabelName}?${labelNameFilter}`,
+        },
+  
+  }
+  
+    // Define your data store query
+  export const dataStoreQuery = {
+    dataStore: {
+    resource: `dataStore/${config.dataStoreName}?${ProjectsFilters}`,
+    },
+  }
+
+
+    // Define your data store query
+   export const dataStoreQueryMore = {
+        dataStore: {
+          resource: `dataStore/${config.dataStoreName}?${ProjectsFiltersMore}`,
+        },
+    }
+  
