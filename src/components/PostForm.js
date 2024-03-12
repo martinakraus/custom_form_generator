@@ -1,4 +1,5 @@
 import { useDataMutation, useAlert } from '@dhis2/app-runtime'
+import PropTypes from 'prop-types'; // Import PropTypes
 import { useEffect } from 'react';
 import { Modal, ModalTitle, ModalContent, ModalActions, ButtonStrip, Button } from '@dhis2/ui';
 
@@ -68,5 +69,12 @@ const PostForm = (props) => {
         <></>
     );
 }
+
+PostForm.propTypes = {
+    dataEntryFormObjID: PropTypes.string.isRequired,
+    htmlContent: PropTypes.string.isRequired,
+    handleCloseModal: PropTypes.func.isRequired,
+    setShowPostForm: PropTypes.func.isRequired
+};
 
 export default PostForm;

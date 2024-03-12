@@ -1,25 +1,25 @@
 import {useState, useEffect } from 'react';
 import React from 'react'
 import { SingleSelect, SingleSelectOption  } from '@dhis2-ui/select'
-
+import PropTypes from 'prop-types'; // Import PropTypes
 
 const FormComponentSelection = props => {  
 
-    const [selectedFormComponents, setSelectFormComponents] = useState(null);
+    const [selectedFormComponents, setSelectFormComponents] = useState("");
     const [disabled, setDisable] = useState(true);
 
     useEffect(() => {
         if (props.selectedDataElementId.length > 0) {
             const selectedDataElement = props.loadedProject.dataElements.find(dataElement => dataElement.id === props.selectedDataElementId);
             if (selectedDataElement !== undefined){                
-                const initialSelectedformComponent = selectedDataElement.formComponent === 'Default' ? null : selectedDataElement.formComponent;
+                const initialSelectedformComponent = selectedDataElement.formComponent === 'Default' ? "" : selectedDataElement.formComponent;
                 setSelectFormComponents(initialSelectedformComponent);
             }else{
-                setSelectFormComponents(null);
+                setSelectFormComponents("");
             }
             setDisable(false)
         } else {
-            setSelectFormComponents(null);
+            setSelectFormComponents("");
         }
     }, [props.selectedDataElementId, props.loadedProject.dataElements]);
 
@@ -70,4 +70,12 @@ const FormComponentSelection = props => {
 }
 
 
+
+FormComponentSelection.propTypes = {
+    FormComponentQueryData: PropTypes.object.isRequired,
+    loadedProject: PropTypes.object.isRequired,
+    setSelectFormComponents: PropTypes.func.isRequired,
+    selectedDataElementId: PropTypes.string,
+    editMode: PropTypes.bool.isRequired
+};
 export default FormComponentSelection

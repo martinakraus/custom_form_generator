@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Transfer } from '@dhis2-ui/transfer';
+import PropTypes from 'prop-types';
 
 const VerticalTransferLevel2 = (props) => {
   // State to hold the category options
@@ -111,6 +112,18 @@ const VerticalTransferLevel2 = (props) => {
       />
     </div>
   );
+};
+
+
+VerticalTransferLevel2.propTypes = {
+  fileredVerticalCatComboLevel2: PropTypes.array.isRequired, 
+  selectedVerticalCategoryIDLevel2: PropTypes.string.isRequired, 
+  setVerticalCategoryOptionsLevel2: PropTypes.func.isRequired,
+  VerticalCategoryOptionsLevel2: PropTypes.array.isRequired, 
+  setdictfileredVerticalCatComboLevel2: PropTypes.func.isRequired,
+  loadedProject: PropTypes.object.isRequired, 
+  selectedDataElementId: PropTypes.string.isRequired, 
+  editMode: PropTypes.bool.isRequired, 
 };
 
 export default VerticalTransferLevel2;

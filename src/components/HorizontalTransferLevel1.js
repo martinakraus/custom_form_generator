@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Transfer } from '@dhis2-ui/transfer';
+import PropTypes from 'prop-types';
 
 const HorizontalTransferLevel1 = (props) => {
   // State to hold the category options
@@ -113,4 +114,15 @@ const HorizontalTransferLevel1 = (props) => {
   );
 };
 
+
+HorizontalTransferLevel1.propTypes = {
+  fileredHorizontalCatComboLevel1: PropTypes.array.isRequired,
+  selectedHorizontalCategoryIDLevel1: PropTypes.string, // Adjust as per your requirements
+  setHorizontalcategoryOptionsLevel1: PropTypes.func.isRequired,
+  HorizontalCategoryOptionsLevel1: PropTypes.array.isRequired,
+  setdictfileredHorizontalCatComboLevel1: PropTypes.func.isRequired,
+  loadedProject: PropTypes.object.isRequired,
+  selectedDataElementId: PropTypes.string, // Adjust as per your requirements
+  editMode: PropTypes.bool.isRequired
+};
 export default HorizontalTransferLevel1;

@@ -141,12 +141,13 @@ const ConfigureMetadata = (props) => {
     const [mergedObject, setmergedObject] = useState([])
 
     // State control variables
-    const [selectedDataSet,setselectedDataSet] = useState(props.selectedDataSet);
+    const [selectedDataSet,setselectedDataSet] = useState(props.selectedDataSet || "");
     const [selectedDataSetName,setselectedDataSetName] = useState([]);
-    const [selectedDataElementId, setSelectedDataElementId] = useState(null);
+    const [selectedDataElementId, setSelectedDataElementId] = useState('');
     const [overidingCategory, setOveridingCategory] = useState('xxxxx');
-    const [selectedDataElement, setSelectedDataElement] = useState(null);
+    const [selectedDataElement, setSelectedDataElement] = useState('');
     const [selectedDataElementsDict, setSelectedDataElementsDict] = useState(null);
+
     
     // State to hold tabs state
     const [selectedTab, setSelectedTab] = useState('dataElemenents-table');
@@ -206,17 +207,20 @@ const ConfigureMetadata = (props) => {
     const [showLabelComponents, setLabelComponents] = useState(false);
     const [selectedMetadataOption, setSelectedMetadataOption] = useState("");
 	const [metadataName, setMetadataName] = useState('');
+    const [metadataName2, setMetadataName2] = useState('');
+    const [metadataName3, setMetadataName3] = useState('');
 	const [labelName, setLabelName] = useState('');
     const [labelDEIDName, setLabelDEIDName] = useState('');
     const [labelCategoryIDName, setLabelCategoryIDName] = useState('');
-    
-
-
+    const [labelCategoryIDName2, setLabelCategoryIDName2] = useState('');
+    const [labelCategoryIDName3, setLabelCategoryIDName3] = useState('');
     const [reloadLabels, setReloadLabels] = useState(false);
     const [existingMetadataName, setExistingMetadataName] = useState(false);
     const [loadedLabels, setLoadedLabels] = useState([]);
     const [labelComboIDName, setLabelComboIDName] = useState([]);
     const [labelOptionIDName, setLabelOptionIDName] = useState([]);
+    const [labelOptionIDName2, setLabelOptionIDName2] = useState([]);
+    const [labelOptionIDName3, setLabelOptionIDName3] = useState([]);
     
     
     // To hold exclusion data from dataStore
@@ -644,12 +648,17 @@ const ConfigureMetadata = (props) => {
   
 
               const labelExists = (labelNameToCheck) => {
+
+                if (labelNameToCheck === undefined){
+                    return false
+                }else{
                   const metadataNameArray = LabelQueryData.dataStore?.entries || [];
                  
                   return metadataNameArray.some(label => 
                     label.name.toLowerCase() === labelNameToCheck.toLowerCase() &&
                     label.projectID.toLowerCase() === loadedProject.id.toLowerCase()
                   );
+                }
               };
               setExistingMetadataName(labelExists(metadataName))
             }
@@ -1015,7 +1024,7 @@ const ConfigureMetadata = (props) => {
 
 
             setCategoryExclusionToProcess([{id:optionID, name:optionName}]);
-            console.log('Selected Exclusion', event.target.value)
+            // console.log('Selected Exclusion', event.target.value)
         };
 
     // Function to update condition level
@@ -1237,13 +1246,19 @@ const ConfigureMetadata = (props) => {
         setLabelComponents(false);
         setSelectedMetadataOption('');
         setMetadataName('');
+        setMetadataName2('');
+        setMetadataName3('');
         setLabelName('');
         setEditLabelMode(false)
         setSelectedLabel('')
         setLabelDEIDName([])
         setLabelComboIDName([])
         setLabelCategoryIDName([])
+        setLabelCategoryIDName2([])
+        setLabelCategoryIDName3([])
         setLabelOptionIDName([])
+        setLabelOptionIDName2([])
+        setLabelOptionIDName3([])
     }
 
 
@@ -1279,12 +1294,18 @@ const ConfigureMetadata = (props) => {
                 labelComboIDName:labelComboIDName,
                 labelCategoryIDName:labelCategoryIDName,
                 labelOptionIDName:labelOptionIDName,
+                labelInclusionCategoryIDName2:labelCategoryIDName2,
+                labelInclusionOptionIDName2:labelOptionIDName2,
+                labelInclusionCategoryIDName3:labelCategoryIDName3,
+                labelInclusionOptionIDName3:labelOptionIDName3,
                 labelName:labelName,
                 metadataType:selectedMetadataOption,
                 projectID: loadedProject.id,
                 key: `${trimmedName}-${componentsID}`,           
         
             }
+
+            console.log('labelData: ', labelData)
             try {
                 await props.engine.mutate({
                   resource: `dataStore/${config.dataStoreLabelName}/${trimmedName}-${componentsID}`,
@@ -1312,6 +1333,10 @@ const ConfigureMetadata = (props) => {
                 labelComboIDName:labelComboIDName,
                 labelOptionIDName:labelOptionIDName,
                 labelCategoryIDName:labelCategoryIDName,
+                labelInclusionCategoryIDName2:labelCategoryIDName2,
+                labelInclusionOptionIDName2:labelOptionIDName2,
+                labelInclusionCategoryIDName3:labelCategoryIDName3,
+                labelInclusionOptionIDName3:labelOptionIDName3,
                 labelName:labelName,
                 metadataType:selectedMetadataOption,
                 projectID: loadedProject.id,
@@ -1642,7 +1667,7 @@ const ConfigureMetadata = (props) => {
   return (
     <Modal fluid onClose={handleCloseModal}>
       <ModalTitle>
-        Category Options and Navigations - {loadedProject.projectName}
+      {`Category Options and Navigations - ${loadedProject.projectName}`}
 
         </ModalTitle>
           <ModalContent>
@@ -1726,6 +1751,7 @@ const ConfigureMetadata = (props) => {
           {/* <button onClick={handleRefresh} disabled={refreshing}>
                 <IconSync24 className={classes.icon} />
             </button> */}
+
                 <div className={classes.customImageContainer} onClick={handleDataElementRefreshClick}>
                     {customImage('sync', 'large')}
                 </div>
@@ -1746,15 +1772,15 @@ const ConfigureMetadata = (props) => {
                     </TableHead>
                     <TableBody>
                         {loadedProject.dataElements && loadedProject.dataElements.length > 0 ? (
-                            loadedProject.dataElements.map((dataElement) => (
-                            <TableRow className={classes.customTableRow} key={dataElement.id}>
-                                <TableCell className={classes.customTableCell}>{dataElement.name}</TableCell>
+                            loadedProject.dataElements.map((dataElementObj) => (
+                            <TableRow className={classes.customTableRow} key={dataElementObj.id}>
+                                <TableCell className={classes.customTableCell}>{dataElementObj.name}</TableCell>
                                 <TableCell className={`${classes.customTableCell}`}>
 
                                     <TooltipComponent 
                                         IconType={IconEdit16} 
                                         btnFunc={handleEditDataElement}
-                                        project={dataElement}
+                                        project={dataElementObj}
                                         dynamicText="Edit"
                                         buttonMode="secondary"
 
@@ -1762,7 +1788,7 @@ const ConfigureMetadata = (props) => {
                                     <TooltipComponent 
                                         IconType={IconDelete16} 
                                         btnFunc={handleRemoveDataElementConfirmation}
-                                        project={dataElement}
+                                        project={dataElementObj}
                                         dynamicText="Delete"
                                         buttonMode="destructive"
 
@@ -1773,7 +1799,7 @@ const ConfigureMetadata = (props) => {
                             ))
                         ) : (
                             <TableRow>
-                            <TableCell colSpan={2}>No data elements to display</TableCell>
+                            <TableCell colSpan="2">No data elements to display</TableCell>
                             </TableRow>
                         )}
                         </TableBody>
@@ -1835,7 +1861,7 @@ const ConfigureMetadata = (props) => {
                               
                           >
                               {data1.dataSets.dataSets.map(({ id, displayName }) => (
-                              <SingleSelectOption label={displayName} value={id} />
+                              <SingleSelectOption key={id}  label={displayName} value={id} />
                               ))}
                           </SingleSelect>
 
@@ -1907,7 +1933,7 @@ const ConfigureMetadata = (props) => {
 
                   {/* Select HorizontalCategory */}
 
-                  <button className={classes.collapsible} onClick={() => setIsHorizontalCategoryExpanded0((prev) => !prev)}>
+                  <button className={classes.collapsible} onClick={() => setIsHorizontalCategoryExpanded0((prev) => !prev)} disabled={selectedDataElementId.length <= 0}>
                       {isHorizontalCategoryExpanded0 ? '-' : '+'} Horizontal Category (Inner)
                   </button>
                   <div className={classes.baseMargin}>
@@ -1966,7 +1992,7 @@ const ConfigureMetadata = (props) => {
 
 
                   {/* Select Horizontal Category and Transfer Level 1 */}
-                  <button className={classes.collapsible} onClick={() => setIsHorizontalCategoryExpandedLevel1((prev) => !prev)}>
+                  <button className={classes.collapsible} onClick={() => setIsHorizontalCategoryExpandedLevel1((prev) => !prev)} disabled={selectedDataElementId.length <= 0}>
                       {isHorizontalCategoryExpandedLevel1 ? '-' : '+'} Horizontal Category (Outer)
                   </button>
                   <div className={classes.baseMargin}>
@@ -2010,7 +2036,7 @@ const ConfigureMetadata = (props) => {
                           )}                             
                       </div>
                   </div>
-                  <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel1((prev) => !prev)}>
+                  <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel1((prev) => !prev)} disabled={selectedDataElementId.length <= 0}>
                       {isVerticalCategoryExpandedlevel1 ? '-' : '+'} Vertical Category 1 (Inner)
                   </button>
                   <div className={classes.baseMargin}>
@@ -2054,7 +2080,7 @@ const ConfigureMetadata = (props) => {
                       {isCategoryChecker1 ? '-' : '+'} 
                   </button>)} */}
 
-                <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel2((prev) => !prev)}>
+                <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel2((prev) => !prev)} disabled={selectedDataElementId.length <= 0}>
                       {isVerticalCategoryExpandedlevel2 ? '-' : '+'} Vertical Category 2 (Outer)
                   </button>
                 {isVerticalCategoryExpandedlevel2 && (<div className={classes.baseMargin}>
@@ -2102,7 +2128,7 @@ const ConfigureMetadata = (props) => {
 	
                         <h3></h3>
 
-                    <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel3((prev) => !prev)}>
+                    <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel3((prev) => !prev)} disabled={selectedDataElementId.length <= 0}>
                       {isVerticalCategoryExpandedlevel3 ? '-' : '+'} Vertical Category 3 (Outer)
                   </button>
 
@@ -2219,7 +2245,7 @@ const ConfigureMetadata = (props) => {
                             FormComponentQueryData?.dataStore?.entries.map((form_component) => (
                                 // Check if navigation.dataSet is equal to selectedDataSet
                                 form_component.projectID === loadedProject.id && (
-                                <TableRow className={classes.customTableRow}>
+                                <TableRow key={form_component.key} className={classes.customTableRow}>
                                     <TableCell className={classes.customTableCell}>{form_component.formComponentName}</TableCell>
                                     <TableCell className={`${classes.customTableCell}`}>
                                         
@@ -2575,6 +2601,8 @@ const ConfigureMetadata = (props) => {
                     conditionLevels={conditionLevels}
                     metadataName={metadataName}
                     setMetadataName={setMetadataName}
+                    setMetadataName2={setMetadataName2}
+                    setMetadataName3={setMetadataName3}
                     labelName={labelName}
                     setLabelName={setLabelName}
                     handleCloseLabelModal={handleCloseLabelModal}
@@ -2582,7 +2610,11 @@ const ConfigureMetadata = (props) => {
                     setLabelDEIDName={setLabelDEIDName}
                     setLabelComboIDName={setLabelComboIDName}
                     setLabelCategoryIDName={setLabelCategoryIDName}
-                    setLabelOptionIDName={setLabelOptionIDName}              
+                    setLabelCategoryIDName2={setLabelCategoryIDName2}
+                    setLabelCategoryIDName3={setLabelCategoryIDName3}
+                    setLabelOptionIDName={setLabelOptionIDName}       
+                    setLabelOptionIDName2={setLabelOptionIDName2}
+                    setLabelOptionIDName3={setLabelOptionIDName3}                
                 
                 />
             )}

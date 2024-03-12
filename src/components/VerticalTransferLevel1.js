@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Transfer } from '@dhis2-ui/transfer';
 
-const HorizontalTransferLevel1 = (props) => {
+import PropTypes from 'prop-types';
+
+const VerticalTransferLevel1 = (props) => {
   // State to hold the category options
   const [categoryOptions, setCategoryOptions] = useState([]);
   // state for whether the next page's options are being loaded
@@ -116,4 +118,15 @@ const HorizontalTransferLevel1 = (props) => {
   );
 };
 
-export default HorizontalTransferLevel1;
+VerticalTransferLevel1.propTypes = {
+  fileredVerticalCatComboLevel1: PropTypes.array.isRequired, // Adjust as per your requirements
+  selectedVerticalCategoryIDLevel1: PropTypes.string.isRequired, // Adjust as per your requirements
+  setVerticalCategoryOptionsLevel1: PropTypes.func.isRequired,
+  verticalCategoryOptionsLevel1: PropTypes.array.isRequired, // Adjust as per your requirements
+  setdictfileredVerticalCatComboLevel1: PropTypes.func.isRequired,
+  loadedProject: PropTypes.object.isRequired, // Adjust as per your requirements
+  selectedDataElementId: PropTypes.string.isRequired, // Adjust as per your requirements
+  editMode: PropTypes.bool.isRequired,
+};
+
+export default VerticalTransferLevel1;

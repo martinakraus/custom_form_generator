@@ -2,7 +2,7 @@ import { useDataQuery} from '@dhis2/app-runtime'
 import { SingleSelect, SingleSelectOption  } from '@dhis2-ui/select'
 import { Transfer } from '@dhis2-ui/transfer';
 import { Divider } from '@dhis2-ui/divider'
-
+import PropTypes from 'prop-types'; 
 
 import { Card } from '@dhis2-ui/card'
 
@@ -65,7 +65,7 @@ const ExclusionRuleComponent = (props) => {
   const initKeyID = initparts[0] !== '' ? initparts[0] : 'xxxxx';
   const initCoCID = initparts[1];
 
-console.log(selectedKeys.length > 0)
+// console.log(selectedKeys.length > 0)
 
   // const [processingCategory, setProcessingCategory] = useState(initCoCID !== undefined ? initCoCID : props.loadedProjectCombos[0].id);
   const [processingCategory, setProcessingCategory] = useState(initCoCID);
@@ -89,11 +89,11 @@ console.log(selectedKeys.length > 0)
 
   useEffect(() =>{
 
-    console.log('processingCategory: ', processingCategory)
+    // console.log('processingCategory: ', processingCategory)
     catRefetch({categoryCombo: processingCategory})
 
     const extracted = catData?.categoryCombo?.categoryCombos[0]?.categories || [];
-    console.log('extracted: ',extracted)
+    // console.log('extracted: ',extracted)
 
     if (extracted.length > 0){
       setCategoryList(extracted)
@@ -105,11 +105,11 @@ console.log(selectedKeys.length > 0)
 
   const handleCustomImageClick = () => {
     setLoader(true);
-    console.log('processingCategory: ', processingCategory)
+    // console.log('processingCategory: ', processingCategory)
     catRefetch({categoryCombo: processingCategory})
 
     const extracted = catData?.categoryCombo?.categoryCombos[0]?.categories || [];
-    console.log('extracted: ',extracted)
+    // console.log('extracted: ',extracted)
 
     if (extracted.length > 0){
       setCategoryList(extracted)
@@ -333,7 +333,7 @@ console.log(selectedKeys.length > 0)
   
     // Now you have the catCombo.id, you can set it in state or perform any other operations
     setProcessingCategory(catComboId);
-    console.log('Category Changed')
+    // console.log('Category Changed')
 
     catRefetch({categoryCombo: catComboId})
   }
@@ -686,4 +686,47 @@ console.log(selectedKeys.length > 0)
   );
 };
 
+
+ExclusionRuleComponent.propTypes = {
+  loadedProject: PropTypes.object,
+  editExclusionMode: PropTypes.bool.isRequired,
+  conditionName: PropTypes.string.isRequired,
+  setConditionName: PropTypes.func.isRequired,
+  conditionDE: PropTypes.string.isRequired,
+  conditionCoC: PropTypes.string.isRequired,
+  setConditionCoC: PropTypes.func.isRequired,
+  setConditionDE: PropTypes.func.isRequired,
+  selectedConditionLevel: PropTypes.string.isRequired,
+  handleConditionLevelChange: PropTypes.func.isRequired,
+  exclude: PropTypes.array.isRequired,
+  setExclusion: PropTypes.func.isRequired,
+  setExclusion2: PropTypes.func.isRequired,
+  selectedExclusionLevel: PropTypes.string.isRequired,
+  handleExclusionLevelChange: PropTypes.func.isRequired,
+  exclusionLevels: PropTypes.array.isRequired,
+  handleCloseExclusionModal: PropTypes.func.isRequired,
+  handleCreateExclusion: PropTypes.func.isRequired,
+  selectedExclusion: PropTypes.string.isRequired,
+  setSelectedConditionLevel: PropTypes.func.isRequired,
+  setSelectedExclusionLevel: PropTypes.func.isRequired,
+  setSelectedExclusionMetadataOption: PropTypes.func.isRequired,
+  selectedExclusionMetadataOption: PropTypes.string.isRequired,
+  handleSelectedExclusionCoC: PropTypes.func.isRequired,
+  handleSelectedExclusionDE: PropTypes.func.isRequired,
+  setCategoryExclusion: PropTypes.func.isRequired,
+  setCategoryExclusion2: PropTypes.func.isRequired,
+  categoryExclusion: PropTypes.string.isRequired,
+  setCategoryExclusionToProcess: PropTypes.func.isRequired,
+  categoryExclusionToProcess: PropTypes.array.isRequired,
+  excludeToProcess: PropTypes.array.isRequired,
+  setExclusionToProcess: PropTypes.func.isRequired,
+  handleSelectedExclusionCategory: PropTypes.func.isRequired,
+  handleSelectedExclusionCategoryToProcess: PropTypes.func.isRequired,
+  setConditionCOIDName: PropTypes.func.isRequired,
+  setConditionCOIDName2: PropTypes.func.isRequired,
+  setConditionCoCIDName: PropTypes.func.isRequired,
+  setConditionDEIDName: PropTypes.func.isRequired,
+  selectedExclusionEditInit: PropTypes.string.isRequired,
+  handleSelectedExclusionCategory2: PropTypes.func.isRequired
+};
 export default ExclusionRuleComponent;

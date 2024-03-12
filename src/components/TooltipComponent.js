@@ -2,8 +2,18 @@ import { Button } from '@dhis2/ui';
 import classes from '../App.module.css'
 import { Tooltip } from '@dhis2-ui/tooltip'
 import {customImage} from '../utils'
+import PropTypes from 'prop-types';
 
-const TooltipComponent = ({ IconType=IconType, btnFunc, project, dynamicText,  buttonMode, customIcon=false}) => {
+const TooltipComponent = (
+        { 
+            IconType=IconType, 
+            btnFunc, 
+            project, 
+            dynamicText,  
+            buttonMode, 
+            customIcon=false
+        }
+    ) => {
 
 
     return (
@@ -34,6 +44,14 @@ const TooltipComponent = ({ IconType=IconType, btnFunc, project, dynamicText,  b
         
     );
 
+};
+
+TooltipComponent.propTypes = {
+    IconType: PropTypes.elementType.isRequired, 
+    btnFunc: PropTypes.func.isRequired,
+    project: PropTypes.any.isRequired, 
+    dynamicText: PropTypes.string.isRequired,
+    buttonMode: PropTypes.string.isRequired
 };
 
 export default TooltipComponent;

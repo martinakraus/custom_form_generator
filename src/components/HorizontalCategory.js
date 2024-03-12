@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useDataQuery } from '@dhis2/app-runtime';
 import { SingleSelect, SingleSelectOption } from '@dhis2-ui/select';
 import classes from '../App.module.css'
-import { queryCatCombo } from '../utils';
+// import { queryCatCombo } from '../utils';
+import PropTypes from 'prop-types';
+
+
 
 const HorizontalCategory = (props) => {
   // State to hold the categories
   const [categories, setCategories] = useState([]);
   // State to hold the selected category
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [dataElemntID, setDataElement] = useState(props.selectedDataElementId)
   const [disabled, setDisabled] = useState(false)
 
@@ -225,7 +228,7 @@ const HorizontalCategory = (props) => {
 
     if (!props.editMode){ 
 
-      setSelectedCategory(null);
+      setSelectedCategory("");
     }
 
   }, [props.selectedDataElementId, props.overidingCategory]);
@@ -247,8 +250,8 @@ const HorizontalCategory = (props) => {
         filterable
         noMatchText="No categories found"
         placeholder="Select category"
-        selected={categories.some(category => category.id === selectedCategory) ? selectedCategory : null}
-        value={categories.some(category => category.id === selectedCategory) ? selectedCategory : null}
+        selected={categories.some(category => category.id === selectedCategory) ? selectedCategory : ""}
+        value={categories.some(category => category.id === selectedCategory) ? selectedCategory : ""}
         onChange={({ selected }) => handleVerticalCategoryChange(selected)}
         disabled={disabled}
 
@@ -263,5 +266,31 @@ const HorizontalCategory = (props) => {
   );
 };
 
+HorizontalCategory.propTypes = {
+  selectedDataSet: PropTypes.string.isRequired,
+  selectedDataElementId: PropTypes.string,
+  overidingCategory: PropTypes.string.isRequired,
+  setfileredHorizontalCatComboLevel1: PropTypes.func.isRequired,
+  setfileredVerticalCatComboLevel1: PropTypes.func.isRequired,
+  setSelectedHorizontalCategoryID0: PropTypes.func.isRequired,
+  setSelectedHorizontalCategoryName0: PropTypes.func.isRequired,
+  setfileredHorizontalCatCombo0: PropTypes.func.isRequired,
+  setSelectedHorizontalCategoryIDLevel1: PropTypes.func.isRequired,
+  setSelectedVerticalCategoryIDLevel1: PropTypes.func.isRequired,
+  setHorizontalcategoryOptionsLevel1: PropTypes.func.isRequired,
+  setVerticalCategoryOptionsLevel1: PropTypes.func.isRequired,
+  selectedHorizontalCategoryID0: PropTypes.any, // Adjust as per your requirements
+  loadedProject: PropTypes.object.isRequired,
+  selectedDirectClickTabDE: PropTypes.number.isRequired,
+  setdictfileredHorizontalCatComboLevel1: PropTypes.func.isRequired,
+  editMode: PropTypes.bool.isRequired,
+  fileredHorizontalCatComboLevel1: PropTypes.array.isRequired,
+  isHorizontalCategoryExpanded0: PropTypes.bool.isRequired,
+  setfileredVerticalCatComboLevel2: PropTypes.func.isRequired,
+  setVerticalCategoryOptionsLevel2: PropTypes.func.isRequired,
+  setSelectedVerticalCategoryIDLevel2: PropTypes.func.isRequired,
+  setCategoryComboNameID: PropTypes.func.isRequired,
+  setCategoryChecker: PropTypes.func.isRequired
+};
 export default HorizontalCategory;
 

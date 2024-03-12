@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { SingleSelect, SingleSelectOption } from '@dhis2-ui/select';
 import classes from '../App.module.css'
+import PropTypes from 'prop-types';
 
 const VerticalCategoryLevel2 = (props) => {
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [horizontalCategories, setHorizontalCategories] = useState([]);
   const filteredCategories = props.fileredVerticalCatComboLevel2 || [];
   const [disabled, setDisabled] = useState(false)
@@ -19,7 +20,7 @@ const VerticalCategoryLevel2 = (props) => {
             const updatedDataElementsLevel1 = props.loadedProject.dataElements.filter(
               (element) => element.id === props.selectedDataElementId
             ) || [];
-            if (updatedDataElementsLevel1[0].verticalLevel2.id !== null){
+            if (updatedDataElementsLevel1[0].verticalLevel2.id !== null  || updatedDataElementsLevel1[0].verticalLevel2.id !== ""){
                 const VerticalCategoryObject = filteredCategories.filter(
                 (element) => element.id === updatedDataElementsLevel1[0]?.verticalLevel2?.id
                 ) || [];
@@ -61,8 +62,8 @@ const VerticalCategoryLevel2 = (props) => {
         filterable
         noMatchText="No categories found"
         placeholder="Select category"
-        selected={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : null}
-        value={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : null}
+        selected={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : ""}
+        value={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : ""}
         onChange={({ selected }) => handleHorizontalCategoryChange(selected)}
         disabled={disabled}
       >
@@ -74,4 +75,18 @@ const VerticalCategoryLevel2 = (props) => {
   );
 };
 
+
+VerticalCategoryLevel2.propTypes = {
+  fileredVerticalCatComboLevel2: PropTypes.array.isRequired, // Adjust as per your requirements
+  setSelectedVerticalCategoryNameLevel2: PropTypes.func.isRequired,
+  setSelectedVerticalCategoryIDLevel2: PropTypes.func.isRequired,
+  setVerticalCategoryOptionsLevel2: PropTypes.func.isRequired,
+  selectedVerticalCategoryIDLevel1: PropTypes.string.isRequired, // Adjust as per your requirements
+  loadedProject: PropTypes.object.isRequired, // Adjust as per your requirements
+  selectedDataElementId: PropTypes.string.isRequired, // Adjust as per your requirements
+  isVerticalCategoryExpandedlevel2: PropTypes.bool.isRequired,
+  selectedDirectClickTabDE: PropTypes.number.isRequired, // Adjust as per your requirements
+  setfileredVerticalCatComboLevel3: PropTypes.func.isRequired,
+};
 export default VerticalCategoryLevel2;
+

@@ -1,6 +1,7 @@
 import { useDataQuery } from '@dhis2/app-runtime'
 import { Modal, ModalTitle, ModalContent, ModalActions, ButtonStrip, Button } from '@dhis2/ui';
 import PostForm from './PostForm'
+import PropTypes from 'prop-types'; // Import PropTypes
 
 import { useEffect, useState } from 'react';
 
@@ -25,7 +26,6 @@ const GenerateForm = (props) => {
   const [htmlContent, setHtmlContent] = useState('');
   const [activatePost, setActivatePost] = useState(false);
   const [showPostForm, setShowPostForm] = useState(false);
-  const [count, setCount] = useState(0);
 
 
 
@@ -62,20 +62,15 @@ const GenerateForm = (props) => {
     /**generate Template */
     const handleGenerateHTMLTemplate = async () => {
 
-          // Increment count and generate template
-      const newCount = count + 20;
-      setCount(newCount);
-      const template = `<h1>Hello World ${newCount}!</h1>`;
-
-      setHtmlContent(template)
-
       console.log('********** DataSet Object **************')
       console.log(props.loadedProject)
       console.log(props.loadedRules)
       console.log(props.loadedLabels)
+      const template = ''
+      setHtmlContent(template)
       setActivatePost((prev) => !prev)
 
-      // handleCloseModal();
+
 
     };
 
@@ -109,5 +104,14 @@ const GenerateForm = (props) => {
     );
 }
 
+
+GenerateForm.propTypes = {
+  engine: PropTypes.object.isRequired,
+  loadedProject: PropTypes.object.isRequired,
+  setShowGenerateForm: PropTypes.func.isRequired,
+  loadedRules: PropTypes.array.isRequired,
+  loadedLabels: PropTypes.array.isRequired,
+  showGenerateForm: PropTypes.bool.isRequired
+};
 
 export default GenerateForm;

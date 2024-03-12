@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { SingleSelect, SingleSelectOption } from '@dhis2-ui/select';
 import classes from '../App.module.css'
+import PropTypes from 'prop-types';
 
 const VerticalCategoryLevel1 = (props) => {
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [horizontalCategories, setHorizontalCategories] = useState([]);
   const filteredCategories = props.fileredVerticalCatComboLevel1 || [];
   const [disabled, setDisabled] = useState(false)
@@ -55,8 +56,8 @@ const VerticalCategoryLevel1 = (props) => {
         filterable
         noMatchText="No categories found"
         placeholder="Select category"
-        selected={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : null}
-        value={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : null}
+        selected={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : ""}
+        value={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : ""}
         onChange={({ selected }) => handleHorizontalCategoryChange(selected)}
         disabled={disabled}
       >
@@ -66,6 +67,19 @@ const VerticalCategoryLevel1 = (props) => {
       </SingleSelect>
     </div>
   );
+};
+
+VerticalCategoryLevel1.propTypes = {
+  fileredVerticalCatComboLevel1: PropTypes.array.isRequired, // Adjust as per your requirements
+  setfileredVerticalCatComboLevel2: PropTypes.func.isRequired,
+  setSelectedVerticalCategoryNameLevel1: PropTypes.func.isRequired,
+  setSelectedVerticalCategoryIDLevel1: PropTypes.func.isRequired,
+  setVerticalCategoryOptionsLevel1: PropTypes.func.isRequired,
+  setdictfileredVerticalCatComboLevel2: PropTypes.func.isRequired,
+  loadedProject: PropTypes.object.isRequired, // Adjust as per your requirements
+  editMode: PropTypes.bool.isRequired,
+  selectedDataElementId: PropTypes.string.isRequired, // Adjust as per your requirements
+  isVerticalCategoryExpandedlevel1: PropTypes.bool.isRequired
 };
 
 export default VerticalCategoryLevel1;

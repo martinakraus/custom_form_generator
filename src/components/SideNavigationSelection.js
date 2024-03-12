@@ -1,28 +1,29 @@
 import {useState, useEffect } from 'react';
 import React from 'react'
 import { SingleSelect, SingleSelectOption  } from '@dhis2-ui/select'
+import PropTypes from 'prop-types';
 
 
 
 const SideNavigation = props => {
 
 
-    const [selectedSideNavigation, setSelectedSideNavigation] = useState(null);
+    const [selectedSideNavigation, setSelectedSideNavigation] = useState('');
     const [disabled, setDisable] = useState(true);
 
     useEffect(() => {
         if (props.selectedDataElementId.length > 0) {
             const selectedDataElement = props.loadedProject.dataElements.find(dataElement => dataElement.id === props.selectedDataElementId);
             if (selectedDataElement !== undefined){                
-                const initialSelectedSideNavigation = selectedDataElement.sideNavigation === 'Default' ? null : selectedDataElement.sideNavigation;
+                const initialSelectedSideNavigation = selectedDataElement.sideNavigation === 'Default' ? "" : selectedDataElement.sideNavigation;
                 setSelectedSideNavigation(initialSelectedSideNavigation);
             }else{
-                setSelectedSideNavigation(null);
+                setSelectedSideNavigation("");
             }
             setDisable(false)
         } else {
 
-            setSelectedSideNavigation(null);
+            setSelectedSideNavigation("");
         }
     }, [props.selectedDataElementId, props.loadedProject.dataElements, props.savingDataElement]);
 
@@ -77,6 +78,16 @@ const SideNavigation = props => {
     )
 
 }
+
+
+SideNavigation.propTypes = {
+    SideNavigationQueryData: PropTypes.object.isRequired,
+    loadedProject: PropTypes.object.isRequired,
+    setSelectSideNavigation: PropTypes.func.isRequired,
+    selectedDataElementId: PropTypes.string,
+    editMode: PropTypes.bool.isRequired,
+    savingDataElement: PropTypes.bool.isRequired
+};
 
 
 export default SideNavigation

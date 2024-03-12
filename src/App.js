@@ -5,30 +5,19 @@ import { Divider } from '@dhis2-ui/divider'
 import { useDataEngine } from '@dhis2/app-runtime';
 import CreateProject from './components/CreateProject'
 import LoadProjects from './components/LoadProjects'
-import { generateRandomId } from './utils';
+import { footerText, MainTitle } from './consts';
 
-import { DataTable, DataTableRow , DataTableColumnHeader, DataTableCell, TableHead, TableBody   } from '@dhis2-ui/table'
 
 import {
     Box
 } from '@dhis2/ui'
 
 
-/** header constant ***/
-const header = (
-    <div className={classes.headerContainer}>
-        <h1>Custom Form Generator</h1>
-
-    </div>
-
-    );
 const MyApp = () => {
 
     const engine = useDataEngine();
     {/* declare variable and event methods */}
 
-    const [isLoadProject, setLoadProject] = useState(false);
-    const [isCreateroject, setCreateProject] = useState(false);
     const [showModalCreateProject, setShowModalCreateProject] = useState(false);
     const [showModalLoadProjects, setShowModalLoadProjects] = useState(false);
     // reloading and state does not matter
@@ -40,7 +29,7 @@ const MyApp = () => {
 
         <div className={classes.pageDiv}>
                 {/* Header */}
-                { header }
+                <h1>{ MainTitle }</h1>
             <p>
                 This application is used to create custom dhis2 forms automatically to align DATIM design pattern
             </p>
@@ -83,8 +72,6 @@ const MyApp = () => {
             {showModalLoadProjects && 
                 (<LoadProjects 
                     engine={engine} 
-                    setShowModalLoadProjects={setShowModalLoadProjects} 
-                    showModalLoadProjects={showModalLoadProjects}
                     reloadProjects={reloadProjects}
                     setReloadProjects={setReloadProjects}/>                    
             )}
@@ -101,7 +88,7 @@ const MyApp = () => {
 
 
             <footer className={classes.footer}>
-                <p>Copyright &copy; FHI360:EpiC | Business Solutions 2024 version v1.0.1 Beta 24-02-2024</p>
+                <p>{footerText}</p>
             </footer>
     </div>
     )

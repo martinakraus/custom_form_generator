@@ -1,23 +1,21 @@
 import { useDataQuery, useAlert } from '@dhis2/app-runtime'
 import { SingleSelect, SingleSelectOption  } from '@dhis2-ui/select'
-import { config, TemplateFilter, TemplateNoFilter } from '../consts'
+import { config, TemplateFilter } from '../consts'
 import React, { useState, useEffect } from 'react';
 import { Modal, ModalTitle, ModalContent, ModalActions, ButtonStrip, Button } from '@dhis2/ui';
 import { updateDataStore } from '../utils';
-import classes from '../App.module.css'
+import PropTypes from 'prop-types';
 
-
-
-        // Query to fetch data elements and their category information
-        const DataQuery = {
-          dataElement: {
-            resource: 'dataElements',
-            id: ({ id }) => id,
-            params: {
-              fields: 'id,dataSetElements,categoryCombo[name,id,categories[id,name, categoryOptions[id,name]]]',
-            },
-          },
-        };
+// Query to fetch data elements and their category information
+// const DataQuery = {
+//   dataElement: {
+//     resource: 'dataElements',
+//     id: ({ id }) => id,
+//     params: {
+//       fields: 'id,dataSetElements,categoryCombo[name,id,categories[id,name, categoryOptions[id,name]]]',
+//     },
+//   },
+// };
 
 
 const MetadataTemplating = (props) => {
@@ -179,4 +177,15 @@ const TemplateQuery = {
   );
 };
 
+
+MetadataTemplating.propTypes = {
+  engine: PropTypes.object.isRequired, // Adjust as per your requirements
+  handleDataElementRefreshClick: PropTypes.func.isRequired,
+  showModalMetadataTemplate: PropTypes.bool.isRequired,
+  setShowModalMetadataTemplate: PropTypes.func.isRequired,
+  loadedProject: PropTypes.object.isRequired, // Adjust as per your requirements
+  selectedDataElementId: PropTypes.string.isRequired, // Adjust as per your requirements
+  selectedDataElement: PropTypes.object.isRequired, // Adjust as per your requirements
+  fileredHorizontalCatCombo0: PropTypes.array.isRequired // Adjust as per your requirements
+};
 export default MetadataTemplating;
