@@ -1,10 +1,11 @@
-import { useDataQuery, useDataMutation, useAlert } from '@dhis2/app-runtime'
+import { useDataQuery, useAlert } from '@dhis2/app-runtime'
 import React, { useState, useEffect } from 'react';
 import ConfigureMetadata from './ConfigureMetadata'
 import TooltipComponent from './TooltipComponent'
 import { Input } from '@dhis2-ui/input'
 import {updateDataStore, generateRandomId, createDataStore, customImage} from '../utils'
-
+import { Chip } from '@dhis2-ui/chip'
+import PropTypes from 'prop-types';
 
 import {
   Table,
@@ -17,12 +18,12 @@ import {
   InputField,
 } from '@dhis2/ui';
 import { Modal, ModalTitle, ModalContent, ModalActions, ButtonStrip, Button } from '@dhis2/ui';
-import { config, ProjectsFiltersMore ,dataStoreQueryMore, SideNavigationQuery, FormComponentQuery, TemplateQueryMore, ConditionQueryMore, LabelQuery} from '../consts'
+import { config, dataStoreQueryMore, SideNavigationQuery, FormComponentQuery, TemplateQueryMore, ConditionQueryMore, LabelQuery} from '../consts'
 import { IconEdit16, IconDelete16, IconTextHeading16} from '@dhis2/ui-icons';
 import classes from '../App.module.css'
 import CleaningServices from './CleaningServices';
 
-const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects, reloadProjects, setReloadProjects }) => {
+const LoadProjects = ({ engine, reloadProjects, setReloadProjects }) => {
   const { show } = useAlert(
     ({ msg }) => msg,
     ({ type }) => ({ [type]: true })
@@ -116,23 +117,23 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
     
     const filteredSideNavigations = SideNavigations.filter(entry => projectIds.includes(entry.projectID));
 
-    console.log('filteredSideNavigations: ', filteredSideNavigations)
+    // console.log('filteredSideNavigations: ', filteredSideNavigations)
 
     const FormComponents = FormComponentQueryData?.dataStore?.entries || [];
     const filteredFormComponents = FormComponents.filter(entry => projectIds.includes(entry.projectID));
-    console.log('filteredFormComponents: ', filteredFormComponents)
+    // console.log('filteredFormComponents: ', filteredFormComponents)
     
     const Templates = TemaplateQueryData?.dataStore?.entries || [];
     const filteredTemaplates = Templates.filter(entry => projectIds.includes(entry.projectID));
-    console.log('filteredTemaplates: ', filteredTemaplates)
+    // console.log('filteredTemaplates: ', filteredTemaplates)
     
     const Conditions = ConditionsQueryData?.dataStore?.entries || [];
     const filteredConditions = Conditions.filter(entry => projectIds.includes(entry.projectID));
-    console.log('filteredConditions: ', filteredConditions)
+    // console.log('filteredConditions: ', filteredConditions)
     
     const Labels = LabelQueryData?.dataStore?.entries || [];
     const filteredLabels = Labels.filter(entry => projectIds.includes(entry.projectID));
-    console.log('filteredLabels: ', filteredLabels)
+    // console.log('filteredLabels: ', filteredLabels)
 
     createDataStore (engine, project, config.dataStoreName, project.key)
 
@@ -237,7 +238,7 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
     setSelectedProject(project);
 
 
-    console.log(project.key);
+    // console.log(project.key);
     setselectedDataSet(project.dataSet.id);
     // console.log(data);
 
@@ -267,7 +268,7 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
     setSelectedProject(null);
     setShowDeleteModal(false)
     
-    console.log('Deleting project:', KeyID);
+    // console.log('Deleting project:', KeyID);
 
 
   };
@@ -296,16 +297,16 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
         value={filterText}
         onChange={(e) => handleFilterChange(e.value)}
       />
+            <Chip className={classes.customImageContainer}  icon={customImage('sync', 'large')} onClick={handleCustomImageClick}>
+              Refresh
+      </Chip>
 
-    <div className={classes.customImageContainer} onClick={handleCustomImageClick}>
-        {customImage('sync', 'large')}
-      </div>
-
-      <div className={classes.customImageContainer} onClick={() => {
+      <Chip className={classes.customImageContainer}  icon={customImage('cleaning', 'large')} onClick={() => {
               setCleaner(true)
           }}>
-        {customImage('cleaning', 'large')}
-      </div>
+              Cleaner
+      </Chip>
+
 
 
       
@@ -471,6 +472,13 @@ const LoadProjects = ({ engine, setShowModalLoadProjects, showModalLoadProjects,
 
     </div>
   );
+};
+
+
+LoadProjects.propTypes = {
+  engine: PropTypes.object.isRequired,
+  reloadProjects: PropTypes.bool.isRequired,
+  setReloadProjects: PropTypes.func.isRequired,
 };
 
 export default LoadProjects;

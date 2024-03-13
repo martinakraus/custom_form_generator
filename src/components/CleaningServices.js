@@ -1,6 +1,7 @@
 import { useDataQuery, useAlert } from '@dhis2/app-runtime'
 import React, { useEffect } from 'react';
 import {deleteObjects, } from '../utils'
+import PropTypes from 'prop-types';
 
 import { config, dataStoreQuery,
     SideNavigationQuery, FormComponentQuery, TemplateQuery, ConditionQuery, LabelQuery} from '../consts'
@@ -135,5 +136,12 @@ const CleaningServices = (props) => {
     );
 
 }
+// Define PropTypes for your component
+CleaningServices.propTypes = {
+    engine: PropTypes.object.isRequired,
+    setCleaner: PropTypes.func.isRequired,
+    setCleanerToggle: PropTypes.func.isRequired,
+    cleanToggle: PropTypes.bool.isRequired,
+};
 
 export default CleaningServices;

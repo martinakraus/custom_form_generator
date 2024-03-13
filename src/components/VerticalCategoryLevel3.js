@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { SingleSelect, SingleSelectOption } from '@dhis2-ui/select';
+import { SingleSelect, SingleSelectOption } from '@dhis2-ui/select'
 import classes from '../App.module.css'
+import PropTypes from 'prop-types'
 
 const VerticalCategoryLevel3 = (props) => {
 
-const [selectedCategory, setSelectedCategory] = useState(null);
+const [selectedCategory, setSelectedCategory] = useState("");
 const [horizontalCategories, setHorizontalCategories] = useState([]);
 const filteredCategories = props.fileredVerticalCatComboLevel3 || [];
 const [disabled, setDisabled] = useState(false)
@@ -19,7 +20,7 @@ useEffect(() => {
       const updatedDataElementsLevel1 = props.loadedProject.dataElements.filter(
         (element) => element.id === props.selectedDataElementId
       ) || [];
-      if (updatedDataElementsLevel1[0].verticalLevel3.id !== null){
+      if (updatedDataElementsLevel1[0].verticalLevel3.id !== null || updatedDataElementsLevel1[0].verticalLevel3.id !== ""){
           const VerticalCategoryObject = filteredCategories.filter(
           (element) => element.id === updatedDataElementsLevel1[0]?.verticalLevel3?.id
           ) || [];
@@ -60,8 +61,8 @@ useEffect(() => {
         filterable
         noMatchText="No categories found"
         placeholder="Select category"
-        selected={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : null}
-        value={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : null}
+        selected={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : ""}
+        value={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : ""}
         onChange={({ selected }) => handleVerticalCategoryChange(selected)}
         disabled={disabled}
       >
@@ -71,6 +72,18 @@ useEffect(() => {
       </SingleSelect>
     </div>
   );
+};
+
+VerticalCategoryLevel3.propTypes = {
+  fileredVerticalCatComboLevel3: PropTypes.array.isRequired,
+  setSelectedVerticalCategoryNameLevel3: PropTypes.func.isRequired,
+  setSelectedVerticalCategoryIDLevel3: PropTypes.func.isRequired,
+  setVerticalCategoryOptionsLevel3: PropTypes.func.isRequired,
+  selectedVerticalCategoryIDLevel2: PropTypes.string.isRequired,
+  loadedProject: PropTypes.object.isRequired,
+  selectedDataElementId: PropTypes.string.isRequired,
+  isVerticalCategoryExpandedlevel3: PropTypes.bool.isRequired,
+  selectedDirectClickTabDE: PropTypes.number.isRequired,
 };
 
 export default VerticalCategoryLevel3;

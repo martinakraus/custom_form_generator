@@ -2,8 +2,9 @@ import { useDataQuery } from '@dhis2/app-runtime'
 import {useState, useEffect } from 'react';
 import React from 'react'
 import classes from './App.module.css'
-import { SingleSelect, SingleSelectOption, SingleSelectField  } from '@dhis2-ui/select'
+import { SingleSelect, SingleSelectOption  } from '@dhis2-ui/select'
 import {customImage} from './utils'
+import PropTypes from 'prop-types'
 
 const dataSets = {
     targetedEntity: {
@@ -147,5 +148,19 @@ const AppGetDEList = props => {
       
     )
 }
+
+AppGetDEList.propTypes = {
+  selectedDataSet: PropTypes.string.isRequired,
+  setSelectedDataElementId: PropTypes.func.isRequired,
+  selectedDataElement: PropTypes.string.isRequired,
+  selectedDataElementId: PropTypes.string.isRequired,
+  setSelectedDataElement: PropTypes.func.isRequired,
+  editMode: PropTypes.bool.isRequired,
+  setSelectSideNavigation: PropTypes.func.isRequired,
+  setSelectFormComponents: PropTypes.func.isRequired,
+  loadedProject: PropTypes.object.isRequired,
+  setOveridingCategory: PropTypes.func.isRequired,
+  isHorizontalCategoryExpanded0: PropTypes.bool.isRequired,
+};
 
 export default AppGetDEList

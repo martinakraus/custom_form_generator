@@ -6,6 +6,7 @@ import { Input } from '@dhis2-ui/input'
 import classes from '../App.module.css'
 import { config, ProjectsFilters} from '../consts'
 import { generateRandomId, modifiedDate, createOrUpdateDataStore } from '../utils';
+import PropTypes from 'prop-types';
 
 /*  Query Parameters**/
 const query = {
@@ -31,7 +32,7 @@ const CreateProject = (props) => {
     ({ type }) => ({ [type]: true })
   )
     const [projectName, setProjectName] = useState('');
-    const [selectedDataSet,setselectedDataSet] = useState([]);
+    const [selectedDataSet,setselectedDataSet] = useState('');
     const [selectedDataSetName,setselectedDataSetName] = useState([]);
     const [existingProject, setExistingProjects] = useState(false);
     {/* useDataQuery(query) loader */}
@@ -54,10 +55,7 @@ const CreateProject = (props) => {
             // console.log(existingProject);
           }
 
-        } else {
-          // Handle the case where dataStoreData or dataStoreData.dataStore is undefined
-          console.error('Data structure does not match the expected format');
-        }
+        } 
     }, [projectName]);
     
     {/*  useDataQuery(query) exceptions */}
@@ -155,7 +153,7 @@ const CreateProject = (props) => {
                                         
                                     >
                                         {data1.dataSets.dataSets.map(({ id, displayName }) => (
-                                        <SingleSelectOption label={displayName} value={id} />
+                                        <SingleSelectOption key={id} label={displayName} value={id} />
                                         ))}
                             </SingleSelect>
                         
@@ -175,4 +173,8 @@ const CreateProject = (props) => {
     );
 };
 
+CreateProject.propTypes = {
+  engine: PropTypes.object.isRequired,
+  setReloadProjects: PropTypes.func.isRequired,
+};
 export default CreateProject;

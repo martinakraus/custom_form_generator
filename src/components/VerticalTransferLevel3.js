@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Transfer } from '@dhis2-ui/transfer';
+import PropTypes from 'prop-types';
 
 const VerticalTransferLevel3 = (props) => {
 
@@ -109,6 +110,20 @@ return (
       />
     </div>
   );
+};
+
+
+VerticalTransferLevel3.propTypes = {
+  VerticalCategoryOptionsLevel3: PropTypes.array.isRequired, 
+  fileredVerticalCatComboLevel3: PropTypes.array.isRequired, 
+  selectedDataElementId: PropTypes.string.isRequired, 
+  loadedProject: PropTypes.object.isRequired, 
+  isVerticalCategoryExpandedlevel3: PropTypes.bool.isRequired, 
+  setdictfileredVerticalCatComboLevel3: PropTypes.func.isRequired,
+  selectedDirectClickTabDE: PropTypes.number.isRequired, 
+  selectedVerticalCategoryIDLevel3: PropTypes.string.isRequired, 
+  editMode: PropTypes.bool.isRequired, 
+  setVerticalCategoryOptionsLevel3: PropTypes.func.isRequired,
 };
 
 export default VerticalTransferLevel3;
