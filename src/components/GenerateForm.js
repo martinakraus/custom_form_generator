@@ -81,7 +81,7 @@ const GenerateForm = (props) => {
         dataElements: {
             resource: 'dataElements',
             params: ({dataElements}) => ({
-                fields: ['id,name,valueType,categoryCombo[categories[id,name, categoryOptions[id,name]],categoryOptionCombos[id,name,categoryOptions[id,name]]'],
+                fields: ['id,name,valueType'],
                 filter: `id:in:[${dataElements}]`,
                 paging: false
             }),
@@ -89,7 +89,7 @@ const GenerateForm = (props) => {
         categoryCombos: {
             resource: 'categoryCombos',
             params: ({categoryCombos}) => ({
-                fields: ['categories[id,name, categoryOptions[id,name]],categoryOptionCombos[id,name,categoryOptions[id,name]]'],
+                fields: ['categories[id,name],categoryOptionCombos[id,name,categoryOptions[id,name]]'],
                 filter: `id:in:[${categoryCombos}]`,
                 paging: false
             }),
