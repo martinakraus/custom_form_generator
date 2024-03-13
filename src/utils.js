@@ -4,6 +4,10 @@ import edit from './Icons/edit.png'
 import rename from './Icons/rename.png'
 import sync from './Icons/sync.png'
 import cleaning from './Icons/cleaning.png'
+import arrowdown from './Icons/arrowdowncustom.png'
+import arrowup from './Icons/arrowupcustom.png'
+import swap from './Icons/swap.png'
+
 import classes from './App.module.css'
 import { useDataQuery } from '@dhis2/app-runtime';
 
@@ -13,23 +17,29 @@ export const customImage = (source, size='small') => {
 
   iconClass = size === 'small' ? classes.smallIcon : size === 'large' ? classes.largeIcon : classes.smallIcon;
 
-  if (source.toLowerCase()== 'copy'){
+  if (source.toLowerCase()  === 'copy'){
     return <img src={copy} className={iconClass}/>
   }
-  if (source.toLowerCase()== 'delete'){
+  if (source.toLowerCase()  === 'delete'){
     return <img src={delete_} className={iconClass}/>
   }
-  if (source.toLowerCase()== 'rename'){
+  if (source.toLowerCase()  === 'rename'){
     return <img src={rename} className={iconClass}/>
   }
-  if (source.toLowerCase()== 'configure'){
+  if (source.toLowerCase()  === 'configure'){
     return <img src={edit} className={iconClass}/>
   }
-  if (source.toLowerCase()== 'sync'){
+  if (source.toLowerCase() === 'sync'){
     return <img src={sync} className={iconClass}/>
   }
-  if (source.toLowerCase()== 'cleaning'){
+  if (source.toLowerCase()  === 'cleaning'){
     return <img src={cleaning} className={iconClass}/>
+  }
+  if (source.toLowerCase()  === 'arrowup'){
+    return <img src={arrowup} className={iconClass}/>
+  }
+  if (source.toLowerCase()  === 'arrowdown'){
+    return <img src={arrowdown} className={iconClass}/>
   }
 }
 
@@ -245,4 +255,3 @@ export const addCodeMutation = {
   partial: true,
   data: ({ code }) => (code),
 }
-

@@ -11,7 +11,8 @@ const TooltipComponent = (
             project, 
             dynamicText,  
             buttonMode, 
-            customIcon=false
+            customIcon=false,
+            disabled
         }
     ) => {
 
@@ -22,6 +23,7 @@ const TooltipComponent = (
             primary={buttonMode === 'primary'}
             secondary={buttonMode === 'secondary'}
             onClick={() => btnFunc(project)}
+            disabled={disabled}
             className={`${classes.buttonRight} 
                         ${classes.iconButton} 
                         ${classes.tooltipbutton}`}
