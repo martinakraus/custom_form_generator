@@ -1,4 +1,4 @@
-import {useDataQuery} from '@dhis2/app-runtime';
+import {useAlert, useDataMutation, useDataQuery} from '@dhis2/app-runtime';
 import {Button, ButtonStrip, Modal, ModalActions, ModalContent, ModalTitle} from '@dhis2/ui';
 import React, {useEffect, useState} from 'react';
 
@@ -58,44 +58,23 @@ const skipDE = (rules, value, level1) => {
 }
 
 const GenerateForm = (props) => {
+    const [dataElements, setDataElements] = useState([]);
+    const [categoryCombos, setCategoryCombos] = useState([]);
 
-  const [dataEntryFormObj, setDataEntryFormObj] = useState('');
-  const [htmlContent, setHtmlContent] = useState('');
-  const [activatePost, setActivatePost] = useState(false);
-  const [showPostForm, setShowPostForm] = useState(false);
-  const [count, setCount] = useState(0);
+    const {show} = useAlert(
+        ({msg}) => msg,
+        ({type}) => ({[type]: true})
+    )
 
+    const successMessage = () => {
+        show({msg: `DataEntryForm successfully posted`, type: 'success'})
+        console.log('Successfully Posted')
+    }
 
-
-
-  const {loading: loadingDataSets, error: errorDataSets, data: dataDataSets, refetch: refetchDataSets } = useDataQuery(dataSets, {variables: {dataSet: props.loadedProject.dataSet.id}})
-
-
-  useEffect(() => {
-
-
-        if(dataDataSets){
-            const FormObj = dataDataSets?.targetedEntity?.dataSets[0]?.dataEntryForm || [];
-            console.log('dataDataSets: ', dataDataSets)
-            const dataFormID = FormObj?.id || ''
-            setDataEntryFormObj(dataFormID)
-            refetchDataSets({dataSet: props.loadedProject.dataSet.id})
-            // console.log('dataSet: ', props.loadedProject.dataSet.id)
-            // console.log('dataEntryFormObj : ',dataEntryFormObj)
-          }
-  }, [props.loadedProject.dataSet.id, dataDataSets, activatePost]);
-
-  useEffect(() => {
-
-
-  },[dataDataSets, ])
-
-  useEffect(() => {
-    let openPost = true
-    setShowPostForm(openPost)
-
-  },[htmlContent, activatePost])
-
+    const errorMessage = (error) => {
+        show({msg: `An error occurred`, type: 'critical'})
+        console.error(error)
+    }
 
     /**generate Template */
     const query = {
@@ -116,9 +95,6 @@ const GenerateForm = (props) => {
             }),
         },
     }
-
-    const [dataElements, setDataElements] = useState([]);
-    const [categoryCombos, setCategoryCombos] = useState([]);
 
     const {
         data: data,
@@ -855,6 +831,7 @@ const GenerateForm = (props) => {
                 const groups = new Set();
                 _dataElements.forEach(d1 => groups.add(d1.formComponent))
 
+
                 //Build formComponent
                 template += `
                         <div id="INFOLINK_Form_${h}_${a}">
@@ -1080,45 +1057,31 @@ const GenerateForm = (props) => {
                 <p>&nbsp;</p>
         `;
 
-        // Create a Blob containing the HTML content
-        const blob = new Blob([template], {type: 'text/html'});
+        const updateDataStore = async (postObject) => {
 
-        // Create a download link
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
+            try {
+                await props.engine.mutate({
+                    resource: `dataSets/${props.loadedProject.dataSet.id}/form`,
+                    type: 'create',
+                    data: {
+                        htmlCode: postObject
+                    },
+                });
+                successMessage()
+            } catch (error) {
+                errorMessage(error)
+                console.error('Error updating project:', error);
+            }
 
+        }
 
-        // Set the download attribute with the desired file name
-        link.download = 'hello_world_template.html';
-    const handleGenerateHTMLTemplate = async () => {
+        updateDataStore(template)
 
-          // Increment count and generate template
-      const newCount = count + 20;
-      setCount(newCount);
-      const template = `<h1>Hello World ${newCount}!</h1>`;
-
-      setHtmlContent(template)
-
-      console.log('********** DataSet Object **************')
-      console.log(props.loadedProject)
-      console.log(props.loadedRules)
-      console.log(props.loadedLabels)
-      setActivatePost((prev) => !prev)
-
-        // Append the link to the document
-        document.body.appendChild(link);
-
-        // Trigger a click on the link to start the download
-        link.click();
-
-        // Remove the link from the document
-        document.body.removeChild(link);
         handleCloseModal();
-    };
-    
-    const handleCloseModal = () => {
-        props.setShowGenerateForm(false)      
+    }
 
+    const handleCloseModal = () => {
+        props.setShowGenerateForm(false)
     };
 
     return (
@@ -1135,7 +1098,6 @@ const GenerateForm = (props) => {
                 <ButtonStrip>
                     <Button onClick={() => handleCloseModal()}>Close</Button>
                     <Button onClick={handleGenerateHTMLTemplate} disabled={loading}>Proceed</Button>
-
                 </ButtonStrip>
             </ModalActions>
         </Modal>
