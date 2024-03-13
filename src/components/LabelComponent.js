@@ -516,9 +516,8 @@ const handleCloseLabelModal = () =>{
                     
                   {loader && showCatCombo && (<Divider/> )}
 
-                    {loader || showDataElement && (
-
-                    <Card className={classes.cardboxExclusion}>
+                                       
+                        <Card className={classes.cardboxExclusion}>
 
                         <div>
                                 Label
@@ -538,12 +537,13 @@ const handleCloseLabelModal = () =>{
                                           value={props.labelName}
                                           onChange={({ value }) => props.setLabelName(value)}
                                           className={classes.inputField}
+                                          disabled={props.metadataName.length<1}
 
                                           
                                       />
                         </Card>
 
-                    )}
+   
         
             {showCatCombo && (<Box min-height="358px" min-width="358px">
             {loader && showCatCombo && (selectedCategoryOption.length > 0) && (<Divider/> )}
