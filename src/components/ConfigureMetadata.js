@@ -794,11 +794,11 @@ const ConfigureMetadata = (props) => {
     
                     
                     // Find the index of the dataElement with the matching id in loadedProject.dataElements
-                    const indexToUpdate = loadedProject.dataElements.findIndex(element => element.id === selectedDataElementId);
+                    const indexToUpdate = dataElements.findIndex(element => element.id === selectedDataElementId);
     
                     // If the index is found, replace the object at that index with the corresponding object from projectData.dataElements
                     if (indexToUpdate !== -1) {
-                        const updatedDataElements = [...loadedProject.dataElements];
+                        const updatedDataElements = [...dataElements];
                         updatedDataElements[indexToUpdate] = projectData.dataElements.find(element => element.id === selectedDataElementId);
     
                         if (updateDataStore(props.engine, {
@@ -814,7 +814,7 @@ const ConfigureMetadata = (props) => {
                         if(updateDataStore(props.engine, {
                             ...loadedProject,
                             ...projectData,
-                            dataElements: [...loadedProject.dataElements, ...projectData.dataElements],
+                            dataElements: [...dataElements, ...projectData.dataElements],
                         }, config.dataStoreName, loadedProject.key)){
     
                             show({ msg: `Data Element  "${selectedDataElementId}" added successfully.`, type: 'success' })
