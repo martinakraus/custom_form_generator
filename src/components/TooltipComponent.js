@@ -53,7 +53,10 @@ TooltipComponent.propTypes = {
     btnFunc: PropTypes.func.isRequired,
     project: PropTypes.any.isRequired, 
     dynamicText: PropTypes.string.isRequired,
-    buttonMode: PropTypes.string.isRequired
+    buttonMode: PropTypes.string.isRequired,
+    disabled: PropTypes.bool,
+    customIcon: PropTypes.bool
+
 };
 
 export default TooltipComponent;
