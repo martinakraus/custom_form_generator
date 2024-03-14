@@ -1,4 +1,4 @@
-import {useAlert, useDataMutation, useDataQuery} from '@dhis2/app-runtime';
+import {useAlert, useDataQuery} from '@dhis2/app-runtime';
 import {Button, ButtonStrip, Modal, ModalActions, ModalContent, ModalTitle} from '@dhis2/ui';
 import React, {useEffect, useState} from 'react';
 
@@ -20,30 +20,71 @@ const formatDatElement = (labels, de) => {
     return labels.find(l => l.metadataType === 'DataElement' && l.labelDEIDName[0].id === de.id)?.labelName || de.name
 }
 
-const formatOption = (labels, option) => {
-    return labels.find(l => l.metadataType === 'CategoryOption' && l.labelOptionIDName[0].id === option.id)?.labelName || option.name
+const formatOption = (labels, dataElement, option, level1, level2, level3, level4) => {
+    const label = labels.find(l => {
+        const matched = l.metadataType === 'CategoryOption' && l.labelOptionIDName[0].id === option.id;
+        const dataElements = (l.labelDEIDName || []).filter(de => de.id);
+        if (!dataElements.length) {
+            return matched;
+        }
+        return matched && dataElements[0].id === dataElement
+    });
+
+    if (!label) {
+        return option.name;
+    }
+
+    const dataElements = (label.labelDEIDName || []).filter(de => de.id);
+    const de = dataElements.length && dataElements[0] || undefined;
+    const inclusion1 = (label.labelInclusionOptionIDName2 || []).filter(l => l.id);
+    const inclusion2 = (label.labelInclusionOptionIDName3 || []).filter(l => l.id);
+
+
+    if (!de && !inclusion1.length) {
+        return label.labelName
+    }
+
+    if (de && !inclusion1.length) {
+        return dataElement === de.id ? label.labelName : option.name
+    }
+    const levels = [level1, level2, level3, level4];
+    if ((dataElement === de?.id) || !de) {
+        if (!inclusion2.length) {
+            return levels.some(l => label.labelInclusionOptionIDName2.map(i => i.id).includes(l)) ? label.labelName : option.name
+        }
+        if (inclusion.length) {
+            return levels.some(l => label.labelInclusionOptionIDName2.map(i => i.id).includes(l)) &&
+            levels.some(l => label.labelInclusionOptionIDName3.map(i => i.id).includes(l)) ? label.labelName : option.name
+        }
+    }
+    return option.name;
 }
 
 const skipOption = (rules, dataElement, value, level1, level2, level3, level4) => {
+    let skip = false;
     for (let ri = 0; ri < rules.length; ri++) {
         const rule = rules[ri];
         if (rule.categoryExclusionOptionToProcess) {
             const exclusions = rule.categoryExclusionOptionToProcess.map(e => e.id);
-            const dataElements = rule.conditionDE?.map(de => de.id) || [];
+            const dataElements = rule.conditionDE?.filter(de => de.id?.length).map(de => de.id) || [];
+
             if (exclusions.includes(value) && ((dataElements.length && dataElements.includes(dataElement)) || !dataElements.length)) {
                 const conditions1 = rule.conditionCategoryOption.map(c => c.id) || [];
                 const conditions2 = (rule.conditionCategoryOption2 || []).map(c => c.id);
                 const levels = [level1, level2, level3, level4];
                 if (conditions1.length && !conditions2.length) {
-                    return conditions1.some(c => c && levels.includes(c))
+                    skip = conditions1.some(c => c && levels.includes(c))
                 }
                 if (conditions1.length && conditions2.length) {
-                    return conditions1.some(c => c && levels.includes(c)) && conditions2.some(c => c && levels.includes(c))
+                    skip = conditions1.some(c => c && levels.includes(c)) && conditions2.some(c => c && levels.includes(c))
+                }
+                if (skip) {
+                    return skip;
                 }
             }
         }
     }
-    return false;
+    return skip;
 }
 
 const skipDE = (rules, value, level1) => {
@@ -820,7 +861,7 @@ const GenerateForm = (props) => {
                     <div id="INFOLINK_Tabs_h_${h}">
                         <ul class="ui-helper-hidden">`;
             for (let j = 0; j < navs.length; j++) {
-                template += `<li><a href="#INFOLINK_Form_${h}_${j}">${formatOption(props.loadedLabels, navs[j])}</a></li>`;
+                template += `<li><a href="#INFOLINK_Form_${h}_${j}">${formatOption(props.loadedLabels, '', navs[j], '', '', '', '')}</a></li>`;
             }
             template += '</ul>';
             for (let a = 0; a < navs.length; a++) {
@@ -884,7 +925,7 @@ const GenerateForm = (props) => {
                                                 <div class="INFOLINK_Form_Priority_Container_Outer">
                                                     <div class="INFOLINK_Form_Priority_Container_Inner INFOLINK_Form_Priority_required">
                                                         <div class="INFOLINK_Form_Priority">&nbsp;</div>
-                                                        <div class="INFOLINK_Form_Description">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color:#ff0000;">${formatOption(props.loadedLabels, level2.metadata[b])}</span><span style="color:#add8e6;">&nbsp; &nbsp; </span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</div>
+                                                        <div class="INFOLINK_Form_Description">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color:#ff0000;">${formatOption(props.loadedLabels, dataElement.id, level2.metadata[b], navs[a].id, '', '', '')}</span><span style="color:#add8e6;">&nbsp; &nbsp; </span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</div>
                                                     </div>
                                                 </div>
                                             `;
@@ -895,14 +936,14 @@ const GenerateForm = (props) => {
                                             }
                                             template += `
                                                  <div class="INFOLINK_Form_Container">
-                                                    <div class="INFOLINK_Form_EntryName bold" style="padding-bottom:0;">${formatOption(props.loadedLabels, level3.metadata[c])}</div>`
+                                                    <div class="INFOLINK_Form_EntryName bold" style="padding-bottom:0;">${formatOption(props.loadedLabels, dataElement.id, level3.metadata[c], navs[a].id, level2.metadata[b].id, '', '')}</div>`
                                             for (let d = 0; d < level4.metadata.length; d++) {
                                                 const skip = skipOption(props.loadedRules, dataElement.id, level4.metadata[d].id, navs[a].id, level2.metadata[b].id, level3.metadata[c].id, '')
                                                 if (skip) {
                                                     continue
                                                 }
                                                 template += `
-                                                    <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br>${formatOption(props.loadedLabels, level4.metadata[d]).replace(' Years', '')}</div>`;
+                                                    <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br>${formatOption(props.loadedLabels, dataElement.id, level4.metadata[d], navs[a].id, level2.metadata[b].id, level3.metadata[c].id, '').replace(' Years', '')}</div>`;
                                             }
                                             template += `</div>`;
 
@@ -913,7 +954,7 @@ const GenerateForm = (props) => {
                                                 }
                                                 template += `
                                                     <div class="INFOLINK_Form_Container">
-                                                          <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">${formatOption(props.loadedLabels, level5.metadata[e])}</div>`;
+                                                          <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">${formatOption(props.loadedLabels, dataElement.id, level5.metadata[e], navs[a].id, level2.metadata[b].id, level3.metadata[c].id, '')}</div>`;
                                                 for (let d = 0; d < level4.metadata.length; d++) {
                                                     const skip = skipOption(props.loadedRules, dataElement.id, level4.metadata[d].id, navs[a].id, level2.metadata[b].id, level3.metadata[c].id, level5.metadata[e].id)
                                                     if (skip) {
@@ -939,14 +980,14 @@ const GenerateForm = (props) => {
                                         //Build input template
                                         template += `
                                         <div class="INFOLINK_Form_Container">
-                                            <div class="INFOLINK_Form_EntryName bold" style="padding-bottom:0;">${formatOption(props.loadedLabels, level2.metadata[b])}</div>`
+                                            <div class="INFOLINK_Form_EntryName bold" style="padding-bottom:0;">${formatOption(props.loadedLabels, dataElement.id, level2.metadata[b], navs[a].id, '', '', '')}</div>`
                                         for (let c = 0; c < level3.metadata.length; c++) {
                                             const skip = skipOption(props.loadedRules, dataElement.id, level3.metadata[c].id, navs[a].id, level2.metadata[b].id, '', '')
                                             if (skip) {
                                                 continue
                                             }
                                             template += `
-                                            <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br/>${formatOption(props.loadedLabels, level3.metadata[c]).replace(' Years', '')}</div>`;
+                                            <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br/>${formatOption(props.loadedLabels, dataElement.id, level3.metadata[c], navs[a].id, level2.metadata[b].id, '', '').replace(' Years', '')}</div>`;
                                         }
                                         template += `</div>`;
                                         for (let d = 0; d < level4.metadata.length; d++) {
@@ -956,7 +997,7 @@ const GenerateForm = (props) => {
                                             }
                                             template += `
                                             <div class="INFOLINK_Form_Container">
-                                                <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">${formatOption(props.loadedLabels, level4.metadata[d])}</div>`;
+                                                <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">${formatOption(props.loadedLabels, dataElement.id, level4.metadata[d], navs[a].id, level2.metadata[b].id, '', '')}</div>`;
                                             for (let c = 0; c < level3.metadata.length; c++) {
                                                 const skip = skipOption(props.loadedRules, dataElement.id, level3.metadata[c].id, navs[a].id, level2.metadata[b].id, '', '')
                                                 if (skip) {
@@ -983,7 +1024,7 @@ const GenerateForm = (props) => {
                                         continue
                                     }
                                     template += `
-                                        <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br>${formatOption(props.loadedLabels, level2.metadata[b]).replace(' Years', '')}</div>`;
+                                        <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br>${formatOption(props.loadedLabels, dataElement.id, level2.metadata[b], navs[a].id, '', '', '').replace(' Years', '')}</div>`;
                                 }
                                 template += `</div>`;
 
@@ -994,7 +1035,7 @@ const GenerateForm = (props) => {
                                     }
                                     template += `
                                         <div class="INFOLINK_Form_Container">
-                                            <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">${formatOption(props.loadedLabels, level3.metadata[c])}</div>`;
+                                            <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">${formatOption(props.loadedLabels, dataElement.id, level3.metadata[c], navs[a].id, '', '', '')}</div>`;
                                     for (let b = 0; b < level2.metadata.length; b++) {
                                         const skip = skipOption(props.loadedRules, dataElement.id, level2.metadata[b].id, navs[a].id, '', '', '')
                                         if (skip) {
@@ -1024,7 +1065,7 @@ const GenerateForm = (props) => {
                                 }
                                 template += `
                                         <div class="INFOLINK_Form_Container">
-                                            <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">${formatOption(props.loadedLabels, level2.metadata[b])}</div>`;
+                                            <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">${formatOption(props.loadedLabels, dataElement.id, level2.metadata[b], navs[a].id, '', '', '')}</div>`;
                                 const coc = idMap.get(JSON.stringify([level1.metadata.find(md => md.id === navs[a].id)?.id, level2.metadata[b].id].sort()));
                                 if (coc) {
                                     template += `<div class="INFOLINK_Form_EntryField"><input id="${dataElement.id}-${coc?.id}-val" name="entryfield" title="${dataElement.name} ${coc?.name}" value="[ ${dataElement.name} ${coc?.name} ]" /></div>`
@@ -1067,7 +1108,8 @@ const GenerateForm = (props) => {
                         htmlCode: postObject
                     },
                 });
-                successMessage()
+                successMessage();
+                handleCloseModal();
             } catch (error) {
                 errorMessage(error)
                 console.error('Error updating project:', error);
@@ -1076,8 +1118,6 @@ const GenerateForm = (props) => {
         }
 
         updateDataStore(template)
-
-        handleCloseModal();
     }
 
     const handleCloseModal = () => {
