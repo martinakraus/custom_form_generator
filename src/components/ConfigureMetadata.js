@@ -127,6 +127,9 @@ const ConfigureMetadata = (props) => {
 
     // To hold pre-loaded data from dataStore
     const [loadedProject, setLoadedProject] = useState(props.selectedProject || []);
+    const [dataElements, setDataElements] = useState(props.selectedProject.dataElements || []);
+
+
 
     // for data control
     const [isAferProjectSave, AferProjectSave] = useState(false);
@@ -147,6 +150,7 @@ const ConfigureMetadata = (props) => {
     const [overidingCategory, setOveridingCategory] = useState('xxxxx');
     const [selectedDataElement, setSelectedDataElement] = useState('');
     const [selectedDataElementsDict, setSelectedDataElementsDict] = useState(null);
+    const [saveNow, setSaveNow] = useState(false);
 
     
     // State to hold tabs state
@@ -332,6 +336,7 @@ const ConfigureMetadata = (props) => {
         if (dataAfterSave) {
 
             const newProjects = dataAfterSave?.dataStore || [];
+            setDataElements(newProjects?.dataElements || [])
             setLoadedProject(newProjects)
             // setSelectSideNavigation(newProjects.sideNavigation)
             // setSelectFormComponents(newProjects.formComponent)
@@ -695,179 +700,205 @@ const ConfigureMetadata = (props) => {
 
     /** Prepare data to Update DHIS2 Object */
     const handleSaveToConfiguration = async (action, templateName = '') => {
-        if (selectedDataElementId !== null 
-            && selectedDataElement !== null
-            && selectedHorizontalCategoryID0 !== null) {
-                            
-            
-                const projectData = {
-                    "dataElements":[        
-                        {
-                        "id":selectedDataElementId, 
-                        "name":selectedDataElement,
-                        "overidingCategory":overidingCategory,
-                        "sideNavigation": selectedSideNavigation || 'Default',
-                        "formComponent":selectedFormComponents || 'Default',
-                        "HorizontalLevel0": {                                
-                                "id":selectedHorizontalCategoryID0, 
-                                "name":selectedHorizontalCategoryName0,
-                                "metadata":dictfileredHorizontalCatCombo0                            
-                            },
-                        "HorizontalLevel1": {                                
-                            "id":selectedHorizontalCategoryIDLevel1, 
-                            "name":selectedHorizontalCategoryNameLevel1,
-                            "metadata":dictfileredHorizontalCatComboLevel1                        
-                        },
-                        "verticalLevel1": {                                
-                            "id":selectedVerticalCategoryIDLevel1, 
-                            "name":selectedVerticalCategoryNameLevel1,
-                            "metadata":dictfileredVerticalCatComboLevel1                        
-                        },
-                        "verticalLevel2": {                                
-                            "id":selectedVerticalCategoryIDLevel2, 
-                            "name":selectedVerticalCategoryNameLevel2,
-                            "metadata":dictfileredVerticalCatComboLevel2                        
-                        },
-                        "verticalLevel3": {                                
-                            "id":selectedVerticalCategoryIDLevel3, 
-                            "name":selectedVerticalCategoryNameLevel3,
-                            "metadata":dictfileredVerticalCatComboLevel3                        
-                        },
-                        }
-                    ]
-                }
+        if (action === 'save-order'){
 
-                // Check if 'modifiedDate' exists in loadedProject
-                if (!loadedProject.hasOwnProperty('modifiedDate')) {
-                    // If it doesn't exist, add it to the object
-                    loadedProject.modifiedDate = modifiedDate();
-                } else {
-                    // If it exists, update its value
-                    loadedProject.modifiedDate = modifiedDate();
-                }
+            if (updateDataStore(props.engine, {
+                ...loadedProject,
+                dataElements: [...dataElements],
+            }, config.dataStoreName, loadedProject.key)){
 
-                // Check if 'catCombos' exists in loadedProject
-                if (!loadedProject.hasOwnProperty('catCombos')) {
-                    // If it doesn't exist, add it to the object
-                    loadedProject.catCombos = [];
-                }
-
-                const catComboExistIndex = loadedProject.catCombos.findIndex(element => element.id === categoryComboNameID.id);
-
-                if (catComboExistIndex !== -1){
-
-                    console.log(categoryComboNameID.id+' Combo already exist')
-                }else{
-                    const categoryCombo = { id: categoryComboNameID.id, name: categoryComboNameID.name };
-                    loadedProject.catCombos.push(categoryCombo);
-
-                }
-                    
-                
-
-                
-                // Find the index of the dataElement with the matching id in loadedProject.dataElements
-                const indexToUpdate = loadedProject.dataElements.findIndex(element => element.id === selectedDataElementId);
-
-                // If the index is found, replace the object at that index with the corresponding object from projectData.dataElements
-                if (indexToUpdate !== -1) {
-                    const updatedDataElements = [...loadedProject.dataElements];
-                    updatedDataElements[indexToUpdate] = projectData.dataElements.find(element => element.id === selectedDataElementId);
-
-                    if (updateDataStore(props.engine, {
-                        ...loadedProject,
-                        ...projectData,
-                        dataElements: updatedDataElements,
-                    }, config.dataStoreName, loadedProject.key)){
-
-                        show({ msg: `Data Element  "${selectedDataElementId}" updated successfully.`, type: 'success' })
-                    }
-                } else {
-
-                    if(updateDataStore(props.engine, {
-                        ...loadedProject,
-                        ...projectData,
-                        dataElements: [...loadedProject.dataElements, ...projectData.dataElements],
-                    }, config.dataStoreName, loadedProject.key)){
-
-                        show({ msg: `Data Element  "${selectedDataElementId}" added successfully.`, type: 'success' })
-                    }
-
-                }
-                toggleSavingDataElementState()
-
-                if (action === 'saveTemplate'){    
-                    const Templateid = generateRandomId();  
-                            // Remove spaces from projectName
-                    const trimmedTemplateName = templateName.replace(/\s+/g, '');
-       
-                    const TemplateData =  {
-                        "id":Templateid,
-                        "key": trimmedTemplateName+'-'+Templateid,
-                        "name":templateName,
-                        "overidingCategory":overidingCategory,
-                        "projectID":loadedProject.id,
-                        "catCombo":fileredHorizontalCatCombo0[0].id,
-                        "modifiedDate":modifiedDate(),
-                        "sideNavigation": selectedSideNavigation || 'Default',
-                        "formComponent":selectedFormComponents || 'Default',                    
-                        "HorizontalLevel0": {                                
-                            "id":selectedHorizontalCategoryID0, 
-                            "name":selectedHorizontalCategoryName0,
-                            "metadata":dictfileredHorizontalCatCombo0
-                        },
-                        "HorizontalLevel1": {                                
-                                "id":selectedHorizontalCategoryIDLevel1, 
-                                "name":selectedHorizontalCategoryNameLevel1,
-                                "metadata":dictfileredHorizontalCatComboLevel1 
-                        }, 
-                        "verticalLevel1": {                                
-                            "id":selectedVerticalCategoryIDLevel1, 
-                            "name":selectedVerticalCategoryNameLevel1,
-                            "metadata":dictfileredVerticalCatComboLevel1                        
-                        },
-                        "verticalLevel2": {                                
-                            "id":selectedVerticalCategoryIDLevel2, 
-                            "name":selectedVerticalCategoryNameLevel2,
-                            "metadata":dictfileredVerticalCatComboLevel2                        
-                        },
-                        "verticalLevel3": {                                
-                            "id":selectedVerticalCategoryIDLevel3, 
-                            "name":selectedVerticalCategoryNameLevel3,
-                            "metadata":dictfileredVerticalCatComboLevel3                        
-                        },
-                    }
-        
-                    try {
-                        await props.engine.mutate({
-                          resource: `dataStore/${config.dataStoreTemplates}/${trimmedTemplateName}-${Templateid}`,
-                          type: 'create',
-                          data: TemplateData,
-                        });
-                        //update project saving state
-                        toggleSavingDataElementState()
-
-                      } catch (error) {
-                        // Handle error (log, show alert, etc.)
-                        console.error('Error saving Template:', error);
-
-                      }      
-                TemaplateQueryrefetch()
-                }
-                AferProjectSave((prev) => !prev);
+                show({ msg: `Data Elements Re-ordered Successfully.`, type: 'success' })
+            }
 
 
-                openDataElementList()
+            toggleSavingDataElementState()
 
-                setDirectClickTabDE(1);
-                                
-                    // Close the modal or perform any other actions upon success
-                    //handleCloseModal();
+            AferProjectSave((prev) => !prev);
+    
+    
+            openDataElementList()
+
+            setDirectClickTabDE(1);
+            setSaveNow(false)
         }else{
 
-            console.log('No record was saved. No DataElement Selected')
+            if (selectedDataElementId !== null 
+                && selectedDataElement !== null
+                && selectedHorizontalCategoryID0 !== null) {
+                                
+                
+                    const projectData = {
+                        "dataElements":[        
+                            {
+                            "id":selectedDataElementId, 
+                            "name":selectedDataElement,
+                            "overidingCategory":overidingCategory,
+                            "sideNavigation": selectedSideNavigation || 'Default',
+                            "formComponent":selectedFormComponents || 'Default',
+                            "HorizontalLevel0": {                                
+                                    "id":selectedHorizontalCategoryID0, 
+                                    "name":selectedHorizontalCategoryName0,
+                                    "metadata":dictfileredHorizontalCatCombo0                            
+                                },
+                            "HorizontalLevel1": {                                
+                                "id":selectedHorizontalCategoryIDLevel1, 
+                                "name":selectedHorizontalCategoryNameLevel1,
+                                "metadata":dictfileredHorizontalCatComboLevel1                        
+                            },
+                            "verticalLevel1": {                                
+                                "id":selectedVerticalCategoryIDLevel1, 
+                                "name":selectedVerticalCategoryNameLevel1,
+                                "metadata":dictfileredVerticalCatComboLevel1                        
+                            },
+                            "verticalLevel2": {                                
+                                "id":selectedVerticalCategoryIDLevel2, 
+                                "name":selectedVerticalCategoryNameLevel2,
+                                "metadata":dictfileredVerticalCatComboLevel2                        
+                            },
+                            "verticalLevel3": {                                
+                                "id":selectedVerticalCategoryIDLevel3, 
+                                "name":selectedVerticalCategoryNameLevel3,
+                                "metadata":dictfileredVerticalCatComboLevel3                        
+                            },
+                            }
+                        ]
+                    }
+    
+                    // Check if 'modifiedDate' exists in loadedProject
+                    if (!loadedProject.hasOwnProperty('modifiedDate')) {
+                        // If it doesn't exist, add it to the object
+                        loadedProject.modifiedDate = modifiedDate();
+                    } else {
+                        // If it exists, update its value
+                        loadedProject.modifiedDate = modifiedDate();
+                    }
+    
+                    // Check if 'catCombos' exists in loadedProject
+                    if (!loadedProject.hasOwnProperty('catCombos')) {
+                        // If it doesn't exist, add it to the object
+                        loadedProject.catCombos = [];
+                    }
+    
+                    const catComboExistIndex = loadedProject.catCombos.findIndex(element => element.id === categoryComboNameID.id);
+    
+                    if (catComboExistIndex !== -1){
+    
+                        console.log(categoryComboNameID.id+' Combo already exist')
+                    }else{
+                        const categoryCombo = { id: categoryComboNameID.id, name: categoryComboNameID.name };
+                        loadedProject.catCombos.push(categoryCombo);
+    
+                    }
+                        
+                    
+    
+                    
+                    // Find the index of the dataElement with the matching id in loadedProject.dataElements
+                    const indexToUpdate = dataElements.findIndex(element => element.id === selectedDataElementId);
+    
+                    // If the index is found, replace the object at that index with the corresponding object from projectData.dataElements
+                    if (indexToUpdate !== -1) {
+                        const updatedDataElements = [...dataElements];
+                        updatedDataElements[indexToUpdate] = projectData.dataElements.find(element => element.id === selectedDataElementId);
+    
+                        if (updateDataStore(props.engine, {
+                            ...loadedProject,
+                            ...projectData,
+                            dataElements: updatedDataElements,
+                        }, config.dataStoreName, loadedProject.key)){
+    
+                            show({ msg: `Data Element  "${selectedDataElementId}" updated successfully.`, type: 'success' })
+                        }
+                    } else {
+    
+                        if(updateDataStore(props.engine, {
+                            ...loadedProject,
+                            ...projectData,
+                            dataElements: [...dataElements, ...projectData.dataElements],
+                        }, config.dataStoreName, loadedProject.key)){
+    
+                            show({ msg: `Data Element  "${selectedDataElementId}" added successfully.`, type: 'success' })
+                        }
+    
+                    }
+                    toggleSavingDataElementState()
+    
+                    if (action === 'saveTemplate'){    
+                        const Templateid = generateRandomId();  
+                                // Remove spaces from projectName
+                        const trimmedTemplateName = templateName.replace(/\s+/g, '');
+           
+                        const TemplateData =  {
+                            "id":Templateid,
+                            "key": trimmedTemplateName+'-'+Templateid,
+                            "name":templateName,
+                            "overidingCategory":overidingCategory,
+                            "projectID":loadedProject.id,
+                            "catCombo":fileredHorizontalCatCombo0[0].id,
+                            "modifiedDate":modifiedDate(),
+                            "sideNavigation": selectedSideNavigation || 'Default',
+                            "formComponent":selectedFormComponents || 'Default',                    
+                            "HorizontalLevel0": {                                
+                                "id":selectedHorizontalCategoryID0, 
+                                "name":selectedHorizontalCategoryName0,
+                                "metadata":dictfileredHorizontalCatCombo0
+                            },
+                            "HorizontalLevel1": {                                
+                                    "id":selectedHorizontalCategoryIDLevel1, 
+                                    "name":selectedHorizontalCategoryNameLevel1,
+                                    "metadata":dictfileredHorizontalCatComboLevel1 
+                            }, 
+                            "verticalLevel1": {                                
+                                "id":selectedVerticalCategoryIDLevel1, 
+                                "name":selectedVerticalCategoryNameLevel1,
+                                "metadata":dictfileredVerticalCatComboLevel1                        
+                            },
+                            "verticalLevel2": {                                
+                                "id":selectedVerticalCategoryIDLevel2, 
+                                "name":selectedVerticalCategoryNameLevel2,
+                                "metadata":dictfileredVerticalCatComboLevel2                        
+                            },
+                            "verticalLevel3": {                                
+                                "id":selectedVerticalCategoryIDLevel3, 
+                                "name":selectedVerticalCategoryNameLevel3,
+                                "metadata":dictfileredVerticalCatComboLevel3                        
+                            },
+                        }
+            
+                        try {
+                            await props.engine.mutate({
+                              resource: `dataStore/${config.dataStoreTemplates}/${trimmedTemplateName}-${Templateid}`,
+                              type: 'create',
+                              data: TemplateData,
+                            });
+                            //update project saving state
+                            toggleSavingDataElementState()
+    
+                          } catch (error) {
+                            // Handle error (log, show alert, etc.)
+                            console.error('Error saving Template:', error);
+    
+                          }      
+                    TemaplateQueryrefetch()
+                    }
+                    AferProjectSave((prev) => !prev);
+    
+    
+                    openDataElementList()
+    
+                    setDirectClickTabDE(1);
+                                    
+                        // Close the modal or perform any other actions upon success
+                        //handleCloseModal();
+            }else{
+    
+                console.log('No record was saved. No DataElement Selected')
+    
+            }
 
-        }
+
+        } // if not save-order
+
         // Activate refresh button
         setRefreshing(false);
         //update project saving state
@@ -1652,7 +1683,32 @@ const ConfigureMetadata = (props) => {
 
     }
 
+    const moveUp = (index) => {
 
+        if (index > 0) {
+            const newDataElements = [...dataElements];
+            const rowItem = newDataElements[index];
+            const rowItemReplaced = newDataElements[index-1];
+            newDataElements[index - 1] = rowItem;
+            newDataElements[index] = rowItemReplaced;
+            setDataElements(newDataElements)
+            setSaveNow(true)
+
+        }
+    };
+
+    const moveDown = (index) => {
+        if (index < dataElements.length - 1) {
+            const newDataElements = [...dataElements];
+            const rowItem = newDataElements[index];
+            const rowItemReplaced = newDataElements[index + 1];
+            newDataElements[index + 1] = rowItem;
+            newDataElements[index] = rowItemReplaced;
+            setDataElements(newDataElements)
+            setSaveNow(true)
+
+        }
+    };
   
     if (error1 ) {
         return <span>ERROR: {error1?.message }</span>;
@@ -1679,6 +1735,7 @@ const ConfigureMetadata = (props) => {
             onClick={() => {
                 openDataElementList()
             }}
+            disabled={saveNow}
           >
             Existing Data Elements
           </Tab>
@@ -1688,6 +1745,7 @@ const ConfigureMetadata = (props) => {
             onClick={() => {
                 newDataElementLaunch()
               }}
+              disabled={saveNow}
           >
             Configure Data Elements
           </Tab>
@@ -1701,6 +1759,7 @@ const ConfigureMetadata = (props) => {
                 setSelectSideNavigation(null);
                 setSelectFormComponents(null);
               }}
+              disabled={saveNow}
           >
             Configure Form Components
           </Tab>
@@ -1714,6 +1773,7 @@ const ConfigureMetadata = (props) => {
                 setSelectSideNavigation(null);
                 setSelectFormComponents(null);
               }}
+              disabled={saveNow}
           >
             Templates
           </Tab>
@@ -1727,6 +1787,7 @@ const ConfigureMetadata = (props) => {
                 setSelectSideNavigation(null);
                 setSelectFormComponents(null);
               }}
+              disabled={saveNow}
           >
             Exclusion Rules
           </Tab>
@@ -1740,6 +1801,7 @@ const ConfigureMetadata = (props) => {
                 setSelectSideNavigation(null);
                 setSelectFormComponents(null);
               }}
+              disabled={saveNow}
           >
             &nbsp;&nbsp;Labels&nbsp;&nbsp;
           </Tab>
@@ -1752,27 +1814,27 @@ const ConfigureMetadata = (props) => {
                 <IconSync24 className={classes.icon} />
             </button> */}
 
-                <div className={classes.customImageContainer} onClick={handleDataElementRefreshClick}>
+                {!saveNow && (<div className={classes.customImageContainer} onClick={handleDataElementRefreshClick}>
                     {customImage('sync', 'large')}
-                </div>
+                </div>)}
                   <Table className={classes.dataTable}>
                     <TableHead>
                     <TableRowHead>
                         <TableCellHead>Data Elements
 
-                        <span className={classes.iconAdd}  onClick={() => newDataElementLaunch()}>
+                        {!saveNow && (<span className={classes.iconAdd}  onClick={() => newDataElementLaunch()}>
                           
                                 <IconAddCircle24 />
 
-                                </span>
+                                </span>)}
 
                         </TableCellHead>
                         <TableCellHead>Actions</TableCellHead>
                     </TableRowHead>
                     </TableHead>
                     <TableBody>
-                        {loadedProject.dataElements && loadedProject.dataElements.length > 0 ? (
-                            loadedProject.dataElements.map((dataElementObj) => (
+                        {dataElements && dataElements.length > 0 ? (
+                            dataElements.map((dataElementObj, index) => (
                             <TableRow className={classes.customTableRow} key={dataElementObj.id}>
                                 <TableCell className={classes.customTableCell}>{dataElementObj.name}</TableCell>
                                 <TableCell className={`${classes.customTableCell}`}>
@@ -1783,6 +1845,7 @@ const ConfigureMetadata = (props) => {
                                         project={dataElementObj}
                                         dynamicText="Edit"
                                         buttonMode="secondary"
+                                        disabled={saveNow}
 
                                     />
                                     <TooltipComponent 
@@ -1791,8 +1854,17 @@ const ConfigureMetadata = (props) => {
                                         project={dataElementObj}
                                         dynamicText="Delete"
                                         buttonMode="destructive"
+                                        disabled={saveNow}
 
                                     />
+
+                                    {(<div className={classes.customImageContainer} onClick={() => moveDown(index)}>
+                                        {customImage('arrowdown', 'small')}
+                                    </div>)}
+                                    {(<div className={classes.customImageContainer} onClick={() => moveUp(index)}>
+                                        {customImage('arrowup', 'small')}
+                                    </div>)}
+
 
                                 </TableCell>
                             </TableRow>
@@ -2433,9 +2505,17 @@ const ConfigureMetadata = (props) => {
                                 <ButtonStrip>
                                 <Button onClick={() => handleCloseModal()}>Close</Button>
 
+                                <Button
+                            primary
+                            onClick={() => handleSaveToConfiguration('save-order')}
+                            disabled={!saveNow}
+                            >
+                            Save
+                            </Button>
+
                                 <Button 
                                     onClick={loadedProject.dataElements.length > 0 ? GenerateHTMLHandler : undefined}
-                                    disabled={loadedProject.dataElements.length <= 0}
+                                    disabled={(loadedProject.dataElements.length <= 0) || saveNow}
                                 >
                                     Generate HTML Template
                                 </Button>
@@ -2489,7 +2569,7 @@ const ConfigureMetadata = (props) => {
                             </Button>
                             <Button 
                                     onClick={loadedProject.dataElements.length > 0 ? GenerateHTMLHandler : undefined}
-                                    disabled={loadedProject.dataElements.length <= 0}
+                                    disabled={(loadedProject.dataElements.length <= 0) || saveNow }
                                 >
                                     Generate HTML Template
                                 </Button>
