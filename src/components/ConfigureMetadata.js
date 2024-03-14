@@ -1311,10 +1311,10 @@ const ConfigureMetadata = (props) => {
                 console.log('Please enter all label parameters');
                 return;
             }
-            if (existingMetadataName){
-                console.log('Metadata name is not Unique');
-                return;
-            }
+            // if (existingMetadataName){
+            //     console.log('Metadata name is not Unique');
+            //     return;
+            // }
             // Maximum length for the trimmed string is 15
             const trimmedName = trimmedLabelName.substring(0, 15);
     

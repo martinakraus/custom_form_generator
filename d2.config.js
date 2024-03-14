@@ -5,6 +5,7 @@ const config = {
     entryPoints: {
         app: './src/App.js',
     },
+
 }
 
 module.exports = config
