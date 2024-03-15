@@ -1882,37 +1882,7 @@ const ConfigureMetadata = (props) => {
 
         {selectedTab === 'dataElemenent-configuration' && (
                   <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
-                        <div className={classes.baseMargin}>
-                            <div style={{ display: 'flex' }}>
-                            {/* Left content */}
-                            <div style={{ flex: 1, width: '50%' }}>
-                                <SideNavigation
-                                SideNavigationQueryData={SideNavigationQueryData}
-                                loadedProject={loadedProject}
-                                setSelectSideNavigation={setSelectSideNavigation}
-                                selectedDataElementId={selectedDataElementId}
-                                editMode={editMode}
-                                savingDataElement={savingDataElement}
-                                
-                                />
-                            </div>
 
-                            {/* Right content */}
-                            <div style={{ flex: 1, width: '50%' }}>
-
-                                <FormComponentSelection
-                                
-                                FormComponentQueryData={FormComponentQueryData}
-                                loadedProject={loadedProject}
-                                setSelectFormComponents={setSelectFormComponents}
-                                selectedDataElementId={selectedDataElementId}
-                                editMode={editMode}
-                                
-                                />
-
-                            </div>
-                        </div>
-                </div>
                     
                   <button className={classes.collapsible} onClick={() => setIsDataSetsExpanded((prev) => !prev)}>
                       {isDataSetsExpanded ? '-' : '+'} DataSets
@@ -2002,6 +1972,41 @@ const ConfigureMetadata = (props) => {
                           selectedDataElement={selectedDataElement}
                           fileredHorizontalCatCombo0={fileredHorizontalCatCombo0}/>                    
                   )}
+                <div className={classes.baseMargin} style={{ display: 'flex' }}>
+
+                        {/* Left content */}
+                        <div style={{ flex: 1, width: '50%' }}>
+                            <SideNavigation
+                            SideNavigationQueryData={SideNavigationQueryData}
+                            loadedProject={loadedProject}
+                            setSelectSideNavigation={setSelectSideNavigation}
+                            selectedDataElementId={selectedDataElementId}
+                            editMode={editMode}
+                            savingDataElement={savingDataElement}
+                            
+                            />
+                        </div>
+
+
+                        {/* Right content */}
+                        <div style={{ flex: 1, width: '50%' }}>
+
+                            <FormComponentSelection
+                            
+                            FormComponentQueryData={FormComponentQueryData}
+                            loadedProject={loadedProject}
+                            setSelectFormComponents={setSelectFormComponents}
+                            selectedDataElementId={selectedDataElementId}
+                            editMode={editMode}
+                            
+                            />
+
+                        </div>
+
+                </div>
+
+
+
 
                   {/* Select HorizontalCategory */}
 
