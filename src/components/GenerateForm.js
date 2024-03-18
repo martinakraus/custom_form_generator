@@ -893,6 +893,7 @@ const GenerateForm = (props) => {
                         const level3 = dataElement.verticalLevel1;
                         const level4 = dataElement.verticalLevel2;
                         const level5 = dataElement.verticalLevel3;
+                        const level6 = dataElement.verticalLevel4;
 
                         const skip = skipDE(props.loadedRules, dataElement.id, navs[a].id)
                         if (skip) {
@@ -914,14 +915,79 @@ const GenerateForm = (props) => {
                         if (level3?.id) {
                             //Check for availability of at least 4 levels
                             if (level4?.id) {
+                                //Check for availability of at least 5 levels
                                 if (level5?.id) {
-                                    //Build for 5-levels
-                                    for (let b = 0; b < level2.metadata.length; b++) {
-                                        const skip = skipOption(props.loadedRules, dataElement.id, level2.metadata[b].id, navs[a].id, '', '', '')
-                                        if (skip) {
-                                            continue
+                                    if (level6?.id) {
+                                        //Build for 6-levels
+                                        for (let b = 0; b < level2.metadata.length; b++) {
+                                            const skip = skipOption(props.loadedRules, dataElement.id, level2.metadata[b].id, navs[a].id, '', '', '');
+                                            if (skip) {
+                                                continue
+                                            }
+                                            //Build input template
+                                            template += `
+                                                <div class="INFOLINK_Form_Priority_Container_Outer">
+                                                    <div class="INFOLINK_Form_Priority_Container_Inner INFOLINK_Form_Priority_required">
+                                                        <div class="INFOLINK_Form_Priority">&nbsp;</div>
+                                                        <div class="INFOLINK_Form_Description">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;<span style="color:#ff0000;">${formatOption(props.loadedLabels, dataElement.id, level2.metadata[b], navs[a].id, '', '', '')}</span><span style="color:#add8e6;">&nbsp; &nbsp; </span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</div>
+                                                    </div>
+                                                </div>
+                                            `;
+                                            for (let c = 0; c < level3.metadata.length; c++) {
+                                                const skip = skipOption(props.loadedRules, dataElement.id, level3.metadata[c].id, navs[a].id, level2.metadata[b].id, '', '')
+                                                if (skip) {
+                                                    continue
+                                                }
+                                                for (let d = 0; d < level4.metadata.length; d++) {
+                                                    const skip = skipOption(props.loadedRules, dataElement.id, level3.metadata[c].id, navs[a].id, level2.metadata[b].id, level3.metadata[c].id, '')
+                                                    if (skip) {
+                                                        continue
+                                                    }
+                                                    template += `
+                                                 <div class="INFOLINK_Form_Container">
+                                                    <div class="INFOLINK_Form_EntryName bold" style="padding-bottom:0;">${formatOption(props.loadedLabels, dataElement.id, level3.metadata[c], navs[a].id, level2.metadata[b].id, '', '')}: ${formatOption(props.loadedLabels, dataElement.id, level4.metadata[d], navs[a].id, level2.metadata[b].id, level3.metadata[c].id, '')}</div>`
+                                                    for (let e = 0; e < level5.metadata.length; e++) {
+                                                        const skip = skipOption(props.loadedRules, dataElement.id, level5.metadata[e].id, navs[a].id, level2.metadata[b].id, level3.metadata[c].id, level4.metadata[c].id)
+                                                        if (skip) {
+                                                            continue
+                                                        }
+                                                        template += `
+                                                    <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br>${formatOption(props.loadedLabels, dataElement.id, level5.metadata[e], navs[a].id, level2.metadata[b].id, level3.metadata[c].id, level4.metadata[c].id).replace(' Years', '')}</div>`;
+                                                    }
+                                                    template += `</div>`;
+
+                                                    for (let f = 0; f < level6.metadata.length; f++) {
+                                                        const skip = skipOption(props.loadedRules, dataElement.id, level6.metadata[f].id, navs[a].id, level2.metadata[b].id, level3.metadata[c].id, level4.metadata[d].id)
+                                                        if (skip) {
+                                                            continue
+                                                        }
+                                                        template += `
+                                                            <div class="INFOLINK_Form_Container">
+                                                                <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">${formatOption(props.loadedLabels, dataElement.id, level6.metadata[f], navs[a].id, level2.metadata[b].id, level3.metadata[c].id, level4.metadata[d].id)}</div>`;
+                                                        for (let e = 0; e < level5.metadata.length; e++) {
+                                                            const skip = skipOption(props.loadedRules, dataElement.id, level5.metadata[e].id, navs[a].id, level2.metadata[b].id, level3.metadata[c].id, level4.metadata[d].id, '')
+                                                            if (skip) {
+                                                                continue
+                                                            }
+                                                            const coc = idMap.get(JSON.stringify([level1.metadata.find(md => md.id === navs[a].id)?.id, level2.metadata[b].id, level3.metadata[c].id, level4.metadata[e].id, level5.metadata[f].id, level6.metadata[f].id].sort()));
+                                                            if (coc) {
+                                                                template += `<div class="INFOLINK_Form_EntryField"><input id="${dataElement.id}-${coc?.id}-val" name="entryfield" title="${dataElement.name} ${coc?.name}" value="[ ${dataElement.name} ${coc?.name} ]" /></div>`
+                                                            }
+                                                        }
+
+                                                        template += `</div>`;
+                                                    }
+                                                }
+                                            }
                                         }
-                                        template += `
+                                    } else {
+                                        //Build for 5-levels
+                                        for (let b = 0; b < level2.metadata.length; b++) {
+                                            const skip = skipOption(props.loadedRules, dataElement.id, level2.metadata[b].id, navs[a].id, '', '', '')
+                                            if (skip) {
+                                                continue
+                                            }
+                                            template += `
                                                 <div class="INFOLINK_Form_Priority_Container_Outer">
                                                     <div class="INFOLINK_Form_Priority_Container_Inner INFOLINK_Form_Priority_required">
                                                         <div class="INFOLINK_Form_Priority">&nbsp;</div>
@@ -929,44 +995,45 @@ const GenerateForm = (props) => {
                                                     </div>
                                                 </div>
                                             `;
-                                        for (let c = 0; c < level3.metadata.length; c++) {
-                                            const skip = skipOption(props.loadedRules, dataElement.id, level3.metadata[c].id, navs[a].id, level2.metadata[b].id, '', '')
-                                            if (skip) {
-                                                continue
-                                            }
-                                            template += `
+                                            for (let c = 0; c < level3.metadata.length; c++) {
+                                                const skip = skipOption(props.loadedRules, dataElement.id, level3.metadata[c].id, navs[a].id, level2.metadata[b].id, '', '')
+                                                if (skip) {
+                                                    continue
+                                                }
+                                                template += `
                                                  <div class="INFOLINK_Form_Container">
                                                     <div class="INFOLINK_Form_EntryName bold" style="padding-bottom:0;">${formatOption(props.loadedLabels, dataElement.id, level3.metadata[c], navs[a].id, level2.metadata[b].id, '', '')}</div>`
-                                            for (let d = 0; d < level4.metadata.length; d++) {
-                                                const skip = skipOption(props.loadedRules, dataElement.id, level4.metadata[d].id, navs[a].id, level2.metadata[b].id, level3.metadata[c].id, '')
-                                                if (skip) {
-                                                    continue
-                                                }
-                                                template += `
-                                                    <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br>${formatOption(props.loadedLabels, dataElement.id, level4.metadata[d], navs[a].id, level2.metadata[b].id, level3.metadata[c].id, '').replace(' Years', '')}</div>`;
-                                            }
-                                            template += `</div>`;
-
-                                            for (let e = 0; e < level5.metadata.length; e++) {
-                                                const skip = skipOption(props.loadedRules, dataElement.id, level5.metadata[e].id, navs[a].id, level2.metadata[b].id, level3.metadata[c].id, '')
-                                                if (skip) {
-                                                    continue
-                                                }
-                                                template += `
-                                                    <div class="INFOLINK_Form_Container">
-                                                          <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">${formatOption(props.loadedLabels, dataElement.id, level5.metadata[e], navs[a].id, level2.metadata[b].id, level3.metadata[c].id, '')}</div>`;
                                                 for (let d = 0; d < level4.metadata.length; d++) {
-                                                    const skip = skipOption(props.loadedRules, dataElement.id, level4.metadata[d].id, navs[a].id, level2.metadata[b].id, level3.metadata[c].id, level5.metadata[e].id)
+                                                    const skip = skipOption(props.loadedRules, dataElement.id, level4.metadata[d].id, navs[a].id, level2.metadata[b].id, level3.metadata[c].id, '')
                                                     if (skip) {
                                                         continue
                                                     }
-                                                    const coc = idMap.get(JSON.stringify([level1.metadata.find(md => md.id === navs[a].id)?.id, level2.metadata[b].id, level3.metadata[c].id, level4.metadata[d].id, level5.metadata[e].id].sort()));
-                                                    if (coc) {
-                                                        template += `<div class="INFOLINK_Form_EntryField"><input id="${dataElement.id}-${coc?.id}-val" name="entryfield" title="${dataElement.name} ${coc?.name}" value="[ ${dataElement.name} ${coc?.name} ]" /></div>`
-                                                    }
+                                                    template += `
+                                                    <div class="INFOLINK_Form_Empty" style="padding-bottom:0;">&nbsp;<br>${formatOption(props.loadedLabels, dataElement.id, level4.metadata[d], navs[a].id, level2.metadata[b].id, level3.metadata[c].id, '').replace(' Years', '')}</div>`;
                                                 }
-
                                                 template += `</div>`;
+
+                                                for (let e = 0; e < level5.metadata.length; e++) {
+                                                    const skip = skipOption(props.loadedRules, dataElement.id, level5.metadata[e].id, navs[a].id, level2.metadata[b].id, level3.metadata[c].id, '')
+                                                    if (skip) {
+                                                        continue
+                                                    }
+                                                    template += `
+                                                    <div class="INFOLINK_Form_Container">
+                                                          <div class="INFOLINK_Form_EntryName" style="padding-bottom:0;">${formatOption(props.loadedLabels, dataElement.id, level5.metadata[e], navs[a].id, level2.metadata[b].id, level3.metadata[c].id, '')}</div>`;
+                                                    for (let d = 0; d < level4.metadata.length; d++) {
+                                                        const skip = skipOption(props.loadedRules, dataElement.id, level4.metadata[d].id, navs[a].id, level2.metadata[b].id, level3.metadata[c].id, level5.metadata[e].id)
+                                                        if (skip) {
+                                                            continue
+                                                        }
+                                                        const coc = idMap.get(JSON.stringify([level1.metadata.find(md => md.id === navs[a].id)?.id, level2.metadata[b].id, level3.metadata[c].id, level4.metadata[d].id, level5.metadata[e].id].sort()));
+                                                        if (coc) {
+                                                            template += `<div class="INFOLINK_Form_EntryField"><input id="${dataElement.id}-${coc?.id}-val" name="entryfield" title="${dataElement.name} ${coc?.name}" value="[ ${dataElement.name} ${coc?.name} ]" /></div>`
+                                                        }
+                                                    }
+
+                                                    template += `</div>`;
+                                                }
                                             }
                                         }
                                     }
