@@ -7,11 +7,13 @@ import HorizontalCategoryLevel1 from './HorizontalCategoryLevel1'
 import VerticalCategoryLevel1 from './VerticalCategoryLevel1'
 import VerticalCategoryLevel2 from './VerticalCategoryLevel2'
 import VerticalCategoryLevel3 from './VerticalCategoryLevel3'
+import VerticalCategoryLevel4 from './VerticalCategoryLevel4'
 import HorizontalTransfer from './HorizontalTransfer'
 import HorizontalTransferLevel1 from './HorizontalTransferLevel1';
 import VerticalTransferLevel1 from './VerticalTransferLevel1';
 import VerticalTransferLevel2 from './VerticalTransferLevel2';
 import VerticalTransferLevel3 from './VerticalTransferLevel3';
+import VerticalTransferLevel4 from './VerticalTransferLevel4';
 import ExclusionRuleComponent from './ExclusionRuleComponent';
 import MetadataTemplating from './MetadataTemplating';
 import GenerateForm from './GenerateForm';
@@ -265,7 +267,7 @@ const ConfigureMetadata = (props) => {
     const [isVerticalCategoryExpandedlevel2, setIsVerticalCategoryExpandedlevel2] = useState(false);
     const [VerticalCategoryOptionsLevel2, setVerticalCategoryOptionsLevel2] = useState([]);
     const [fileredVerticalCatComboLevel2, setfileredVerticalCatComboLevel2] = useState([]);
-    const [isCategoryChecker1, setCategoryChecker1] = useState(false); 
+
 
 
     // Constants for Vertical Categories (Level 3 Outer)
@@ -275,7 +277,17 @@ const ConfigureMetadata = (props) => {
     const [isVerticalCategoryExpandedlevel3, setIsVerticalCategoryExpandedlevel3] = useState(false);
     const [VerticalCategoryOptionsLevel3, setVerticalCategoryOptionsLevel3] = useState([]);
     const [fileredVerticalCatComboLevel3, setfileredVerticalCatComboLevel3] = useState([]);
-    const [isCategoryChecker2, setCategoryChecker2] = useState(false); 
+
+
+    // Constants for Vertical Categories (Level 4 Outer)
+    const [selectedVerticalCategoryIDLevel4, setSelectedVerticalCategoryIDLevel4] = useState(null);
+    const [selectedVerticalCategoryNameLevel4, setSelectedVerticalCategoryNameLevel4] = useState(null);
+    const [dictfileredVerticalCatComboLevel4, setdictfileredVerticalCatComboLevel4] = useState([]);
+    const [isVerticalCategoryExpandedlevel4, setIsVerticalCategoryExpandedlevel4] = useState(false);
+    const [VerticalCategoryOptionsLevel4, setVerticalCategoryOptionsLevel4] = useState([]);
+    const [fileredVerticalCatComboLevel4, setfileredVerticalCatComboLevel4] = useState([]);
+
+
 
 
     const [isDataSetsExpanded, setIsDataSetsExpanded] = useState(false);
@@ -415,6 +427,15 @@ const ConfigureMetadata = (props) => {
         setVerticalCategoryOptionsLevel3([]);
         setfileredVerticalCatComboLevel3([]);
 
+
+        // Constants for Vertical Categories (Level 3 Outer)
+        setSelectedVerticalCategoryIDLevel4(null);
+        setSelectedVerticalCategoryNameLevel4(null);
+        setdictfileredVerticalCatComboLevel4([]);
+        setIsVerticalCategoryExpandedlevel4(false);
+        setVerticalCategoryOptionsLevel4([]);
+        setfileredVerticalCatComboLevel4([]);
+
         setSelectSideNavigation(null);
         setSelectFormComponents(null);
         setCategoryComboNameID('');
@@ -459,6 +480,15 @@ const ConfigureMetadata = (props) => {
         setIsVerticalCategoryExpandedlevel3(false);
         setVerticalCategoryOptionsLevel3([]);
         setfileredVerticalCatComboLevel3([]);
+
+
+        // Constants for Vertical Categories (Level 4 Outer)
+        setSelectedVerticalCategoryIDLevel4(null);
+        setSelectedVerticalCategoryNameLevel4(null);
+        setdictfileredVerticalCatComboLevel4([]);
+        setIsVerticalCategoryExpandedlevel4(false);
+        setVerticalCategoryOptionsLevel4([]);
+        setfileredVerticalCatComboLevel4([]);
 
         setSelectSideNavigation(null);
         setSelectFormComponents(null);
@@ -510,6 +540,14 @@ const ConfigureMetadata = (props) => {
         setVerticalCategoryOptionsLevel3([]);
         setfileredVerticalCatComboLevel3([]);
 
+        // Constants for Vertical Categories (Level 4 Outer)
+        setSelectedVerticalCategoryIDLevel4(null);
+        setSelectedVerticalCategoryNameLevel4(null);
+        setdictfileredVerticalCatComboLevel4([]);
+        setIsVerticalCategoryExpandedlevel4(false);
+        setVerticalCategoryOptionsLevel4([]);
+        setfileredVerticalCatComboLevel4([]);
+
     },[selectedHorizontalCategoryID0])
 
     useEffect(() => {
@@ -538,11 +576,20 @@ const ConfigureMetadata = (props) => {
         setVerticalCategoryOptionsLevel3([]);
         setfileredVerticalCatComboLevel3([]);
 
+
+
+        // Constants for Vertical Categories (Level 3 Outer)
+        setSelectedVerticalCategoryIDLevel4(null);
+        setSelectedVerticalCategoryNameLevel4(null);
+        setdictfileredVerticalCatComboLevel4([]);
+        setIsVerticalCategoryExpandedlevel4(false);
+        setVerticalCategoryOptionsLevel4([]);
+        setfileredVerticalCatComboLevel4([]);
     },[selectedHorizontalCategoryIDLevel1])
 
     useEffect(() => {
 
-                // Constants for Vertical Categories (Level 1 Outer)
+        // Constants for Vertical Categories (Level 1 Outer)
                 setSelectedVerticalCategoryIDLevel2(null);
                 setSelectedVerticalCategoryNameLevel2(null);
                 setdictfileredVerticalCatComboLevel2([]);
@@ -559,6 +606,14 @@ const ConfigureMetadata = (props) => {
                 setVerticalCategoryOptionsLevel3([]);
                 setfileredVerticalCatComboLevel3([]);
 
+        // Constants for Vertical Categories (Level 4 Outer)
+                setSelectedVerticalCategoryIDLevel4(null);
+                setSelectedVerticalCategoryNameLevel4(null);
+                setdictfileredVerticalCatComboLevel4([]);
+                setIsVerticalCategoryExpandedlevel4(false);
+                setVerticalCategoryOptionsLevel4([]);
+                setfileredVerticalCatComboLevel4([]);
+
     },[selectedVerticalCategoryIDLevel1])
 
     useEffect(() => {
@@ -570,7 +625,28 @@ const ConfigureMetadata = (props) => {
         // setVerticalCategoryOptionsLevel3([]);
         // setfileredVerticalCatComboLevel3([]);
 
+        // Constants for Vertical Categories (Level 4 Outer)
+        // setSelectedVerticalCategoryIDLevel4(null);
+        // setSelectedVerticalCategoryNameLevel4(null);
+        // setdictfileredVerticalCatComboLevel4([]);
+        // setIsVerticalCategoryExpandedlevel4(false);
+        // setVerticalCategoryOptionsLevel4([]);
+        // setfileredVerticalCatComboLevel4([]);
+
         },[selectedVerticalCategoryIDLevel2])
+
+
+        useEffect(() => {
+    
+            // Constants for Vertical Categories (Level 4 Outer)
+            // setSelectedVerticalCategoryIDLevel4(null);
+            // setSelectedVerticalCategoryNameLevel4(null);
+            // setdictfileredVerticalCatComboLevel4([]);
+            // setIsVerticalCategoryExpandedlevel4(false);
+            // setVerticalCategoryOptionsLevel4([]);
+            // setfileredVerticalCatComboLevel4([]);
+    
+            },[selectedVerticalCategoryIDLevel3])
 
     useEffect(() => {
         if (SideNavigationQueryData?.dataStore) {
@@ -760,6 +836,11 @@ const ConfigureMetadata = (props) => {
                                 "name":selectedVerticalCategoryNameLevel3,
                                 "metadata":dictfileredVerticalCatComboLevel3                        
                             },
+                            "verticalLevel4": {                                
+                                "id":selectedVerticalCategoryIDLevel4, 
+                                "name":selectedVerticalCategoryNameLevel4,
+                                "metadata":dictfileredVerticalCatComboLevel4                        
+                            },
                             }
                         ]
                     }
@@ -862,6 +943,11 @@ const ConfigureMetadata = (props) => {
                                 "id":selectedVerticalCategoryIDLevel3, 
                                 "name":selectedVerticalCategoryNameLevel3,
                                 "metadata":dictfileredVerticalCatComboLevel3                        
+                            },
+                            "verticalLevel4": {                                
+                                "id":selectedVerticalCategoryIDLevel4, 
+                                "name":selectedVerticalCategoryNameLevel4,
+                                "metadata":dictfileredVerticalCatComboLevel4                        
                             },
                         }
             
@@ -2011,7 +2097,7 @@ const ConfigureMetadata = (props) => {
                   {/* Select HorizontalCategory */}
 
                   <button className={classes.collapsible} onClick={() => setIsHorizontalCategoryExpanded0((prev) => !prev)} disabled={selectedDataElementId.length <= 0}>
-                      {isHorizontalCategoryExpanded0 ? '-' : '+'} Horizontal Category (Inner)
+                      {isHorizontalCategoryExpanded0 ? '-' : '+'} Level 1
                   </button>
                   <div className={classes.baseMargin}>
                       <div className={`${classes.content} ${isHorizontalCategoryExpanded0 ? classes.active : ''}`}>
@@ -2070,7 +2156,7 @@ const ConfigureMetadata = (props) => {
 
                   {/* Select Horizontal Category and Transfer Level 1 */}
                   <button className={classes.collapsible} onClick={() => setIsHorizontalCategoryExpandedLevel1((prev) => !prev)} disabled={selectedDataElementId.length <= 0}>
-                      {isHorizontalCategoryExpandedLevel1 ? '-' : '+'} Horizontal Category (Outer)
+                      {isHorizontalCategoryExpandedLevel1 ? '-' : '+'} Level 2
                   </button>
                   <div className={classes.baseMargin}>
                       <div className={`${classes.content} ${isHorizontalCategoryExpandedLevel1 ? classes.active : ''}`}>
@@ -2114,7 +2200,7 @@ const ConfigureMetadata = (props) => {
                       </div>
                   </div>
                   <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel1((prev) => !prev)} disabled={selectedDataElementId.length <= 0}>
-                      {isVerticalCategoryExpandedlevel1 ? '-' : '+'} Vertical Category 1 (Inner)
+                      {isVerticalCategoryExpandedlevel1 ? '-' : '+'} Level 3
                   </button>
                   <div className={classes.baseMargin}>
                       <div className={`${classes.content} ${isVerticalCategoryExpandedlevel1 ? classes.active : ''}`}>
@@ -2158,7 +2244,7 @@ const ConfigureMetadata = (props) => {
                   </button>)} */}
 
                 <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel2((prev) => !prev)} disabled={selectedDataElementId.length <= 0}>
-                      {isVerticalCategoryExpandedlevel2 ? '-' : '+'} Vertical Category 2 (Outer)
+                      {isVerticalCategoryExpandedlevel2 ? '-' : '+'} Level 4
                   </button>
                 {isVerticalCategoryExpandedlevel2 && (<div className={classes.baseMargin}>
                         <div className={`${classes.content} ${isVerticalCategoryExpandedlevel2 ? classes.active : ''}`}>
@@ -2206,7 +2292,7 @@ const ConfigureMetadata = (props) => {
                         <h3></h3>
 
                     <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel3((prev) => !prev)} disabled={selectedDataElementId.length <= 0}>
-                      {isVerticalCategoryExpandedlevel3 ? '-' : '+'} Vertical Category 3 (Outer)
+                      {isVerticalCategoryExpandedlevel3 ? '-' : '+'} Level 5
                   </button>
 
 
@@ -2227,9 +2313,13 @@ const ConfigureMetadata = (props) => {
                               selectedDataElementId={selectedDataElementId}
                               isVerticalCategoryExpandedlevel3={isVerticalCategoryExpandedlevel3}
                               selectedDirectClickTabDE={selectedDirectClickTabDE}
+                              setfileredVerticalCatComboLevel4={setfileredVerticalCatComboLevel4}
+                              fileredVerticalCatComboLevel4={fileredVerticalCatComboLevel4}                           
+                 
+                  
 
                               />
-                          )}
+                        )}
 
                         {typeof selectedVerticalCategoryIDLevel3 === 'string' && selectedVerticalCategoryIDLevel3.length >0 && isVerticalCategoryExpandedlevel3 && (
                             <div className={classes.transferContainer}>
@@ -2252,6 +2342,63 @@ const ConfigureMetadata = (props) => {
                       </div>
                   </div>
                   )}
+
+                    <h3></h3>
+
+                    <button className={classes.collapsible} onClick={() => setIsVerticalCategoryExpandedlevel4((prev) => !prev)} disabled={selectedDataElementId.length <= 0}>
+                    {isVerticalCategoryExpandedlevel4 ? '-' : '+'} Level 6
+                    </button>
+
+
+                {isVerticalCategoryExpandedlevel4 && (
+                  <div className={classes.baseMargin}>
+                      <div className={`${classes.content} ${isVerticalCategoryExpandedlevel4 ? classes.active : ''}`}>
+                      <h3>{isVerticalCategoryExpandedlevel4}</h3>
+                          {fileredVerticalCatComboLevel4.length > 0 && (
+                              <VerticalCategoryLevel4
+                              fileredVerticalCatComboLevel4={fileredVerticalCatComboLevel4} 
+                              setSelectedVerticalCategoryNameLevel4={setSelectedVerticalCategoryNameLevel4}
+                              setSelectedVerticalCategoryIDLevel4={setSelectedVerticalCategoryIDLevel4}
+                              setVerticalCategoryOptionsLevel4={setVerticalCategoryOptionsLevel4}
+                              selectedVerticalCategoryIDLevel3={selectedVerticalCategoryIDLevel3}
+                              loadedProject={loadedProject}
+                              selectedDataElementId={selectedDataElementId}
+                              isVerticalCategoryExpandedlevel3={isVerticalCategoryExpandedlevel4}
+                              selectedDirectClickTabDE={selectedDirectClickTabDE}
+                              setfileredVerticalCatComboLevel4={setfileredVerticalCatComboLevel4}
+                              isVerticalCategoryExpandedlevel4={isVerticalCategoryExpandedlevel4}
+                 
+                  
+
+                              />
+                          )}
+
+                        {typeof selectedVerticalCategoryIDLevel4 === 'string' && selectedVerticalCategoryIDLevel4.length >0 && isVerticalCategoryExpandedlevel4 && (
+                            <div className={classes.transferContainer}>
+                                <VerticalTransferLevel4                          
+                                    VerticalCategoryOptionsLevel4={VerticalCategoryOptionsLevel4}
+                                    fileredVerticalCatComboLevel3={fileredVerticalCatComboLevel3}
+                                    fileredVerticalCatComboLevel4={fileredVerticalCatComboLevel4}
+                                    selectedDataElementId={selectedDataElementId}
+                                    loadedProject={loadedProject}
+                                    isVerticalCategoryExpandedlevel4={isVerticalCategoryExpandedlevel4}
+                                    setdictfileredVerticalCatComboLevel4={setdictfileredVerticalCatComboLevel4}
+                                    selectedDirectClickTabDE={selectedDirectClickTabDE}
+                                    selectedVerticalCategoryIDLevel4={selectedVerticalCategoryIDLevel4}
+                                    editMode={editMode}
+                                    setVerticalCategoryOptionsLevel4={setVerticalCategoryOptionsLevel4}
+                                />
+
+                        </div> 
+
+                        )}       
+                      </div>
+                  </div>
+                  )}
+
+
+
+
             </div>
         )}
     
@@ -2551,6 +2698,8 @@ const ConfigureMetadata = (props) => {
                                 ) && (categoryChecker[1] === 'notExist')
                                 ||
                                 (categoryChecker[1] !== 'notExist' && !isVerticalCategoryExpandedlevel3)
+                                ||
+                                (categoryChecker[1] !== 'notExist' && !isVerticalCategoryExpandedlevel4)
                             }
                             >
                             Save
@@ -2568,6 +2717,8 @@ const ConfigureMetadata = (props) => {
                                 ) && (categoryChecker[1] === 'notExist')
                                 ||
                                 (categoryChecker[1] !== 'notExist' && !isVerticalCategoryExpandedlevel3)
+                                ||
+                                (categoryChecker[1] !== 'notExist' && !isVerticalCategoryExpandedlevel4)
                             }
                             >
                                 Save and Make Template

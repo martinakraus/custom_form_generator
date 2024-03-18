@@ -88,5 +88,5 @@ export const SideNavigationQuery = {
     }
   
     export const MainTitle = 'Custom Form Generator'
-    const version = 'version v1.0.1 Beta 10-03-2024'
+    const version = 'version v1.0.0 Beta 15-03-2024'
     export const footerText = `Copyright © FHI360 | EpiC | Business Solutions | 2024 | ${version}`
