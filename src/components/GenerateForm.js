@@ -1,6 +1,8 @@
 import {useAlert, useDataQuery} from '@dhis2/app-runtime';
 import {Button, ButtonStrip, Modal, ModalActions, ModalContent, ModalTitle} from '@dhis2/ui';
 import React, {useEffect, useState} from 'react';
+import { CircularLoader } from '@dhis2-ui/loader'
+
 
 const cartesianProduct = (arrays) =>
     arrays.reduce((acc, array) => acc.flatMap((x) => array.map((y) => x.concat(y))), [[]]);
@@ -101,6 +103,7 @@ const skipDE = (rules, value, level1) => {
 const GenerateForm = (props) => {
     const [dataElements, setDataElements] = useState([]);
     const [categoryCombos, setCategoryCombos] = useState([]);
+    const [isPosting, setIsPosting] = useState(false);
 
     const {show} = useAlert(
         ({msg}) => msg,
@@ -147,6 +150,9 @@ const GenerateForm = (props) => {
         }
     });
 
+
+
+  
     useEffect(() => {
         if (data && data.dataElements) {
             setDataElements(data.dataElements.dataElements);
@@ -156,6 +162,8 @@ const GenerateForm = (props) => {
         }
     }, [data]);
     const handleGenerateHTMLTemplate = () => {
+        setIsPosting(true)
+        console.log('Poating started')
         let template = `
             <!-- Start Custom DHIS 2 Form -->
             <style type="text/css">
@@ -1185,6 +1193,7 @@ const GenerateForm = (props) => {
         }
 
         updateDataStore(template)
+
     }
 
     const handleCloseModal = () => {
@@ -1206,6 +1215,10 @@ const GenerateForm = (props) => {
                     <Button onClick={() => handleCloseModal()}>Close</Button>
                     <Button onClick={handleGenerateHTMLTemplate} disabled={loading}>Proceed</Button>
                 </ButtonStrip>
+
+                {loading && (<CircularLoader small/>)}
+                {isPosting && (<CircularLoader small/>)}
+     
             </ModalActions>
         </Modal>
     );
