@@ -48,6 +48,7 @@ const VerticalCategoryLevel2 = (props) => {
     props.setSelectedVerticalCategoryIDLevel2(selected)
     const SelectedCategories = filteredCategories.filter(category => category.id === selected);
     const notSelectedCategories = filteredCategories.filter(category => category.id !== selected);
+
     props.setfileredVerticalCatComboLevel3(notSelectedCategories)
     props.setSelectedVerticalCategoryNameLevel2(SelectedCategories[0].name || '')
     props.setVerticalCategoryOptionsLevel2([])
