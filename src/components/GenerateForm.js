@@ -977,7 +977,7 @@ const GenerateForm = (props) => {
                                                             if (skip) {
                                                                 continue
                                                             }
-                                                            const coc = idMap.get(JSON.stringify([level1.metadata.find(md => md.id === navs[a].id)?.id, level2.metadata[b].id, level3.metadata[c].id, level4.metadata[e].id, level5.metadata[f].id, level6.metadata[f].id].sort()));
+                                                            const coc = idMap.get(JSON.stringify([level1.metadata.find(md => md.id === navs[a].id)?.id, level2.metadata[b].id, level3.metadata[c].id, level4.metadata[d].id, level5.metadata[e].id, level6.metadata[f].id].sort()));
                                                             if (coc) {
                                                                 template += `<div class="INFOLINK_Form_EntryField"><input id="${dataElement.id}-${coc?.id}-val" name="entryfield" title="${dataElement.name} ${coc?.name}" value="[ ${dataElement.name} ${coc?.name} ]" /></div>`
                                                             }
