@@ -4,7 +4,7 @@ import {deleteObjects, } from '../utils'
 import PropTypes from 'prop-types';
 
 import { config, dataStoreQuery,
-    SideNavigationQuery, FormComponentQuery, TemplateQuery, ConditionQuery, LabelQuery} from '../consts'
+    SideNavigationQuery, FormComponentQuery, TemplateQuery, ConditionQuery, LabelQuery, HTMLCodeQuery} from '../consts'
 
     import { 
         Modal, 
@@ -32,6 +32,7 @@ const CleaningServices = (props) => {
     const { data: TemaplateQueryData, refetch:TemaplateQueryDataRefetch} = useDataQuery(TemplateQuery); // Use separate hook for dataStoreQuery
     const { data: ConditionsQueryData, refetch:ConditionsQueryDataRefetch} = useDataQuery(ConditionQuery); // Use separate hook for dataStoreQuery
     const { data: LabelQueryData, refetch:LabelQueryDataRefetch} = useDataQuery(LabelQuery); // Use separate hook for dataStoreQuery
+    const { data: HTMLCodeQueryData, refetch:HTMLCodeQueryDataRefetch} = useDataQuery(HTMLCodeQuery); // Use separate hook for dataStoreQuery
 
 
     useEffect(() =>{
@@ -42,6 +43,7 @@ const CleaningServices = (props) => {
         TemaplateQueryDataRefetch()
         ConditionsQueryDataRefetch()
         LabelQueryDataRefetch()
+        HTMLCodeQueryDataRefetch()
 
 
 
@@ -73,6 +75,18 @@ const CleaningServices = (props) => {
         
         const Labels = LabelQueryData?.dataStore?.entries || [];
         const filteredLabels = Labels.filter(entry => !projectIds.includes(entry.projectID));
+
+        const HtmlCodes = HTMLCodeQueryData?.dataStore?.entries || [];
+        const filteredHtmlCodes = HtmlCodes.filter(entry => !projectIds.includes(entry.projectID));
+
+
+        if (filteredHtmlCodes.length > 0){
+            filteredHtmlCodes.forEach(HtmlCodes => {
+
+                deleteObjects(props.engine, config.dataStoreHTMLCodes, HtmlCodes.key, 'HtmlCodes')
+            });  
+        }
+
 
 
         if (filteredSideNavigations.length > 0){

@@ -122,6 +122,10 @@ div.app-shell-app.jsx-1964929281 {
   width: 90vw;
 }
 
+.dataTableDataFormEntry {
+  width: 40vw;
+}
+
 .loaderTd {
   width: 80px;
 }
@@ -335,11 +339,22 @@ div.app-shell-app.jsx-1964929281 {
   overflow-y: auto; /* Enable vertical scroll */
 }
 
+.tableContainer_dataEntryForms {
+  max-height: 350px; /* Set the maximum height as needed */
+  overflow-y: auto; /* Enable vertical scroll */
+}
+
 .customTableRow{
 
 min-height: 200px;
 
 }
+
+.customTableRowEmpty{
+
+  max-Width: 150px;
+  
+  }
 
 .closeButton {
   background-color: red; 

@@ -19,7 +19,7 @@ import MetadataTemplating from './MetadataTemplating';
 import GenerateForm from './GenerateForm';
 import TooltipComponent from './TooltipComponent'
 import { Input } from '@dhis2-ui/input'
-import { IconEdit16, IconDelete16, IconAddCircle24} from '@dhis2/ui-icons';
+import { IconEdit16, IconDelete16, IconAddCircle24} from '@dhis2/ui-icons'; 
 import { generateRandomId, modifiedDate,  alignLevels, customImage, updateDataStore} from '../utils';
 import SideNavigation from './SideNavigationSelection';
 import FormComponentSelection from './FormComponentSelection';
@@ -1578,7 +1578,7 @@ const ConfigureMetadata = (props) => {
     };
 
     const handleCloseModal = () => {
-        console.log('Checking Closing');
+
         setSelectedDataElementsDict(null);
         props.setShowModalConfigureProject(false);
         setDirectClickTabDE(0);
@@ -2043,7 +2043,7 @@ const ConfigureMetadata = (props) => {
                         onClick={() => setShowModalMetadataTemplate(true)}
                         disabled={selectedDataElementId.length <= 0}
                     >
-                        Load Template
+                        Load DataElement CoC Template
                     </Button>
                   </div>
                    )}
@@ -2669,7 +2669,7 @@ const ConfigureMetadata = (props) => {
                                     onClick={loadedProject.dataElements.length > 0 ? GenerateHTMLHandler : undefined}
                                     disabled={(loadedProject.dataElements.length <= 0) || saveNow}
                                 >
-                                    Generate HTML Template
+                                    Generate DataEntry Form
                                 </Button>
                                 </ButtonStrip>
                             </div>
@@ -2721,13 +2721,13 @@ const ConfigureMetadata = (props) => {
                                 (categoryChecker[1] !== 'notExist' && !isVerticalCategoryExpandedlevel4)
                             }
                             >
-                                Save and Make Template
+                                Save and Make CoC Template
                             </Button>
                             <Button 
                                     onClick={loadedProject.dataElements.length > 0 ? GenerateHTMLHandler : undefined}
                                     disabled={(loadedProject.dataElements.length <= 0) || saveNow }
                                 >
-                                    Generate HTML Template
+                                    Generate DataEntry Form
                                 </Button>
                             </ButtonStrip>
                         </div>

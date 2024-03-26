@@ -4,7 +4,8 @@ export const config = {
     dataStoreSideNavigations:'custom-navigations-form-generator',
     dataStoreFormComponents:'custom-components-form-generator',
     dataStoreConditions:'custom-conditions-form-generator',
-    dataStoreLabelName:'custom-labelName-form-generator'
+    dataStoreLabelName:'custom-labelName-form-generator',
+    dataStoreHTMLCodes:'custom-htmlCodes-form-generator'
 }
 export const ProjectsFilters = 'fields=id,projectName';
 export const ProjectsFiltersMore = 'fields=id,projectName,dataSet,modifiedDate,dataElements,catCombos'; // included dataElements
@@ -15,13 +16,26 @@ export const TemplateNoFilter = 'fields=key,name,overidingCategory,projectID,sid
 export const exclusionRuleFilter = 'fields=id,key,name,projectID,metadata,conditionCoC';
 export const exclusionRuleMore = 'fields=id,key,name,projectID,metadata,conditionCoC,conditionDE,conditionCategoryOption,conditionCategoryOption2,categoryExclusionToProcess,categoryExclusionOptionToProcess,category,category2';
 
+
+
 export const labelNameFilter = 'fields=id,key,name,projectID,labelName,metadataType,labelDEIDName,labelCategoryIDName,labelComboIDName,labelOptionIDName,labelInclusionCategoryIDName2,labelInclusionCategoryIDName3,labelInclusionOptionIDName2,labelInclusionOptionIDName3';
+
+
+export const HTMLCodesFilter = 'fields=id,key,name,projectID,htmlCode,active,modifiedDate,createdDate';
 
 // Array of condition levels
 export   const conditionLevels = ["Horizontal Level 1", "Horizontal Level 2", "Vertical Level 1", "Vertical Level 2", "Vertical Level 3"];
 
 // Array of Exclusion levels
 export    const exclusionLevels = ["Horizontal Level 2", "Vertical Level 1", "Vertical Level 2", "Vertical Level 3"];
+
+
+    // Define your data store query
+export const HTMLCodeQuery = {
+      dataStore: {
+      resource: `dataStore/${config.dataStoreHTMLCodes}?${HTMLCodesFilter}`,
+      },
+  }
 
 export const SideNavigationQuery = {
     dataStore: {

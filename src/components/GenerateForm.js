@@ -1,7 +1,23 @@
-import {useAlert, useDataQuery} from '@dhis2/app-runtime';
+import {useAlert, useDataQuery, useDataMutation } from '@dhis2/app-runtime';
 import {Button, ButtonStrip, Modal, ModalActions, ModalContent, ModalTitle} from '@dhis2/ui';
 import React, {useEffect, useState} from 'react';
 import { CircularLoader } from '@dhis2-ui/loader'
+import { generateRandomId, createOrUpdateDataStore, customImage, trimNameToMax50Chars, deleteObjects} from '../utils';
+import { config, HTMLCodeQuery} from '../consts'
+import classes from '../App.module.css'
+import { Chip } from '@dhis2-ui/chip'
+
+import { IconCheckmarkCircle16, IconDownload16, IconDelete16 } from '@dhis2/ui-icons';
+import {
+    Table,
+    TableHead,
+    TableRowHead,
+    TableCellHead,
+    TableBody,
+    TableRow,
+    TableCell
+  } from '@dhis2/ui';
+  import { Input } from '@dhis2-ui/input'
 
 
 const cartesianProduct = (arrays) =>
@@ -100,9 +116,24 @@ const skipDE = (rules, value, level1) => {
     return false;
 }
 
+
+
 const GenerateForm = (props) => {
+
+
+    const { error: HTMLCodeQueryError, loading: HTMLCodeQueryLoading, data: HTMLCodeQueryData, refetch:HTMLCodeQueryRefetch } = useDataQuery(HTMLCodeQuery); // Use separate hook for dataStoreQuery
+
+
+    const [reloadHtmlCodeList, setHtmlCodeList] = useState(false);
+    
+    const [reloadDataSetItem, setDataSetItem] = useState(false);
+
+    const [HtmlCodes, setHtmlCodes] = useState([]);
+    const [DataEntryFormName, setDataEntryFormName] = useState('');
+    
     const [dataElements, setDataElements] = useState([]);
     const [categoryCombos, setCategoryCombos] = useState([]);
+    const [publishedDataEntryFormHtml, setPublishedDataEntryFormHtml] = useState([]);
     const [isPosting, setIsPosting] = useState(false);
 
     const {show} = useAlert(
@@ -113,6 +144,7 @@ const GenerateForm = (props) => {
     const successMessage = () => {
         show({msg: `DataEntryForm successfully posted`, type: 'success'})
         console.log('Successfully Posted')
+        setIsPosting(false)
     }
 
     const errorMessage = (error) => {
@@ -138,6 +170,27 @@ const GenerateForm = (props) => {
                 paging: false
             }),
         },
+        dataSets:{
+            resource: 'dataSets',
+            params: ({dataSet}) => ({
+                fields: ['dataEntryForm[htmlCode]'],
+                filter: `id:in:[${dataSet}]`,
+            }),
+
+        }
+    }
+
+    
+    /**generate Template */
+    const dataSetsQuery = {
+        dataSets:{
+            resource: 'dataSets',
+            params: ({dataSet}) => ({
+                fields: ['dataEntryForm[htmlCode]'],
+                filter: `id:in:[${dataSet}]`,
+            }),
+
+        }
     }
 
     const {
@@ -150,7 +203,39 @@ const GenerateForm = (props) => {
         }
     });
 
+    const {
+        data: dataDataSetsQuery,
+        loading: loadingDataSetsQuery,
+        refetch: refetchDataSetsQuery
+    } = useDataQuery(dataSetsQuery, {
+        variables: {
+            dataSet: props.loadedProject.dataSet.id
+        }
+    });
 
+    useEffect(() => {
+        setIsPosting(true)
+        const fetchData = async () => {
+            await HTMLCodeQueryRefetch();
+            setIsPosting(false)
+        };
+    
+        fetchData();
+    
+      }, [reloadHtmlCodeList, HTMLCodeQueryRefetch]);
+    
+
+    useEffect(() => {
+        if (HTMLCodeQueryData) {
+
+                      // Check if entries property exists in data.dataStore
+            const newProjects = HTMLCodeQueryData.dataStore?.entries || [];
+            // Filter newProjects based on projectID === props.loadedProject.id
+            const filteredProjects = newProjects.filter(entry => entry.projectID === props.loadedProject.id);
+            setHtmlCodes(filteredProjects);
+        }
+
+    }, [HTMLCodeQueryData]);
 
   
     useEffect(() => {
@@ -160,10 +245,40 @@ const GenerateForm = (props) => {
         if (data && data.categoryCombos) {
             setCategoryCombos(data.categoryCombos.categoryCombos);
         }
+
     }, [data]);
+
+    useEffect(() => {
+
+        if (dataDataSetsQuery && dataDataSetsQuery.dataSets) {
+            setPublishedDataEntryFormHtml(dataDataSetsQuery.dataSets.dataSets);
+        }
+    }, [dataDataSetsQuery])
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await refetchDataSetsQuery({
+                dataSet: props.loadedProject.dataSet.id
+            });
+            setIsPosting(false)
+        };
+    
+        fetchData();
+    
+      }, [reloadDataSetItem, refetchDataSetsQuery]);
+
     const handleGenerateHTMLTemplate = () => {
+
+        if (!DataEntryFormName.trim()) {
+            console.log('Please enter a dataEntryForm Name');
+            show({msg: `Please enter a dataEntryForm Name`, type: 'warning'})
+            return;
+        }
+
+
+
         setIsPosting(true)
-        console.log('Poating started')
+        console.log('Form Generation started')
         let template = `
             <!-- Start Custom DHIS 2 Form -->
             <style type="text/css">
@@ -1173,53 +1288,311 @@ const GenerateForm = (props) => {
                 <p>&nbsp;</p>
         `;
 
-        const updateDataStore = async (postObject) => {
+        if (getPrevHtmlDataEntryForm()){
 
-            try {
-                await props.engine.mutate({
-                    resource: `dataSets/${props.loadedProject.dataSet.id}/form`,
-                    type: 'create',
-                    data: {
-                        htmlCode: postObject
-                    },
-                });
-                successMessage();
-                handleCloseModal();
-            } catch (error) {
-                errorMessage(error)
-                console.error('Error updating project:', error);
+            const key = generateRandomId()
+
+            const presentVersionObject = {
+                id:key, 
+                key:key,
+                name:`${trimNameToMax50Chars(DataEntryFormName)}-`,
+                projectID:props.loadedProject.id,
+                dataSet:props.loadedProject.dataSet.id,
+                htmlCode:template,
+                active: false
+            };
+            let mode = ''
+            if (createOrUpdateDataStore(props.engine, presentVersionObject, config.dataStoreHTMLCodes, key,mode='create')){
+                console.log('Version Created')
+                setDataEntryFormName('')                
+                
             }
-
         }
 
-        updateDataStore(template)
+
+        setHtmlCodeList((prev) => !prev)
+        setDataSetItem((prev) => !prev)      
 
     }
 
+    const getPrevHtmlDataEntryForm = () => {
+
+        const key = generateRandomId()
+
+        const prevVersionObject = {
+            id:key, 
+            key:key,
+            name:`${trimNameToMax50Chars(DataEntryFormName)}-prev`,
+            projectID:props.loadedProject.id,
+            dataSet:props.loadedProject.dataSet.id,
+            htmlCode:publishedDataEntryFormHtml[0].dataEntryForm.htmlCode,
+            active: false
+        };
+        let mode = ''
+        if (createOrUpdateDataStore(props.engine, prevVersionObject, config.dataStoreHTMLCodes, key, mode='create')){
+            return true;
+        }
+        return false;
+    }
+
+    const updateDataStore = async (postObject) => {
+
+        try {
+            await props.engine.mutate({
+                resource: `dataSets/${props.loadedProject.dataSet.id}/form`,
+                type: 'create',
+                data: {
+                    htmlCode: postObject
+                },
+            });
+            successMessage();
+            //handleCloseModal();
+        } catch (error) {
+            errorMessage(error)
+            console.error('Error updating project:', error);
+        }
+
+    }
+
+    const handleHTMLCodeRefreshClick = () =>{
+
+        setHtmlCodeList((prev) => !prev )
+
+    }
+
+    const handleUpdateActive = async () => {
+
+
+        if (HtmlCodes.length > 0){
+
+            HtmlCodes.forEach(HtmlCode => {  
+                if (!HtmlCode.hasOwnProperty('active')) {
+                    // If it doesn't exist, add it to the object
+                    HtmlCode.active = false;
+                } else {
+                    // If it exists, update its value
+                    HtmlCode.active = false;
+                }
+                let mode = ''
+
+                createOrUpdateDataStore(props.engine, HtmlCode, config.dataStoreHTMLCodes, HtmlCode.key, mode='update')
+            });
+
+        }
+
+    };
+
+    const handleHTMLCodeDataSetPost = async (htmlCodeAttributes) =>{
+        // Refresh the list
+        setIsPosting(true)
+        HTMLCodeQueryRefetch()
+        try {
+            await handleUpdateActive(); // Wait for handleUpdateActive() to finish
+            await updateDataStore(htmlCodeAttributes.htmlCode);
+            if (!htmlCodeAttributes.hasOwnProperty('active')) {
+                // If it doesn't exist, add it to the object
+                htmlCodeAttributes.active = true;
+            } else {
+                // If it exists, update its value
+                htmlCodeAttributes.active = true;
+            }
+            let mode = ''
+            createOrUpdateDataStore(props.engine, htmlCodeAttributes, config.dataStoreHTMLCodes, htmlCodeAttributes.key, mode='update')
+        } catch (error) {
+            // Handle error if any
+            console.error('Error occurred:', error);
+        }
+        try {
+            await maintainLast12Items();
+
+        }catch (error) {
+            // Handle error if any
+            console.error('Error occurred:', error);
+        }
+        
+       
+
+    }
+    const handleHTMLDownloadClick = (htmlCode) => {
+
+        // Create a Blob containing the HTML content
+        const blob = new Blob([htmlCode], { type: 'text/html' });
+
+        // Create a download link
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+
+        // Set the download attribute with the desired file name
+        link.download = 'dataEntryForm.html';
+
+        // Append the link to the document
+        document.body.appendChild(link);
+
+        // Trigger a click on the link to start the download
+        link.click();
+
+        // Remove the link from the document
+        document.body.removeChild(link);
+
+    };
+
+
+    const maintainLast12Items = async () => {
+
+        // Sort filteredHtmlCodes by createdDate in ascending order
+        HtmlCodes.sort((a, b) => new Date(a.createdDate) - new Date(b.createdDate));
+
+        // Calculate the number of entries to keep (last 12)
+        const entriesToKeep = 12;
+        const entriesToDelete = HtmlCodes.length - entriesToKeep;
+
+        // Delete the earliest entries if there are more than 12
+        if (entriesToDelete > 0) {
+            for (let i = 0; i < entriesToDelete; i++) {
+                deleteObjects(props.engine, config.dataStoreHTMLCodes, HtmlCodes[i].key, 'HtmlCodes');
+            }
+        }
+        handleCloseModal()
+    }
+
+    const handleDeleteDataEntryFormItem = async (key) => {
+
+        const deleteObject =  deleteObjects(props.engine, config.dataStoreHTMLCodes, key, 'HtmlCodes');
+        setHtmlCodeList((prev) => !prev )
+        if (deleteObject){
+            show({msg: `DataEntryForm successfully removed`, type: 'success'})
+
+        }
+
+
+    }
+
+
+
+
     const handleCloseModal = () => {
         props.setShowGenerateForm(false)
+        setDataEntryFormName('')
+        setHtmlCodeList(false)
+        setHtmlCodes([])
+        setPublishedDataEntryFormHtml([])
+        setIsPosting(false)
+        setDataElements([])
+        setCategoryCombos([])
+
     };
 
     return (
         <Modal>
-            <ModalTitle>
-                Generate Form
 
-            </ModalTitle>
-            <ModalContent>
-                <p>This might take some time. Please do not navigate away from the page after clicking to proceed</p>
+            <div>
+                    <ModalTitle>
+                        Generate Form                         
+                        {loading && (<CircularLoader small/>)}
+                        {isPosting && (<CircularLoader small/>)}
 
-            </ModalContent>
+                    </ModalTitle>
+                    <ModalContent>
+                        <p>This might take some time. Please do not navigate away from the page after clicking to 'Generate Form'</p>
+                        <Input
+                              name="DataEntryFormName"
+                              placeholder="Provide DataEntryForm Name"
+                              value={DataEntryFormName}
+                              onChange={({ value }) => setDataEntryFormName(value)} 
+                              disabled={(loading || isPosting || loadingDataSetsQuery)}    
+                          />
+                    </ModalContent>
+                    <ModalActions>
+                        <ButtonStrip>
+                            <Button onClick={handleGenerateHTMLTemplate} disabled={(loading || DataEntryFormName.length <= 0)}>Generate Form</Button>
+                        </ButtonStrip>
+
+                       
+            
+                    </ModalActions>
+            </div>
+
+            <div>
             <ModalActions>
-                <ButtonStrip>
-                    <Button onClick={() => handleCloseModal()}>Close</Button>
-                    <Button onClick={handleGenerateHTMLTemplate} disabled={loading}>Proceed</Button>
-                </ButtonStrip>
+            <div className={classes.tableContainer_dataEntryForms}>
+                    <Table className={classes.dataTableDataFormEntry}>
 
-                {loading && (<CircularLoader small/>)}
-                {isPosting && (<CircularLoader small/>)}
-     
+                        <TableHead>
+                        <TableRowHead>
+                            <TableCellHead className={classes.customTableCellHead}>
+                            <span className={classes.customImageContainer} onClick={handleHTMLCodeRefreshClick}>
+                                    {customImage('sync', 'large')}
+                            </span>
+                                HTML Versions - Last 12 Entries Only
+
+                                </TableCellHead>
+
+                            <TableCellHead></TableCellHead>
+                        </TableRowHead>
+                        </TableHead>
+                        <TableBody>
+
+                        {Array.isArray(HtmlCodes) && HtmlCodes.length > 0 ?
+                            (HtmlCodes
+                                
+                                // Sort the HtmlCodes array by createdDate in descending order
+                                .sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate))
+                                .map((htmlCodeAttributes) => (
+                                // id,key,name,projectID,htmlCode
+                                htmlCodeAttributes.projectID === props.loadedProject.id && (
+                                    <TableRow key={htmlCodeAttributes.id} className={classes.customTableRow}>
+                                        <TableCell className={classes.customTableCell}>{htmlCodeAttributes.name}-{htmlCodeAttributes.createdDate} 
+                                        
+                                        &nbsp;&nbsp;&nbsp;
+                                        {htmlCodeAttributes.active ? <IconCheckmarkCircle16 /> : ""}                                      
+                                        
+                                        </TableCell>
+                                        <TableCell className={`${classes.customTableCell}`}>                    
+                                        <div style={{ display: 'flex' }}>
+                                            <Chip
+                                                className={classes.customImageContainer}  
+                                                icon={customImage('post_to_dhis2', 'large')} 
+                                                onClick={() => handleHTMLCodeDataSetPost(htmlCodeAttributes)}>
+                                                Deploy
+                                            </Chip>
+                                            <Chip
+                                                className={classes.customImageContainer}  
+                                                onClick={() => handleHTMLDownloadClick(htmlCodeAttributes.htmlCode)}>
+                                                    <IconDownload16/>  
+                                            </Chip>
+
+                                            <Chip
+                                                className={classes.customImageContainer}  
+                                                onClick={() => handleDeleteDataEntryFormItem(htmlCodeAttributes.key)}>
+                                                    <IconDelete16/>  
+                                            </Chip>
+                                        </div>
+
+                                        </TableCell>
+                                    </TableRow>
+                                )
+
+                            ))) : (
+                                <TableRow className={classes.customTableRowEmpty}>
+                                <TableCell>No data html code to display</TableCell>
+                                </TableRow>
+                            )                        
+                            
+                            }
+                            </TableBody>
+                    </Table>   
+            </div>
             </ModalActions>
+            <ModalActions>
+
+                    
+                <ButtonStrip>
+                                <Button onClick={() => handleCloseModal()}>Close</Button>
+
+                </ButtonStrip> 
+            </ModalActions>
+            </div>
+
         </Modal>
     );
 }

@@ -6,6 +6,7 @@ import sync from './Icons/sync.png'
 import cleaning from './Icons/cleaning.png'
 import arrowdown from './Icons/arrowdowncustom.png'
 import arrowup from './Icons/arrowupcustom.png'
+import post_to_dhis2 from './Icons/post_to_dhis2.png'
 import swap from './Icons/swap.png'
 
 import classes from './App.module.css'
@@ -40,6 +41,10 @@ export const customImage = (source, size='small') => {
   }
   if (source.toLowerCase()  === 'arrowdown'){
     return <img src={arrowdown} className={iconClass}/>
+  }
+
+  if (source.toLowerCase()  === 'post_to_dhis2'){
+    return <img src={post_to_dhis2} className={iconClass}/>
   }
 }
 
@@ -78,6 +83,14 @@ export const alignLevels = (Level) => {
       return '';
   }
 }
+
+
+export const trimNameToMax50Chars = (name) => {
+
+  const maxNameLength = 50;
+  return name.trim().slice(0, maxNameLength);
+}
+
 
 export const alignLevelsReverse = (Level) => {
   if (Level === "HorizontalLevel0") {
@@ -157,10 +170,12 @@ export const createDataStore = async (engine, postObject, store, key) =>{
   } catch (error) {
     // Handle error (log, show alert, etc.)
     console.error('Error creating object:', error);
+    return false
   }
+  return true
 }
 
-export const createOrUpdateDataStore = async (engine, postObject, store, key,mode='') =>{
+export const createOrUpdateDataStore = async (engine, postObject, store, key, mode='') =>{
 
   if (!postObject.hasOwnProperty('modifiedDate')) {
       // If it doesn't exist, add it to the object
@@ -171,13 +186,21 @@ export const createOrUpdateDataStore = async (engine, postObject, store, key,mod
   }
   let modeType=''
 
-  if (mode='create'){
-    modeType=true
-  }else if (mode='update'){
-    modeType=false
+  if (mode === 'create'){
+        if (!postObject.hasOwnProperty('createdDate')) {
+            // If it doesn't exist, add it to the object
+            postObject.createdDate = modifiedDate();
+        } else {
+            // If it exists, update its value
+            postObject.createdDate = modifiedDate();
+        }
+          modeType=true
+  }else if (mode === 'update'){
+        modeType=false
   }
 
   try {
+
     await engine.mutate({
       resource: `dataStore/${store}/${key}`,
       type: modeType ? 'create' : 'update',
@@ -218,8 +241,10 @@ export const deleteObjects = async (engine, store, key, obj) =>{
       type: 'delete',
     });
     console.log(`${obj} ${key} deleted`);
+    return true
   } catch (error) {
     console.error(`Error deleting ${key}`, error);
+    return false
   }
 }
 

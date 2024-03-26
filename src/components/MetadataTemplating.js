@@ -23,7 +23,7 @@ const MetadataTemplating = (props) => {
     ({ msg }) => msg,
     ({ type }) => ({ [type]: true })
   )
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [selectedTemplate, setSelectedTemplate] = useState('');
 
       // Define your data store query
 const TemplateQuery = {
@@ -79,7 +79,7 @@ const TemplateQuery = {
       if (TemplateData){
 
         let templateObject = TemplateData?.results?.entries[0] || [];
-        console.log(templateObject)
+        // console.log(templateObject)
         templateObject.id = props.selectedDataElementId;
         templateObject.name = props.selectedDataElement;
 
@@ -87,8 +87,8 @@ const TemplateQuery = {
 
         // Destructure the object, excluding key and catCombo fields
         const { key, catCombo, ...newData } = templateObject;
-        console.log(props.selectedDataElementId)
-        console.log(newData)
+        // console.log(props.selectedDataElementId)
+        // console.log(newData)
 
         const projectData = {
           "dataElements":[        
@@ -128,9 +128,9 @@ const TemplateQuery = {
     if (loading) {
         return <span>Loading...</span>;
     }
-    if (error3) {
-      return <span>ERROR: {error3?.message }</span>;
-    }
+    // if (error3) {
+    //   return <span>ERROR: {error3?.message }</span>;
+    // }
     if (loading3) {
       return <span>Loading...</span>;
     }
@@ -167,8 +167,8 @@ const TemplateQuery = {
               <Button onClick={() => handleCloseModal()}>Close</Button>
               <Button primary  onClick={() => applyTemplate()}
               
-              disabled={selectedTemplate === null}>
-                Apply Template
+              disabled={selectedTemplate === ''}>
+                Apply DataElement CoC Template
               </Button>
 
             </ButtonStrip>
@@ -185,7 +185,7 @@ MetadataTemplating.propTypes = {
   setShowModalMetadataTemplate: PropTypes.func.isRequired,
   loadedProject: PropTypes.object.isRequired, // Adjust as per your requirements
   selectedDataElementId: PropTypes.string.isRequired, // Adjust as per your requirements
-  selectedDataElement: PropTypes.object.isRequired, // Adjust as per your requirements
+  selectedDataElement: PropTypes.string.isRequired, // Adjust as per your requirements
   fileredHorizontalCatCombo0: PropTypes.array.isRequired // Adjust as per your requirements
 };
 export default MetadataTemplating;

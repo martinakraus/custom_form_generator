@@ -34,7 +34,7 @@ const AppGetDEList = props => {
     const [disabled, setDisable] = useState(false)
     const [dataElemntID, setDataElement] = useState('xxxxx')
     const [updateCombos, setUpdateCombos] = useState(false)
-    setUpdateCombos
+    
     const {loading: loading, error: error, data: data, refetch: refetch } = useDataQuery(dataSets, {variables: {dataSet: props.selectedDataSet}})
     const {loading: catLoading, error: cateEerror, data: catData, refetch: catRefetch } = useDataQuery(catComboQuery, {variables: {id: dataElemntID}})
 

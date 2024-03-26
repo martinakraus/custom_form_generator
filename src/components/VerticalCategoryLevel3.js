@@ -16,7 +16,7 @@ useEffect(() => {
 
   setHorizontalCategories(filteredCategories);
 
-  console.log('Vertical Level 3: ', filteredCategories)
+
   if(props.selectedDirectClickTabDE === 0
     ){
       const updatedDataElementsLevel1 = props.loadedProject.dataElements.filter(
