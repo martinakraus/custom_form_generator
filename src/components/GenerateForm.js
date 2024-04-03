@@ -70,7 +70,7 @@ const formatOption = (labels, dataElement, option, level1, level2, level3, level
         if (!inclusion2.length) {
             return levels.some(l => label.labelInclusionOptionIDName2.map(i => i.id).includes(l)) ? label.labelName : option.name
         }
-        if (inclusion.length) {
+        if (inclusion1.length) {
             return levels.some(l => label.labelInclusionOptionIDName2.map(i => i.id).includes(l)) &&
             levels.some(l => label.labelInclusionOptionIDName3.map(i => i.id).includes(l)) ? label.labelName : option.name
         }
