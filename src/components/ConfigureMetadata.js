@@ -133,7 +133,8 @@ const ConfigureMetadata = (props) => {
     const [dataElements, setDataElements] = useState(props.selectedProject.dataElements || []);
     const [filterText, setFilterText] = useState('');
 
-
+    // for help guide
+    const [showGuide, setShowGuide] = useState(false);
 
     // for data control
     const [isAferProjectSave, AferProjectSave] = useState(false);
@@ -146,6 +147,7 @@ const ConfigureMetadata = (props) => {
 
     // Saving data to dataStore
     const [mergedObject, setmergedObject] = useState([])
+
 
     // State control variables
     const [selectedDataSet,setselectedDataSet] = useState(props.selectedDataSet || "");
@@ -1803,6 +1805,11 @@ const ConfigureMetadata = (props) => {
         setFilterText(value);
       };
 
+
+    const toggleGuide = () => {
+    setShowGuide(!showGuide);
+    };
+
     const filteredDataElements = filterText
     ? dataElements.filter(
         (de) =>
@@ -2238,6 +2245,7 @@ const ConfigureMetadata = (props) => {
                   <button className={classes.collapsible} onClick={() => setIsHorizontalCategoryExpanded0((prev) => !prev)} disabled={selectedDataElementId.length <= 0}>
                       {isHorizontalCategoryExpanded0 ? '-' : '+'} Level 1
                   </button>
+
                   <div className={classes.baseMargin}>
                       <div className={`${classes.content} ${isHorizontalCategoryExpanded0 ? classes.active : ''}`}>
                           <h3></h3>
@@ -2823,7 +2831,7 @@ const ConfigureMetadata = (props) => {
                                     handleCloseTemplateNameModal();
                                 }}
                             >
-                                Save Template
+                                Save CoC Template
                             </Button>
 
 

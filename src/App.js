@@ -8,10 +8,6 @@ import LoadProjects from './components/LoadProjects'
 import { footerText, MainTitle } from './consts';
 
 
-import {
-    Box
-} from '@dhis2/ui'
-
 
 const MyApp = () => {
 
