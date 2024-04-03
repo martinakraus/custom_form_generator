@@ -334,8 +334,13 @@ div.app-shell-app.jsx-1964929281 {
 
 }
 
-.tableContainer_dataElements {
+/* .tableContainer_dataElements {
   max-height: 400px; /* Set the maximum height as needed */
+  /* overflow-y: auto; Enable vertical scroll
+} */ 
+
+.tableContainer_dataElements {
+  max-height: 600px; /* Set the maximum height as needed */
   overflow-y: auto; /* Enable vertical scroll */
 }
 
@@ -416,6 +421,14 @@ min-height: 200px;
   margin-left: 5px; /* Adjust the left margin as needed */
 }
 
+/* Add this style to your CSS file */
+.iconAddNewProject {
+  color: rgb(244, 247, 244); /* Set the desired color for the icon */
+  padding-top: 10px;
+
+  
+}
+
 /* Replace with your actual styles or modify as needed */
 .sideNavigationSelect {
   width: 50%; /* Adjust the width as needed */
@@ -442,8 +455,21 @@ min-height: 200px;
 }
 
 .smallIcon {
-  width: 16px;
-  height: 12px  
+  width: 18px;
+  /* height: 12px   */
+}
+
+.smallIconDestructive {
+  background-color: #b61940 !important;
+
+
+}
+
+.CreateProjectBgColor {
+  background-color: #4d9663 !important;
+  color: #ccc;
+
+
 }
 
 .largeIcon {
@@ -456,3 +482,24 @@ min-height: 200px;
   cursor: pointer; /* Changes cursor to pointer on hover */
 }
 
+.tableHeaderWrapper {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: white; /* Set the background color as needed */
+}
+
+.tableBodyWrapper {
+  max-height: calc(100vh - /* height of the table header */ px); /* Adjust the height as needed */
+  overflow-y: auto;
+}
+
+img.App_smallIcon__c-XWP {
+  width: 16px;
+  height: 14px;
+}
+
+.iconClassCustom {
+  width: 16px; /* Set the width to 32 pixels */
+  /* height: auto; Maintain the aspect ratio */
+}

@@ -27,17 +27,39 @@ const dataSets = {
     },
   }
 
+    // Query to fetch data elements and their category information
+    const query = {
+      categoryCombo: {
+        resource: 'categoryCombos',
+        params: ({categoryCombo})=>({
+          fields: 'id,name',
+          filter: `id:eq:${categoryCombo}`,
+        }),
+      },
 
+    };
 
 const AppGetDEList = props => {
 
     const [disabled, setDisable] = useState(false)
     const [dataElemntID, setDataElement] = useState('xxxxx')
     const [updateCombos, setUpdateCombos] = useState(false)
+
+    const [selectedcategoryCombo, setCategoryCombo] = useState('xxxx')
     
     const {loading: loading, error: error, data: data, refetch: refetch } = useDataQuery(dataSets, {variables: {dataSet: props.selectedDataSet}})
     const {loading: catLoading, error: cateEerror, data: catData, refetch: catRefetch } = useDataQuery(catComboQuery, {variables: {id: dataElemntID}})
+    const {loading: selectedCat, error: selectedCatError, data: selectedCatData, refetch: selectedCatRefetch } = useDataQuery(query, {variables: {categoryCombo: selectedcategoryCombo}})
+    
+    useEffect(() => {
+      if(selectedCatData){
+        const name = selectedCatData?.categoryCombo?.categoryCombos[0]?.name || ''
+        const id = selectedCatData?.categoryCombo?.categoryCombos[0]?.id || ''
+        props.setLoadedCombos({id: id, name:name})
+      }
 
+    },[selectedCatData])
+    
     useEffect(() => {
         setDataElement(props.selectedDataElementId)
         refetch({dataSet: props.selectedDataSet})
@@ -49,14 +71,21 @@ const AppGetDEList = props => {
 
     useEffect(() => {
       // console.log('catData: DataElement =>',catData)
+
       if (catData){
         for (const dataSetElement of catData.dataElement.dataSetElements) {
           if (dataSetElement.dataSet.id === props.selectedDataSet && dataSetElement.categoryCombo) {
             props.setOveridingCategory(dataSetElement.categoryCombo.id)
             // console.log('catData: DataElement =>',catData)
+            selectedCatRefetch({categoryCombo: dataSetElement.categoryCombo.id})
+            // console.log('OveridingCategory: ', dataSetElement.categoryCombo)
             // console.log('OveridingCategory: ', dataSetElement.categoryCombo.id)
             break; // Stop the loop since we found the desired dataSetElement
           }else{
+            const name = catData?.dataElement?.categoryCombo?.name || ''
+            const id = catData?.dataElement?.categoryCombo?.id || ''
+            props.setLoadedCombos({id: id, name:name})
+            // props.setLoadedCombos(catData?.dataElement?.categoryCombo?.name || '')            
             props.setOveridingCategory('xxxxx')
 
           }
@@ -110,9 +139,9 @@ const AppGetDEList = props => {
     {
       return <span>Loading...</span>
     }
- 
 
     const dataElements = data.targetedEntity.dataSets[0]?.dataSetElements || [];
+    const excludeIDs = props.loadedProject.dataElements.map(element => element.id);
 
     return (
  
@@ -133,16 +162,31 @@ const AppGetDEList = props => {
                             onChange={({ selected }) => handleDataElementChange(selected)}
                             disabled={disabled}
                         >
-                            {dataElements.map(({ dataElement }) => (
-                            <SingleSelectOption
-                                label={dataElement.displayName}
-                                key={dataElement.id}
-                                value={dataElement.id}
-                            />
-                            ))}
+                              {props.editMode ? (
+                                  // Render all data elements if in edit mode
+                                  dataElements.map(({ dataElement }) => (
+                                      <SingleSelectOption
+                                          label={dataElement.displayName}
+                                          key={dataElement.id}
+                                          value={dataElement.id}
+                                      />
+                                  ))
+                              ) : (
+                                  // Render only filtered data elements if not in edit mode
+                                  dataElements
+                                      .filter(element => !excludeIDs.includes(element.dataElement.id))
+                                      .map(({ dataElement }) => (
+                                          <SingleSelectOption
+                                              label={dataElement.displayName}
+                                              key={dataElement.id}
+                                              value={dataElement.id}
+                                          />
+                                      ))
+                              )}
+
                         </SingleSelect>
-
-
+                                  <h1></h1>
+              <span>{props.loadedCombos.name}</span>
 
        </div>
       
@@ -154,10 +198,12 @@ AppGetDEList.propTypes = {
   setSelectedDataElementId: PropTypes.func.isRequired,
   selectedDataElement: PropTypes.string.isRequired,
   selectedDataElementId: PropTypes.string.isRequired,
+  loadedCombos: PropTypes.object,
   setSelectedDataElement: PropTypes.func.isRequired,
   editMode: PropTypes.bool.isRequired,
   setSelectSideNavigation: PropTypes.func.isRequired,
   setSelectFormComponents: PropTypes.func.isRequired,
+  setLoadedCombos: PropTypes.func.isRequired,
   loadedProject: PropTypes.object.isRequired,
   setOveridingCategory: PropTypes.func.isRequired,
   isHorizontalCategoryExpanded0: PropTypes.bool.isRequired,

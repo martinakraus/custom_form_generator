@@ -119,6 +119,7 @@ const TemplateQuery = {
 
     };
 
+    console.log('loadedCombos: ',props.loadedCombos)
     {/*  useDataQuery(query) exceptions */}
     
     if (error ) {
@@ -153,6 +154,7 @@ const TemplateQuery = {
             >
               {data?.dataStore?.entries
               .filter(({ projectID }) => projectID === props.loadedProject.id)
+              .filter(({ catCombo }) => catCombo.id === props.loadedCombos.id)
               .map(({ key, name }) => (
               <SingleSelectOption 
               label={name} 
@@ -179,13 +181,15 @@ const TemplateQuery = {
 
 
 MetadataTemplating.propTypes = {
-  engine: PropTypes.object.isRequired, // Adjust as per your requirements
+  engine: PropTypes.object.isRequired, 
   handleDataElementRefreshClick: PropTypes.func.isRequired,
   showModalMetadataTemplate: PropTypes.bool.isRequired,
   setShowModalMetadataTemplate: PropTypes.func.isRequired,
-  loadedProject: PropTypes.object.isRequired, // Adjust as per your requirements
-  selectedDataElementId: PropTypes.string.isRequired, // Adjust as per your requirements
-  selectedDataElement: PropTypes.string.isRequired, // Adjust as per your requirements
-  fileredHorizontalCatCombo0: PropTypes.array.isRequired // Adjust as per your requirements
+  loadedProject: PropTypes.object.isRequired, 
+  selectedDataElementId: PropTypes.string.isRequired,
+  loadedCombos: PropTypes.array.isRequired,
+  selectedDataElement: PropTypes.string.isRequired, 
+  fileredHorizontalCatCombo0: PropTypes.array.isRequired 
+
 };
 export default MetadataTemplating;

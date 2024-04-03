@@ -1,5 +1,6 @@
 import copy from './Icons/copy.png'
-import delete_ from './Icons/delete_btn.png'
+import delete_ from './Icons/red_delete.png'
+// import delete_ from './Icons/delete_btn.png'
 import edit from './Icons/edit.png'
 import rename from './Icons/rename.png'
 import sync from './Icons/sync.png'
@@ -8,7 +9,7 @@ import arrowdown from './Icons/arrowdowncustom.png'
 import arrowup from './Icons/arrowupcustom.png'
 import post_to_dhis2 from './Icons/post_to_dhis2.png'
 import swap from './Icons/swap.png'
-
+import { Chip } from '@dhis2-ui/chip'
 import classes from './App.module.css'
 import { useDataQuery } from '@dhis2/app-runtime';
 
@@ -23,11 +24,19 @@ export const customImage = (source, size='small') => {
   }
   if (source.toLowerCase()  === 'delete'){
     return <img src={delete_} className={iconClass}/>
+    // return <Chip icon={<img src={delete_} className={iconClass}/>} 
+    //             className={
+    //               `${classes.smallIconDestructive}`
+    //               }>
+    //             <img src={delete_} className={iconClass} />
+    //         </Chip>
+   
+    // return <img src={delete_} className={iconClass}/>
   }
   if (source.toLowerCase()  === 'rename'){
     return <img src={rename} className={iconClass}/>
   }
-  if (source.toLowerCase()  === 'configure'){
+  if (source.toLowerCase()  === 'edit'){
     return <img src={edit} className={iconClass}/>
   }
   if (source.toLowerCase() === 'sync'){

@@ -32,7 +32,7 @@ const SideNavigation = props => {
 
         if (props.editMode){
             props.setSelectSideNavigation(selectedSideNavigation)
-            console.log('selectedSideNavigation loaded')
+            // console.log('selectedSideNavigation loaded')
 
         }
         

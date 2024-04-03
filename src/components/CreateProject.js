@@ -83,11 +83,13 @@ const CreateProject = (props) => {
 
         if (!projectName.trim() || !dataSetName) {
             console.log('Please enter a project name or select dataSet');
+
             return;
         }
 
         if (existingProject){
             console.log('Project Name is not Unique');
+            show({ msg: 'Project Name is not Unique :' +projectName, type: 'warning' })
             return;
         }
 
@@ -138,6 +140,7 @@ const CreateProject = (props) => {
                               placeholder="Create Project"
                               value={projectName}
                               onChange={({ value }) => setProjectName(value)}
+                              
                           />
                                                          
                         </div>
@@ -164,7 +167,11 @@ const CreateProject = (props) => {
                 <ModalActions>
                 <ButtonStrip end>
                     <Button onClick={handleCloseModal}>Cancel</Button>
-                    <Button primary onClick={handleCreateProject}>
+                    <Button 
+                      primary 
+                      onClick={handleCreateProject}
+                      disabled={(projectName.length <= 0) || (selectedDataSet.length <= 0)}
+                      >
                         Create Project
                     </Button>
                 </ButtonStrip>

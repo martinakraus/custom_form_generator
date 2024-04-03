@@ -22,7 +22,7 @@ useEffect(() => {
       const updatedDataElementsLevel1 = props.loadedProject.dataElements.filter(
         (element) => element.id === props.selectedDataElementId
       ) || [];
-      if (updatedDataElementsLevel1[0].verticalLevel3.id !== null || updatedDataElementsLevel1[0].verticalLevel3.id !== ""){
+      if (updatedDataElementsLevel1[0]?.verticalLevel3?.id !== null || updatedDataElementsLevel1[0]?.verticalLevel3?.id !== ""){
           const VerticalCategoryObject = filteredCategories.filter(
           (element) => element.id === updatedDataElementsLevel1[0]?.verticalLevel3?.id
           ) || [];

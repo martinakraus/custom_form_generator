@@ -142,7 +142,7 @@ const CleaningServices = (props) => {
             <Button destructive onClick={() =>
                   handleDeleteUnusedProjectcomponents()
                 }
-                primary>Clean
+                >Clean
             </Button>
           </ButtonStrip>
         </ModalActions>

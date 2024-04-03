@@ -35,6 +35,7 @@ const MyApp = () => {
             </p>
 
         
+
             {/* Divider */}
             <div className={classes.mainSection}>
                 <div className={classes.fullpanel}>
@@ -43,7 +44,7 @@ const MyApp = () => {
             </div>
             {/* * load or create new project* */}
 
-            <div className={classes.mainSection}>
+            {/* <div className={classes.mainSection}>
                 <div className={classes.baseMargin}>
                     <div className={classes.flexContainer}>
                         <Box height="100px" width="100px" className={`${classes.cardbox}`}
@@ -66,15 +67,19 @@ const MyApp = () => {
                         </Box>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             {/* Modal for loading projects */}
-            {showModalLoadProjects && 
-                (<LoadProjects 
+            {/* {showModalLoadProjects && ( 
+            <LoadProjects 
+                    engine={engine} 
+                    reloadProjects={reloadProjects}
+                    setReloadProjects={setReloadProjects}/>    )} */}
+                <LoadProjects 
                     engine={engine} 
                     reloadProjects={reloadProjects}
                     setReloadProjects={setReloadProjects}/>                    
-            )}
+         
 
             {/* Modal for creating a new project */}
             {showModalCreateProject && 

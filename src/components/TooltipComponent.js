@@ -16,33 +16,60 @@ const TooltipComponent = (
         }
     ) => {
 
-
     return (
-        <Button
-            destructive={buttonMode === 'destructive'}
-            primary={buttonMode === 'primary'}
-            secondary={buttonMode === 'secondary'}
-            onClick={() => btnFunc(project)}
-            disabled={disabled}
-            className={`${classes.buttonRight} 
-                        ${classes.iconButton} 
-                        ${classes.tooltipbutton}`}
-            style={{ display: 'flex', alignItems: 'center' }} // Aligns content vertically in the middle
+        // <Button
+        //     destructive={buttonMode === 'destructive'}
+        //     primary={buttonMode === 'primary'}
+        //     secondary={buttonMode === 'secondary'}
+        //     onClick={() => btnFunc(project)}
+        //     disabled={disabled}
+        //     className={`${classes.buttonRight} 
+        //                 ${classes.iconButton} 
+        //                 ${classes.tooltipbutton}`}
+        //     style={{ display: 'flex', alignItems: 'center',         
+        //     padding: '3px 7px', // Adjust padding as needed
+        //     fontSize: '0.8rem' // Adjust font size as needed
+        // }}
 
             
-        >    <div>
-            {/* Conditionally render based on customIcon */}
-            <Tooltip content={dynamicText}>
-            {customIcon ? (
-                customImage(dynamicText)
-            ) : (
+        // >    <div>
+        //     {/* Conditionally render based on customIcon */}
+        //     <Tooltip content={dynamicText}>
+        //     {customIcon ? (
+        //         customImage(dynamicText, 'small')
+        //     ) : (
                
-                    <IconType className={classes.icon} />
+        //             <IconType className={classes.icon} />
                
-            )}
-            </Tooltip>
+        //     )}
+        //     </Tooltip>
+        //     </div>
+        // </Button>
+
+
+
+            <div    
+            onClick={() => btnFunc(project)} 		
+            className={
+                            `${classes.buttonRight} 
+                                ${classes.iconButton} 
+                                ${classes.tooltipbutton}
+                                `
+                            }
+                            
+                    disabled={disabled}           
+                    style={{ display: 'flex', alignItems: 'center', padding: '0', margin: '0'}}>
+                        {/* Conditionally render based on customIcon */}
+                        <Tooltip content={dynamicText}>
+                        {customIcon ? (
+                            customImage(dynamicText, 'small')
+                        ) : (
+                        
+                                <IconType className={classes.icon} />
+                        
+                        )}
+                        </Tooltip>
             </div>
-        </Button>
         
     );
 

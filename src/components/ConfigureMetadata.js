@@ -31,7 +31,8 @@ import {
     ModalContent, 
     ModalActions, 
     ButtonStrip, 
-    Button
+    Button,
+    InputField,
 } from '@dhis2/ui';
 
 import {
@@ -130,6 +131,7 @@ const ConfigureMetadata = (props) => {
     // To hold pre-loaded data from dataStore
     const [loadedProject, setLoadedProject] = useState(props.selectedProject || []);
     const [dataElements, setDataElements] = useState(props.selectedProject.dataElements || []);
+    const [filterText, setFilterText] = useState('');
 
 
 
@@ -153,6 +155,7 @@ const ConfigureMetadata = (props) => {
     const [selectedDataElement, setSelectedDataElement] = useState('');
     const [selectedDataElementsDict, setSelectedDataElementsDict] = useState(null);
     const [saveNow, setSaveNow] = useState(false);
+    const [loadedCombos, setLoadedCombos] = useState(null)
 
     
     // State to hold tabs state
@@ -908,14 +911,14 @@ const ConfigureMetadata = (props) => {
                         const Templateid = generateRandomId();  
                                 // Remove spaces from projectName
                         const trimmedTemplateName = templateName.replace(/\s+/g, '');
-           
+                        // console.log('catCombo: ', categoryComboNameID)
                         const TemplateData =  {
                             "id":Templateid,
                             "key": trimmedTemplateName+'-'+Templateid,
                             "name":templateName,
                             "overidingCategory":overidingCategory,
                             "projectID":loadedProject.id,
-                            "catCombo":fileredHorizontalCatCombo0[0].id,
+                            "catCombo":categoryComboNameID,
                             "modifiedDate":modifiedDate(),
                             "sideNavigation": selectedSideNavigation || 'Default',
                             "formComponent":selectedFormComponents || 'Default',                    
@@ -1796,6 +1799,18 @@ const ConfigureMetadata = (props) => {
         }
     };
   
+    const handleFilterChange = (value) => {
+        setFilterText(value);
+      };
+
+    const filteredDataElements = filterText
+    ? dataElements.filter(
+        (de) =>
+          de.name.toLowerCase().includes(filterText.toLowerCase()) 
+      )
+    : dataElements;
+
+
     if (error1 ) {
         return <span>ERROR: {error1?.message }</span>;
     }
@@ -1826,16 +1841,6 @@ const ConfigureMetadata = (props) => {
             Existing Data Elements
           </Tab>
           <Tab
-            label="Configure Data Elements"
-            selected={selectedTab === 'dataElemenent-configuration'}
-            onClick={() => {
-                newDataElementLaunch()
-              }}
-              disabled={saveNow}
-          >
-            Configure Data Elements
-          </Tab>
-          <Tab
             label="Configure Form Components"
             selected={selectedTab === 'form-components'}
             onClick={() => {
@@ -1849,6 +1854,17 @@ const ConfigureMetadata = (props) => {
           >
             Configure Form Components
           </Tab>
+          <Tab
+            label="Configure Data Elements"
+            selected={selectedTab === 'dataElemenent-configuration'}
+            onClick={() => {
+                newDataElementLaunch()
+              }}
+              disabled={saveNow}
+          >
+            Configure Data Elements
+          </Tab>
+
           <Tab
             label="Templates"
             selected={selectedTab === 'template-configuration'}
@@ -1900,12 +1916,35 @@ const ConfigureMetadata = (props) => {
                 <IconSync24 className={classes.icon} />
             </button> */}
 
-                {!saveNow && (<div className={classes.customImageContainer} onClick={handleDataElementRefreshClick}>
+                {!saveNow && (
+                
+                
+                
+                <div className={classes.customImageContainer} onClick={handleDataElementRefreshClick}>
                     {customImage('sync', 'large')}
-                </div>)}
+
+                </div>
+                
+                
+                
+                
+                )}
+                    <div>
+                    <InputField
+                            className={classes.filterInput}
+                            inputWidth={'20vw'}
+                            // label="Filter by - DataElement Name Name, ID or DataSet"
+                            name="filter"
+                            placeholder="Filter by - DataElement Name"
+                            value={filterText}
+                            onChange={(e) => handleFilterChange(e.value)}
+                        />
+                    </div>
                   <Table className={classes.dataTable}>
+
                     <TableHead>
                     <TableRowHead>
+
                         <TableCellHead>Data Elements
 
                         {!saveNow && (<span className={classes.iconAdd}  onClick={() => newDataElementLaunch()}>
@@ -1919,12 +1958,13 @@ const ConfigureMetadata = (props) => {
                     </TableRowHead>
                     </TableHead>
                     <TableBody>
-                        {dataElements && dataElements.length > 0 ? (
-                            dataElements.map((dataElementObj, index) => (
+                        {filteredDataElements && filteredDataElements.length > 0 ? (
+                            filteredDataElements.map((dataElementObj, index) => (
                             <TableRow className={classes.customTableRow} key={dataElementObj.id}>
                                 <TableCell className={classes.customTableCell}>{dataElementObj.name}</TableCell>
                                 <TableCell className={`${classes.customTableCell}`}>
 
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
                                     <TooltipComponent 
                                         IconType={IconEdit16} 
                                         btnFunc={handleEditDataElement}
@@ -1934,15 +1974,7 @@ const ConfigureMetadata = (props) => {
                                         disabled={saveNow}
 
                                     />
-                                    <TooltipComponent 
-                                        IconType={IconDelete16} 
-                                        btnFunc={handleRemoveDataElementConfirmation}
-                                        project={dataElementObj}
-                                        dynamicText="Delete"
-                                        buttonMode="destructive"
-                                        disabled={saveNow}
 
-                                    />
 
                                     {(<div className={classes.customImageContainer} onClick={() => moveDown(index)}>
                                         {customImage('arrowdown', 'small')}
@@ -1950,8 +1982,17 @@ const ConfigureMetadata = (props) => {
                                     {(<div className={classes.customImageContainer} onClick={() => moveUp(index)}>
                                         {customImage('arrowup', 'small')}
                                     </div>)}
+                                    <TooltipComponent 
+                                        IconType={IconDelete16} 
+                                        btnFunc={handleRemoveDataElementConfirmation}
+                                        project={dataElementObj}
+                                        dynamicText="Delete"
+                                        buttonMode="destructive"
+                                        disabled={saveNow}
+                                        customIcon={true}
 
-
+                                    />
+                                </div>
                                 </TableCell>
                             </TableRow>
                             ))
@@ -1966,7 +2007,102 @@ const ConfigureMetadata = (props) => {
                     </div>
         )}
 
+{selectedTab === 'form-components' && (
+            <div className={classes.tableContainer_dataElements}>
+                <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
+                <div className={classes.customImageContainer} onClick={handleNavigatioFormComponentRefreshClick}>
+                    {customImage('sync', 'large')}
+                </div>
+                    <Table className={classes.dataTable}>
+                        <TableHead>
+                        <TableRowHead>
+                            <TableCellHead className={classes.customTableCellHead}>
+                                Side Navigation
+                                <span className={classes.iconAdd} onClick={() => setSideNavigationForm(true)}>
+                                <IconAddCircle24 />
+
+                                </span>
+                                </TableCellHead>
+
+                            <TableCellHead>Actions</TableCellHead>
+                        </TableRowHead>
+                        </TableHead>
+                        <TableBody>
+                        {Array.isArray(SideNavigationQueryData?.dataStore?.entries || []) &&
+                            SideNavigationQueryData?.dataStore?.entries.map((navigation) => (
+                                // Check if navigation.dataSet is equal to selectedDataSet
+                                navigation.projectID === loadedProject.id && (
+                                    <TableRow key={navigation.sideNavName} className={classes.customTableRow}>
+                                        <TableCell className={classes.customTableCell}>{navigation.sideNavName}</TableCell>
+                                        <TableCell className={`${classes.customTableCell}`}>
+
+
+                                        <TooltipComponent 
+                                        IconType={IconDelete16} 
+                                        btnFunc={handleDeleteSideNavigation}
+                                        project={navigation.key}
+                                        dynamicText="Delete"
+                                        buttonMode="destructive"
+                                        customIcon={true}/>
+
+                                        </TableCell>
+                                    </TableRow>
+                                )
+
+                            ))}
+                            </TableBody>
+                    </Table>
+                </div>
+                <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
+
+                    <Table className={classes.dataTable}>
+                        <TableHead>
+                        <TableRowHead>
+                            <TableCellHead className={classes.customTableCellHead}>
+                                Form Components
+                                
+                                <span className={classes.iconAdd}  onClick={() => setFormComponents(true)}>
+                                <IconAddCircle24 />
+
+                                </span>
+                                
+                                </TableCellHead>
+                            <TableCellHead>Actions</TableCellHead>
+                        </TableRowHead>
+                        </TableHead>
+                        <TableBody>
+                        {Array.isArray(FormComponentQueryData?.dataStore?.entries || []) &&
+                            FormComponentQueryData?.dataStore?.entries.map((form_component) => (
+                                // Check if navigation.dataSet is equal to selectedDataSet
+                                form_component.projectID === loadedProject.id && (
+                                <TableRow key={form_component.key} className={classes.customTableRow}>
+                                    <TableCell className={classes.customTableCell}>{form_component.formComponentName}</TableCell>
+                                    <TableCell className={`${classes.customTableCell}`}>
+                                        
+                                    <TooltipComponent 
+                                        IconType={IconDelete16} 
+                                        btnFunc={handleDeleteFormComponent}
+                                        project={form_component.key}
+                                        dynamicText="Delete"
+                                        buttonMode="destructive"
+                                        customIcon={true}/>
+
+
+                                    </TableCell>
+                                </TableRow>
+                            )
+                        ))}
+                            </TableBody>
+                    </Table>
+                </div>
+            </div>
+            
+            
+        )}
+        
         {selectedTab === 'dataElemenent-configuration' && (
+
+        <div className={classes.tableContainer_dataElements}>
                   <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
 
                     
@@ -2031,6 +2167,8 @@ const ConfigureMetadata = (props) => {
                               loadedProject={loadedProject}
                               setOveridingCategory={setOveridingCategory}
                               isHorizontalCategoryExpanded0={isHorizontalCategoryExpanded0}
+                              loadedCombos={loadedCombos}
+                              setLoadedCombos={setLoadedCombos}
 
                                       />;
                               }
@@ -2056,7 +2194,8 @@ const ConfigureMetadata = (props) => {
                           loadedProject={loadedProject}
                           selectedDataElementId={selectedDataElementId}
                           selectedDataElement={selectedDataElement}
-                          fileredHorizontalCatCombo0={fileredHorizontalCatCombo0}/>                    
+                          fileredHorizontalCatCombo0={fileredHorizontalCatCombo0}
+                          loadedCombos={loadedCombos}/>                    
                   )}
                 <div className={classes.baseMargin} style={{ display: 'flex' }}>
 
@@ -2400,100 +2539,15 @@ const ConfigureMetadata = (props) => {
 
 
             </div>
+        
+        
+        </div>
+        
         )}
     
-        {selectedTab === 'form-components' && (
-            <div className={classes.tableContainer_dataElements}>
-                <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
-                <div className={classes.customImageContainer} onClick={handleNavigatioFormComponentRefreshClick}>
-                    {customImage('sync', 'large')}
-                </div>
-                    <Table className={classes.dataTable}>
-                        <TableHead>
-                        <TableRowHead>
-                            <TableCellHead className={classes.customTableCellHead}>
-                                Side Navigation
-                                <span className={classes.iconAdd} onClick={() => setSideNavigationForm(true)}>
-                                <IconAddCircle24 />
 
-                                </span>
-                                </TableCellHead>
-
-                            <TableCellHead>Actions</TableCellHead>
-                        </TableRowHead>
-                        </TableHead>
-                        <TableBody>
-                        {Array.isArray(SideNavigationQueryData?.dataStore?.entries || []) &&
-                            SideNavigationQueryData?.dataStore?.entries.map((navigation) => (
-                                // Check if navigation.dataSet is equal to selectedDataSet
-                                navigation.projectID === loadedProject.id && (
-                                    <TableRow key={navigation.sideNavName} className={classes.customTableRow}>
-                                        <TableCell className={classes.customTableCell}>{navigation.sideNavName}</TableCell>
-                                        <TableCell className={`${classes.customTableCell}`}>
-
-
-                                        <TooltipComponent 
-                                        IconType={IconDelete16} 
-                                        btnFunc={handleDeleteSideNavigation}
-                                        project={navigation.key}
-                                        dynamicText="Delete"
-                                        buttonMode="destructive"/>
-
-                                        </TableCell>
-                                    </TableRow>
-                                )
-
-                            ))}
-                            </TableBody>
-                    </Table>
-                </div>
-                <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
-
-                    <Table className={classes.dataTable}>
-                        <TableHead>
-                        <TableRowHead>
-                            <TableCellHead className={classes.customTableCellHead}>
-                                Form Components
-                                
-                                <span className={classes.iconAdd}  onClick={() => setFormComponents(true)}>
-                                <IconAddCircle24 />
-
-                                </span>
-                                
-                                </TableCellHead>
-                            <TableCellHead>Actions</TableCellHead>
-                        </TableRowHead>
-                        </TableHead>
-                        <TableBody>
-                        {Array.isArray(FormComponentQueryData?.dataStore?.entries || []) &&
-                            FormComponentQueryData?.dataStore?.entries.map((form_component) => (
-                                // Check if navigation.dataSet is equal to selectedDataSet
-                                form_component.projectID === loadedProject.id && (
-                                <TableRow key={form_component.key} className={classes.customTableRow}>
-                                    <TableCell className={classes.customTableCell}>{form_component.formComponentName}</TableCell>
-                                    <TableCell className={`${classes.customTableCell}`}>
-                                        
-                                    <TooltipComponent 
-                                        IconType={IconDelete16} 
-                                        btnFunc={handleDeleteFormComponent}
-                                        project={form_component.key}
-                                        dynamicText="Delete"
-                                        buttonMode="destructive"/>
-
-
-                                    </TableCell>
-                                </TableRow>
-                            )
-                        ))}
-                            </TableBody>
-                    </Table>
-                </div>
-            </div>
-            
-            
-        )}
         {selectedTab === 'template-configuration' && (
-
+        <div className={classes.tableContainer_dataElements}>
         <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
                 <div className={classes.customImageContainer} onClick={handleTemplateRefreshClick}>
                     {customImage('sync', 'large')}
@@ -2508,12 +2562,12 @@ const ConfigureMetadata = (props) => {
                         </TableRowHead>
                         </TableHead>
                         <TableBody>
-                        {Array.isArray(TemaplateQueryData?.dataStore?.entries || []) &&
+                            {Array.isArray(TemaplateQueryData?.dataStore?.entries || []) &&
                             TemaplateQueryData?.dataStore?.entries.map((template) => (
                                 // Check if navigation.dataSet is equal to selectedDataSet
                                 template.projectID === loadedProject.id && (
                                     <TableRow key={template.key} className={classes.customTableRow}>
-                                        <TableCell className={classes.customTableCell}>{template.name}</TableCell>
+                                        <TableCell className={classes.customTableCell}>{template.name}<br/>{template.catCombo.name}</TableCell>
                                         <TableCell className={`${classes.customTableCell}`}>
 
 
@@ -2522,7 +2576,8 @@ const ConfigureMetadata = (props) => {
                                         btnFunc={handleDeleteTemplate}
                                         project={template.key}
                                         dynamicText="Delete"
-                                        buttonMode="destructive"/>
+                                        buttonMode="destructive"
+                                        customIcon={true}/>
 
                                         </TableCell>
                                     </TableRow>
@@ -2532,10 +2587,11 @@ const ConfigureMetadata = (props) => {
                         </TableBody>
             </Table>
         </div>
-
+        </div>
         )}
 
         {selectedTab === 'exclusion-rules' && (
+            <div className={classes.tableContainer_dataElements}>
             <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
                 <div className={classes.customImageContainer} onClick={handleExclusionRuleRefreshClick}>
                     {customImage('sync', 'large')}
@@ -2564,21 +2620,23 @@ const ConfigureMetadata = (props) => {
                                             <TableCell className={classes.customTableCell}>{exclusion.name}</TableCell>
                                             <TableCell className={`${classes.customTableCell}`}>
 
-                                            <TooltipComponent 
-                                            IconType={IconEdit16} 
-                                            btnFunc={handleEditExclusions}
-                                            project={`${exclusion.key}-val:-${exclusion.conditionCoC[0].id}`}
-                                            dynamicText="Edit"
-                                            buttonMode="secondary"
+                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                <TooltipComponent 
+                                                IconType={IconEdit16} 
+                                                btnFunc={handleEditExclusions}
+                                                project={`${exclusion.key}-val:-${exclusion.conditionCoC[0].id}`}
+                                                dynamicText="Edit"
+                                                buttonMode="secondary"
 
-                                            />
-                                            <TooltipComponent 
-                                            IconType={IconDelete16} 
-                                            btnFunc={handleDeleteExclusion}
-                                            project={exclusion.key}
-                                            dynamicText="Delete"
-                                            buttonMode="destructive"/>
-
+                                                />
+                                                <TooltipComponent 
+                                                IconType={IconDelete16} 
+                                                btnFunc={handleDeleteExclusion}
+                                                project={exclusion.key}
+                                                dynamicText="Delete"
+                                                buttonMode="destructive"
+                                                customIcon={true}/>
+                                            </div>
                                             </TableCell>
                                         </TableRow>
                                     )
@@ -2587,10 +2645,11 @@ const ConfigureMetadata = (props) => {
                             </TableBody>
                 </Table>
             </div>
-
+            </div>
         )}
 
         {selectedTab === 'Labels' && (
+            <div className={classes.tableContainer_dataElements}>
             <div className={`${classes.mainSection} ${classes.customSelectpanel}`}>
                 <div className={classes.customImageContainer} onClick={handleLabelRefreshClick}>
                     {customImage('sync', 'large')}
@@ -2622,21 +2681,23 @@ const ConfigureMetadata = (props) => {
 
                                             <TableCell className={`${classes.customTableCell}`}>
 
-                                            <TooltipComponent 
-                                            IconType={IconEdit16} 
-                                            btnFunc={handleEditLabel}
-                                            project={label.key}
-                                            dynamicText="Edit"
-                                            buttonMode="secondary"
+                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                <TooltipComponent 
+                                                IconType={IconEdit16} 
+                                                btnFunc={handleEditLabel}
+                                                project={label.key}
+                                                dynamicText="Edit"
+                                                buttonMode="secondary"
 
-                                        />
-                                            <TooltipComponent 
-                                            IconType={IconDelete16} 
-                                            btnFunc={handleDeleteLabel}
-                                            project={label.key}
-                                            dynamicText="Delete"
-                                            buttonMode="destructive"/>
-
+                                            />
+                                                <TooltipComponent 
+                                                IconType={IconDelete16} 
+                                                btnFunc={handleDeleteLabel}
+                                                project={label.key}
+                                                dynamicText="Delete"
+                                                buttonMode="destructive"
+                                                customIcon={true}/>
+                                            </div>
                                             </TableCell>
                                         </TableRow>
                                     )
@@ -2645,7 +2706,7 @@ const ConfigureMetadata = (props) => {
                             </TableBody>
                 </Table>
             </div>
-
+            </div>
         )}
         </ModalContent>
             {(selectedTab !== 'dataElemenent-configuration') && (
