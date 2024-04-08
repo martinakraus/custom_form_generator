@@ -1,171 +1,96 @@
-import { useDataQuery } from '@dhis2/app-runtime'
-import {useState, useEffect } from 'react';
+import {useState } from 'react';
 import React from 'react'
 import classes from './App.module.css'
-import { SingleSelect, SingleSelectOption, SingleSelectField  } from '@dhis2-ui/select'
 import { Divider } from '@dhis2-ui/divider'
-import AppGetDEList from './AppGetDEList'
+import { useDataEngine } from '@dhis2/app-runtime';
+import CreateProject from './components/CreateProject'
+import LoadProjects from './components/LoadProjects'
+import { footerText, MainTitle, project_description } from './consts';
 
 
-import { DataTable, DataTableRow , DataTableColumnHeader, DataTableCell, TableHead, TableBody   } from '@dhis2-ui/table'
 
-import {
-    Button,
-} from '@dhis2/ui'
-
-/*  Query Parameters**/
-const query = {
-    dataSets: {
-        resource: 'dataSets',
-        params: {
-            fields: ['id', 'displayName'],
-        },
-    },
-
-    dataElements: {
-        resource: 'dataElements',
-        params: {
-          fields: ['id', 'displayName'],
-        },
-      },
-      
-
-
-}
-
-
-/** header constant ***/
-const header = (
-    <div className={classes.headerContainer}>
-        <h1>Custom Form Generator</h1>
-
-    </div>
-
-    );
 const MyApp = () => {
+
+    const engine = useDataEngine();
     {/* declare variable and event methods */}
-    const [selectedDataSet,setselectedDataSet] = useState([]);
-    const [selectedDataSetName,setselectedDataSetName] = useState([]);
 
+    const [showModalCreateProject, setShowModalCreateProject] = useState(false);
+    const [showModalLoadProjects, setShowModalLoadProjects] = useState(false);
+    // reloading and state does not matter
+    const [reloadProjects, setReloadProjects] = useState(false);
 
-    {/* useDataQuery(query) loader */}
-    const { loading: loading1, error: error1, data: data1 } = useDataQuery(query);
-
-    const handleDataSetChange = event => {
-
-              setselectedDataSet(event.selected);
-
-              {data1.dataSets.dataSets.filter(dataSets => dataSets.id.includes(event.selected)).map(
-                ({ id, displayName }) => (                    
-                    setselectedDataSetName({displayName})                   
-                                         )
-                )}               
-
-    };
- 
-
-    {/*  useDataQuery(query) exceptions */}
     
-    if (error1 ) {
-        return <span>ERROR: {error1?.message }</span>;
-    }
-
-    if (loading1) {
-        return <span>Loading...</span>;
-    }
-
-    if (data1) {
-      
-
-
-    }
-  
-
-    {/*  useDataQuery(query) exceptions */}
-
-    {/****
-        if (error2) {
-            return <span>ERROR: {error.message}</span>
-        }
-
-        if (loading2) {
-            return <span>Loading...</span>
-        }
-
-        if (data2) {
-            {console.log(data2)}
-
-        }
-	*****/}
 
     return (
 
         <div className={classes.pageDiv}>
-            {/* Header */}
+                {/* Header */}
+                <h1 style={{ margin: '0' }}>{MainTitle}</h1>
+                <span style={{ margin: '0', fontSize: '0.7rem' }}>
+                    {project_description}
+                </span>
 
-        	{ header }
-
-            <p>
-        This application is used to create custom dhis2 forms automatically to align DATIM design pattern
-      </p>
 
             {/* Divider */}
-                    <div className={classes.mainSection}>
-                                            <div className={classes.fullpanel}>
-                                                <Divider />
-                                            </div>
-                    </div>
-
-            {/* Select DataSet */}
-        	<div className={classes.mainSection}>
-                               <div className={classes.leftpanel}>
-                                       <div className={classes.baseMargin}>
-                                                                               <SingleSelect className="select"
-                                                                                                        filterable
-                                                                                                        noMatchText="No match found"
-                                                                                                        placeholder="Select dataSet"
-                                                                                                        selected={selectedDataSet}
-                                                                                                        value={selectedDataSet}
-                                                                                                        onChange={handleDataSetChange}
-                                                                                                        >
-                                                                                      {data1.dataSets.dataSets.map(
-                                                                                               ({ id, displayName }) => (
-                                                                                               <SingleSelectOption label={displayName} value={id}/>
-                                                                                                                        )
-                                                                                           )}
-
-                                                                               </SingleSelect>
-
-                                        </div>
-
-
-                            </div>
-
-
-                               <div className={classes.middlepanel}></div>
-                               <div className={classes.leftpanel}>
-                                       <div className={classes.baseMargin}>
-
-                                                {(function() {
-                                                                                        if (typeof selectedDataSet === 'string' && selectedDataSet.length > 0) {
-                                                                                        return <AppGetDEList 
-                                                                                                    selectedDataSet={selectedDataSet} 
-
-                                                                                                />;
-                                                                                        }
-                                                                    })()}
-
-                                        </div>
-                                </div>
-
+            <div className={classes.mainSection}>
+                <div className={classes.fullpanel}>
+                    <Divider />
+                </div>
             </div>
+            {/* * load or create new project* */}
 
-          
+            {/* <div className={classes.mainSection}>
+                <div className={classes.baseMargin}>
+                    <div className={classes.flexContainer}>
+                        <Box height="100px" width="100px" className={`${classes.cardbox}`}
 
-        	                        
+                        >
+                                <div className={classes.cardContent}                                        
+                                        onClick={() => {
+                                            setShowModalLoadProjects(true);
+                                            setReloadProjects((prev) => !prev);                                            
+
+                                        }}
+                                        
+                                        >
+                                    All Projects
+                                </div>
+                        </Box>
+                    <div className={classes.spaceInBetween}></div>
+                        <Box height="100px" width="100px" className={classes.cardbox} >
+                            <div className={classes.cardContent} onClick={() => setShowModalCreateProject(true)}>Create Project</div>
+                        </Box>
+                    </div>
+                </div>
+            </div> */}
+
+            {/* Modal for loading projects */}
+            {/* {showModalLoadProjects && ( 
+            <LoadProjects 
+                    engine={engine} 
+                    reloadProjects={reloadProjects}
+                    setReloadProjects={setReloadProjects}/>    )} */}
+                <LoadProjects 
+                    engine={engine} 
+                    reloadProjects={reloadProjects}
+                    setReloadProjects={setReloadProjects}/>                    
+         
+
+            {/* Modal for creating a new project */}
+            {showModalCreateProject && 
+                (<CreateProject 
+                    engine={engine} 
+                    setShowModalCreateProject={setShowModalCreateProject} 
+                    setShowModalLoadProjects={setShowModalLoadProjects}
+                    setReloadProjects={setReloadProjects} 
+                    />                    
+            )}
 
 
-        </div>
+            <footer className={classes.footer}>
+                <p>{footerText}</p>
+            </footer>
+    </div>
     )
 }
 

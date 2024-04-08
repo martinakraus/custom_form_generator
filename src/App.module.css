@@ -26,6 +26,17 @@
 
   }
 
+  .footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #f8f9fa;
+    padding: 10px;
+    text-align: center;
+    border-top: 1px solid #ccc;
+}
+
 /* Add a new rule to override the styles for div.app-shell-app.jsx-1964929281 */
 div.app-shell-app.jsx-1964929281 {
     /* Your modified styles here */
@@ -55,8 +66,13 @@ div.app-shell-app.jsx-1964929281 {
 
 .baseMargin {
  width:100%;
+ margin-bottom: 20px;
  /*background-color: blue;*/
 
+}
+
+.hideMetadataSelection {
+  display: none; /* Hide the new section */
 }
 
 .pageDiv {
@@ -104,6 +120,10 @@ div.app-shell-app.jsx-1964929281 {
 
 .dataTable {
   width: 90vw;
+}
+
+.dataTableDataFormEntry {
+  width: 40vw;
 }
 
 .loaderTd {
@@ -189,4 +209,305 @@ div.app-shell-app.jsx-1964929281 {
 .box {
     border: 1px solid black;
 }
+.collapsible {
+  background-color: #777;
+  color: white;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+}
 
+.collapsible.active,
+.collapsible:hover {
+  background-color: #2C6693;
+}
+
+.content {
+  padding: 0 18px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+  background-color: #f1f1f1;
+}
+
+.content.active {
+  max-height: 500px; /* Set your desired max height when active */
+  transition: max-height 0.2s ease-in;
+}
+
+
+.transferContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+  margin-bottom: 20px;
+}
+
+
+.cardbox {
+  border: 1px solid black; /* Add a border for visualization */
+  padding: 10px; /* Add padding for some spacing */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cardbox:hover {
+  background-color: #2C6693;
+  cursor: pointer; /* Show hand cursor on hover */
+}
+
+.cardboxExclusion {
+  border: 1px solid black; /* Add a border for visualization */
+  padding: 10px; /* Add padding for some spacing */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cardboxExclusion:hover {
+  background-color: #DBDFEA;
+  cursor: pointer; /* Show hand cursor on hover */
+}
+
+
+.flexContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.spaceInBetween {
+  width: 20px; /* Adjust the width of the space in the middle */
+}
+
+.cardContent {
+  text-align: center;
+  padding: 10px; /* Add padding for spacing */
+  cursor: pointer; /* Show hand cursor on hover */
+}
+
+.cardContent:hover {
+  background-color: #2C6693;
+  color: #E8E8E8;
+  cursor: pointer; /* Show hand cursor on hover */
+}
+
+.hideCreateProject {
+  display: none; /* Hide the new section */
+}
+
+/** load project ***/
+.filterInput {
+  margin-right: auto;
+  padding-bottom: 10px;
+}
+.dataTable {
+  width: 50vw;
+
+}
+
+.buttonRight {
+  margin-right: 10px; /* Adjust the margin value between buttons */
+
+
+}
+.customTableCell {
+  /* Add margin or padding as needed */
+  margin-bottom: 30px; /* Adjust the margin value */
+
+}
+
+/* Define the custom class for the SingleSelect component */
+.customSelectpanel {
+  min-width: 800px; /* Set the desired input width */
+}
+
+.tableContainer {
+  max-Width: 800px; /* Set the desired maximum width */
+  margin: 0 auto;  /* Center the container on the page if needed */
+
+}
+
+/* .tableContainer_dataElements {
+  max-height: 400px; /* Set the maximum height as needed */
+  /* overflow-y: auto; Enable vertical scroll
+} */ 
+
+.tableContainer_dataElements {
+  max-height: 600px; /* Set the maximum height as needed */
+  overflow-y: auto; /* Enable vertical scroll */
+}
+
+.tableContainer_dataEntryForms {
+  max-height: 350px; /* Set the maximum height as needed */
+  overflow-y: auto; /* Enable vertical scroll */
+}
+
+.customTableRow{
+
+min-height: 200px;
+
+}
+
+.customTableRowEmpty{
+
+  max-Width: 150px;
+  
+  }
+
+.closeButton {
+  background-color: red; 
+  color: white; 
+  border: none; 
+  cursor: pointer; 
+}
+
+.renamebutton {
+  position: relative;
+}
+
+.renamebutton:hover::after {
+  content: 'Rename';  /* Retrieve content from the data-tooltip attribute */
+  position: absolute;
+  top: 100%; /* Position the tooltip below the button */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #2C6693;
+  color: #E8E8E8;
+  padding: 5px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+
+.tooltipbutton{
+  position: relative;
+}
+
+.tooltipbutton:hover .tooltip-content {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip-content {
+  visibility: hidden;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #2C6693;
+  color: #E8E8E8;
+  padding: 5px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: visibility 0s, opacity 0.3s linear;
+}
+
+/* Add these styles to table file */
+.customTableCellHead {
+  width: 70%;
+}
+
+/* Add this style to your CSS file */
+.iconAdd {
+  color: green; /* Set the desired color for the icon */
+  margin-left: 5px; /* Adjust the left margin as needed */
+}
+
+/* Add this style to your CSS file */
+.iconAddNewProject {
+  color: rgb(244, 247, 244); /* Set the desired color for the icon */
+  padding-top: 10px;
+
+  
+}
+
+/* Replace with your actual styles or modify as needed */
+.sideNavigationSelect {
+  width: 50%; /* Adjust the width as needed */
+  float: left;
+}
+
+.formComponentSelect {
+  width: 50%; /* Adjust the width as needed */
+  float: left;
+  margin-left: 10px; /* Adjust the margin as needed for spacing between the two components */
+}
+
+.inputField {
+  margin-bottom: 10px;
+}
+
+.selectField {
+  margin-bottom: 10px;
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  color: #3C434D;
+  border-color: #A0ADBA;
+}
+
+.smallIcon {
+  width: 18px;
+  /* height: 12px   */
+}
+
+.smallIconDestructive {
+  background-color: #b61940 !important;
+
+
+}
+
+.CreateProjectBgColor {
+  background-color: #4d9663 !important;
+  color: #ccc;
+
+
+}
+
+.largeIcon {
+  width: 30px;
+  height: 26px  
+}
+
+.customImageContainer {
+  float: right; /* Aligns the container to the right */
+  cursor: pointer; /* Changes cursor to pointer on hover */
+}
+
+.tableHeaderWrapper {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: white; /* Set the background color as needed */
+}
+
+.tableBodyWrapper {
+  max-height: calc(100vh); /* Adjust the height as needed */
+  overflow-y: auto;
+}
+
+
+.tableContainer_projectList {
+  max-height: 400px; /* Set the maximum height as needed */
+  overflow-y: auto; /* Enable vertical scroll */
+  width: 100%;
+  margin-bottom: 50px;
+}
+
+img.App_smallIcon__c-XWP {
+  width: 16px;
+  height: 14px;
+}
+
+.iconClassCustom {
+  width: 16px; /* Set the width to 32 pixels */
+  /* height: auto; Maintain the aspect ratio */
+}

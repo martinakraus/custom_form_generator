@@ -1,7 +1,7 @@
 {
   "name": "custom-form-gen",
   "version": "1.0.0",
-  "description": "",
+  "description": "DHIS2 Custom Form Generator - DATIM Adaptation",
   "license": "BSD-3-Clause",
   "private": true,
   "scripts": {
