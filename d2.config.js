@@ -1,7 +1,7 @@
 const config = {
     type: 'app',
-    name: 'DHIS2_DCFG',
-    title: 'DHIS2 DataSet Custom Form Generator',
+    name: 'Form Forge',
+    title: 'Form Forge',
     entryPoints: {
         app: './src/App.js',
     },

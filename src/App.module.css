@@ -490,8 +490,16 @@ min-height: 200px;
 }
 
 .tableBodyWrapper {
-  max-height: calc(100vh - /* height of the table header */ px); /* Adjust the height as needed */
+  max-height: calc(100vh); /* Adjust the height as needed */
   overflow-y: auto;
+}
+
+
+.tableContainer_projectList {
+  max-height: 400px; /* Set the maximum height as needed */
+  overflow-y: auto; /* Enable vertical scroll */
+  width: 100%;
+  margin-bottom: 50px;
 }
 
 img.App_smallIcon__c-XWP {

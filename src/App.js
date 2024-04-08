@@ -5,7 +5,7 @@ import { Divider } from '@dhis2-ui/divider'
 import { useDataEngine } from '@dhis2/app-runtime';
 import CreateProject from './components/CreateProject'
 import LoadProjects from './components/LoadProjects'
-import { footerText, MainTitle } from './consts';
+import { footerText, MainTitle, project_description } from './consts';
 
 
 
@@ -25,12 +25,11 @@ const MyApp = () => {
 
         <div className={classes.pageDiv}>
                 {/* Header */}
-                <h1>{ MainTitle }</h1>
-            <p>
-                This application is used to create custom dhis2 forms automatically to align DATIM design pattern
-            </p>
+                <h1 style={{ margin: '0' }}>{MainTitle}</h1>
+                <span style={{ margin: '0', fontSize: '0.7rem' }}>
+                    {project_description}
+                </span>
 
-        
 
             {/* Divider */}
             <div className={classes.mainSection}>

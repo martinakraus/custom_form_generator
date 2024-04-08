@@ -1884,7 +1884,7 @@ const ConfigureMetadata = (props) => {
               }}
               disabled={saveNow}
           >
-            Templates
+            CoC Templates
           </Tab>
           <Tab
             label="Exclusion Rules"

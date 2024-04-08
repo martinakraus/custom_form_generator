@@ -321,7 +321,7 @@ const LoadProjects = ({ engine, reloadProjects, setReloadProjects }) => {
   };
 
   return (
-    <div>
+    <div style={{ width: '90%' }}>
 
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <InputField
@@ -333,22 +333,21 @@ const LoadProjects = ({ engine, reloadProjects, setReloadProjects }) => {
                   onChange={(e) => handleFilterChange(e.value)}
                 />
                 <Chip
-  className={`${classes.customImageContainer} ${classes.CreateProjectBgColor}`}
-  onClick={() => setShowModalCreateProject(true)}
->
-<div style={{ display: 'flex', alignItems: 'center' }}>
-  <div>  
-    <span className={classes.iconAddNewProject} style={{ marginTop: '2px' }}>
-      <IconAddCircle16 />
-    </span>
-  </div>
-  <div>
-    <span style={{ color: 'white', marginLeft: '5px' }}>Create Project</span>
-  </div>
-</div>
+                    className={`${classes.customImageContainer} ${classes.CreateProjectBgColor}`}
+                    onClick={() => setShowModalCreateProject(true)}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <div>  
+                        <span className={classes.iconAddNewProject} style={{ marginTop: '2px' }}>
+                          <IconAddCircle16 />
+                        </span>
+                      </div>
+                      <div>
+                        <span style={{ color: 'white', marginLeft: '5px' }}>Create Project</span>
+                      </div>
+                    </div>
 
   
-</Chip>
+                </Chip>
 
                 <Chip
                   className={classes.customImageContainer}
@@ -369,97 +368,104 @@ const LoadProjects = ({ engine, reloadProjects, setReloadProjects }) => {
                   Cleaner
                 </Chip>
               </div>
-        <div className={classes.tableContainer_dataElements}>
 
-        <div className={classes.tableHeaderWrapper}>
-          <Table className={classes.dataTable}>
-            <TableHead>
-              <TableRowHead>
-                <TableCellHead>Project Name</TableCellHead>
-                <TableCellHead>Project Unique ID</TableCellHead>
-                <TableCellHead>DataSet</TableCellHead>
-                <TableCellHead>Date modified</TableCellHead>
-                <TableCellHead>Actions</TableCellHead>
-              </TableRowHead>
-            </TableHead>
-          </Table>
-        </div>
-
-
-          
-          {/* <Table className={classes.dataTable}>
-            <TableHead>
-              <TableRowHead>
-                <TableCellHead>Project Name</TableCellHead>
-                <TableCellHead>Project Unique ID</TableCellHead>
-                <TableCellHead>DataSet</TableCellHead>
-                <TableCellHead>Date modified</TableCellHead>
-                <TableCellHead>Actions</TableCellHead>
-              </TableRowHead>
-            </TableHead> */}
+              <div className={classes.tableContainer_projectList}>
+                      <div className={classes.tableHeaderWrapper}>
+                      <Table className={classes.dataTable}>
+                        <TableHead>
+                          <TableRowHead>
+                            <TableCellHead>Project Name</TableCellHead>
+                            <TableCellHead>Project Unique ID</TableCellHead>
+                            <TableCellHead>DataSet</TableCellHead>
+                            <TableCellHead>Date modified</TableCellHead>
+                            <TableCellHead>Actions</TableCellHead>
+                          </TableRowHead>
+                        </TableHead>
+                      </Table>
+                      </div>
+                      <div className={classes.tableContainer_dataElements}>
 
 
+                      <div className={classes.tableBodyWrapper}>
+                        <Table className={classes.dataTable}>
+                        <TableBody>
+                        {Array.isArray(filteredProjects) &&
+                            filteredProjects.map((project) => (
+                              <TableRow className={classes.customTableRow} key={project.key}>
+                                <TableCell className={classes.customTableCell}>{project.projectName}</TableCell>
+                                <TableCell className={classes.customTableCell}>{project.id}</TableCell>
+                                <TableCell className={classes.customTableCell}>{project.dataSet.name}-{project.dataSet.id}</TableCell>
+                                <TableCell className={classes.customTableCell}>{project.modifiedDate}</TableCell>
+                                <TableCell className={`${classes.customTableCell}`}>
 
-  <div className={classes.tableBodyWrapper}>
-    <Table className={classes.dataTable}>
-            <TableBody>
-            {Array.isArray(filteredProjects) &&
-                filteredProjects.map((project) => (
-                  <TableRow className={classes.customTableRow} key={project.key}>
-                    <TableCell className={classes.customTableCell}>{project.projectName}</TableCell>
-                    <TableCell className={classes.customTableCell}>{project.id}</TableCell>
-                    <TableCell className={classes.customTableCell}>{project.dataSet.name}-{project.dataSet.id}</TableCell>
-                    <TableCell className={classes.customTableCell}>{project.modifiedDate}</TableCell>
-                    <TableCell className={`${classes.customTableCell}`}>
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                  <TooltipComponent 
+                                    IconType={IconEdit16} 
+                                    btnFunc={handleConfigureProject}
+                                    project={project}
+                                    dynamicText="Edit"
+                                    buttonMode="secondary"
+                                    customIcon={true}
+                                    />
+                                  <TooltipComponent 
+                                    IconType={IconTextHeading16} 
+                                    btnFunc={handleEditProject}
+                                    project={project}
+                                    dynamicText="Rename"
+                                    buttonMode="secondary"
+                                    customIcon={true}
 
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <TooltipComponent 
-                        IconType={IconEdit16} 
-                        btnFunc={handleConfigureProject}
-                        project={project}
-                        dynamicText="Edit"
-                        buttonMode="secondary"
-                        customIcon={true}
-                        />
-                      <TooltipComponent 
-                        IconType={IconTextHeading16} 
-                        btnFunc={handleEditProject}
-                        project={project}
-                        dynamicText="Rename"
-                        buttonMode="secondary"
-                        customIcon={true}
+                                    />
 
-                        />
+                                  <TooltipComponent 
+                                    IconType={IconTextHeading16} 
+                                    btnFunc={handleCopyProjectConfirmation}
+                                    project={project}
+                                    dynamicText="Copy"
+                                    buttonMode="secondary"
+                                    customIcon={true}
 
-                      <TooltipComponent 
-                        IconType={IconTextHeading16} 
-                        btnFunc={handleCopyProjectConfirmation}
-                        project={project}
-                        dynamicText="Copy"
-                        buttonMode="secondary"
-                        customIcon={true}
+                                    />
+                                  
 
-                        />
+                                  <TooltipComponent 
+                                      IconType={IconDelete16} 
+                                      btnFunc={handleDeleteProjectConfirmation}
+                                      project={project}
+                                      dynamicText="Delete"
+                                      buttonMode="destructive"
+                                      customIcon={true}
+
+                                    />
+                              </div>
+                              </TableCell>
+                              </TableRow>
+                        ))}
+
+                        </TableBody>   
                       
+                      </Table>
+            </div>
 
-                      <TooltipComponent 
-                          IconType={IconDelete16} 
-                          btnFunc={handleDeleteProjectConfirmation}
-                          project={project}
-                          dynamicText="Delete"
-                          buttonMode="destructive"
-                          customIcon={true}
 
-                        />
-                  </div>
-                  </TableCell>
-                  </TableRow>
-            ))}
+                      </div>
 
-            </TableBody>   
-          
-          </Table>
-          </div>
+
+                      
+                      {/* <Table className={classes.dataTable}>
+                        <TableHead>
+                          <TableRowHead>
+                            <TableCellHead>Project Name</TableCellHead>
+                            <TableCellHead>Project Unique ID</TableCellHead>
+                            <TableCellHead>DataSet</TableCellHead>
+                            <TableCellHead>Date modified</TableCellHead>
+                            <TableCellHead>Actions</TableCellHead>
+                          </TableRowHead>
+                        </TableHead> */}
+
+
+
+   
 
           {showEditModal && (
             <Modal>
