@@ -1,15 +1,15 @@
 # Form Forge – DATIM Adaptation
 ---
-## Goal: 
+## Goal 
 Automatically generate DHIS2 custom forms to adapt DATIM UI layout. Data for Accountability Transparency and Impact (DATIM) is the PEPFAR-specific version of DHIS2 and is used to collect data
 
-## Requirements:
+## Requirements
 -	DHIS2 instances that are set up according to the metadata model.
 -	Metadata: DataSet, DataElements, CategoryCombos, Categories, CategoryOptions, OrganizationUnit.
 -	Access to DHIS2 instances (username and password).
 -	DHIS2 aggregate configuration skills or training.
 
-### Server Resources:
+### Server Resources
 For a DHIS2 React app, the server resources required can vary depending on the scale of the application and the volume of data being handled. However, for basic minimum requirements, you can start with:
 Minimum: 16 GB of memory
 Minimum: 4 vCPUs
@@ -21,7 +21,7 @@ These server resources are essential for ensuring smooth performance and efficie
 
 ## Overview
 
-![Overview](docs/ERD.drawio.png)
+![Overview](docs/Overview.drawio.png)
 ---
 
 ## Model Views and Processes 
@@ -51,7 +51,7 @@ Each category option desired for the dataEntry form is selected or removed at th
 After a data element has been selected for configuration. The Category Option Combination for that dataElement is queried for the user to select the Category at each level. This will now allow using the UI transfer component to select desired category options at each level.
 After completing the selections and updating 'custom-form-generator', the dataElements object in 'custom-form-generator' looks like below.
 
-{
+        {
             "dataElements":[        
                             {	...
 				
@@ -72,7 +72,7 @@ After completing the selections and updating 'custom-form-generator', the dataEl
                                 }, 
                             }
                         ]
-}
+        }
 A CoC template can be created to reduce the work in adding another data Element that is required to use the same The Category Option Combination. The data is saved as above also but in another datastore Object called 'custom-templates-form-generator',
 When generating the data entry form, the application will need to know the location in the form to place the data element and options using the Side Navigation ('custom-navigations-form-generator') and the Form Component ('custom-components-form-generator'). The form component is a collapsible in the data entry form that groups the data elements together in the form.
 
@@ -154,3 +154,77 @@ After the configuration of the data elements and the associated projects compone
 ---
 
 ## Installation
+Installing the built application is easy. Follow the steps below:
+1.	Log in to your DHIS2 instance as a superuser or user with appropriate permissions.
+2.	Navigate to the “App Management” section in DHIS2.
+3.	From the navigation, select “Manual install”.
+4.	Upload the built application form your device by clicking on “Upload an app to install” button.
+5.	Select the built bundle and the application will be installed into DHIS2.
+6.	Confirm installation by navigating to “Custom apps” and then locate “Form Forge”.
+
+
+## Configuration
+This project was bootstrapped with [DHIS2 Application Platform](https://github.com/dhis2/app-platform).
+
+### Pre-requisite
+1.	Install VS Code
+https://dhis2-app-course.ifi.uio.no/learn/getting-started/development-setup/editor/vs-code/
+
+2.	Install NodeJS
+https://dhis2-app-course.ifi.uio.no/learn/getting-started/development-setup/nodejs/node-installation/
+
+3.	Yarn is an alternative NodeJS package manager and is used by many projects, including many of DHIS2's own libraries and applications.
+https://dhis2-app-course.ifi.uio.no/learn/getting-started/development-setup/nodejs/yarn-installation/
+
+4.	Follow the application development process in DHIS2 with https://developers.dhis2.org/docs/app-platform/getting-started 
+5.	or in uio https://dhis2-app-course.ifi.uio.no/learn/dhis2/getting-started/app-dev-tools/ 
+6.	install dhis2 dependencies.
+https://dhis2-app-course.ifi.uio.no/learn/dhis2/getting-started/development-environment/development-env-setup/ 
+
+### Clone project.
+7.	Create a new folder with a name of your choice. We have chosen AppStore.  cd into the new folder "AppStore"
+8.	Clone project from https://github.com/FHI360/custom_form_generator.git  
+git clone https://github.com/FHI360/custom_form_generator.git 
+Using Windows
+9.	add …\AppData\Local\Yarn\bin to path   https://community.dhis2.org/t/d2-cli-not-recognized/49768/3
+
+### Install dependencies
+10.	yarn add --dev @dhis2/cli-app-scripts
+11.	d2 app scripts init custom-form-gen
+12.	cd custom-form-gen
+13.	run "yarn add @dhis2/cli-style –dev or yarn add @dhis2/cli-style -D"
+14.	run "yarn d2-style add eslint react"
+15.	run "yarn d2-style install"
+
+        // package.json
+        {
+            // ...
+            "scripts": {
+                // ...
+                "lint": "yarn d2-style check",
+                "lint:staged": "yarn lint --staged",
+                "format": "yarn d2-style apply",
+                "format:staged": "yarn format --staged"
+            }
+        }
+
+16.	run "yarn lint"
+17.	run "yarn format"
+
+18.	To test run  "yarn start --proxy https://play.dhis2.org/2.38.5 --proxyPort 8082"
+
+https://github.com/dhis2/academy-web-app-dev-2022/blob/main/resources/GET_STARTED.md#start-your-dhis2-application-locally 
+
+19.	Log into DHIS2 instance.
+
+ 
+### Building a ZIP file
+20.	run "yarn build"
+21. locate zip bundle in "custom-form-gen/build"
+
+
+### Resources
+
+* https://docs.dhis2.org/en/develop/using-the-api/dhis-core-version-240/metadata.html
+* https://dhis2designlab.github.io/
+

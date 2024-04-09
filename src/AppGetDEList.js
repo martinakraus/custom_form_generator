@@ -82,11 +82,22 @@ const AppGetDEList = props => {
             // console.log('OveridingCategory: ', dataSetElement.categoryCombo.id)
             break; // Stop the loop since we found the desired dataSetElement
           }else{
-            const name = catData?.dataElement?.categoryCombo?.name || ''
-            const id = catData?.dataElement?.categoryCombo?.id || ''
-            props.setLoadedCombos({id: id, name:name})
-            // props.setLoadedCombos(catData?.dataElement?.categoryCombo?.name || '')            
-            props.setOveridingCategory('xxxxx')
+            if (catData?.dataElement?.categoryCombo?.name !== null || catData?.dataElement?.categoryCombo?.name !== undefined){
+
+              const name = catData?.dataElement?.categoryCombo?.name || ''
+              const id = catData?.dataElement?.categoryCombo?.id || ''
+              props.setLoadedCombos({id: id, name:name})
+              // props.setLoadedCombos(catData?.dataElement?.categoryCombo?.name || '')            
+              props.setOveridingCategory('xxxxx')
+
+            }else{
+
+              props.setLoadedCombos({id: '', name:''})
+              // props.setLoadedCombos(catData?.dataElement?.categoryCombo?.name || '')            
+              props.setOveridingCategory('xxxxx')
+
+            }
+
 
           }
         }        
