@@ -51,6 +51,7 @@ const AppGetDEList = props => {
     const {loading: catLoading, error: cateEerror, data: catData, refetch: catRefetch } = useDataQuery(catComboQuery, {variables: {id: dataElemntID}})
     const {loading: selectedCat, error: selectedCatError, data: selectedCatData, refetch: selectedCatRefetch } = useDataQuery(query, {variables: {categoryCombo: selectedcategoryCombo}})
     
+    let loadedCombosName = props.loadedCombos?.name || ""
     useEffect(() => {
       if(selectedCatData){
         const name = selectedCatData?.categoryCombo?.categoryCombos[0]?.name || ''
@@ -82,11 +83,22 @@ const AppGetDEList = props => {
             // console.log('OveridingCategory: ', dataSetElement.categoryCombo.id)
             break; // Stop the loop since we found the desired dataSetElement
           }else{
-            const name = catData?.dataElement?.categoryCombo?.name || ''
-            const id = catData?.dataElement?.categoryCombo?.id || ''
-            props.setLoadedCombos({id: id, name:name})
-            // props.setLoadedCombos(catData?.dataElement?.categoryCombo?.name || '')            
-            props.setOveridingCategory('xxxxx')
+            if (catData?.dataElement?.categoryCombo?.name !== null || catData?.dataElement?.categoryCombo?.name !== undefined){
+
+              const name = catData?.dataElement?.categoryCombo?.name || ''
+              const id = catData?.dataElement?.categoryCombo?.id || ''
+              props.setLoadedCombos({id: id, name:name})
+              // props.setLoadedCombos(catData?.dataElement?.categoryCombo?.name || '')            
+              props.setOveridingCategory('xxxxx')
+
+            }else{
+
+              props.setLoadedCombos({id: '', name:''})
+              // props.setLoadedCombos(catData?.dataElement?.categoryCombo?.name || '')            
+              props.setOveridingCategory('xxxxx')
+
+            }
+
 
           }
         }        
@@ -186,7 +198,7 @@ const AppGetDEList = props => {
 
                         </SingleSelect>
                                   <h1></h1>
-              <span>{props.loadedCombos.name}</span>
+              <span>{loadedCombosName}</span>
 
        </div>
       

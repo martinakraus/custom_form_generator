@@ -2,12 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { SingleSelect, SingleSelectOption } from '@dhis2-ui/select';
 import classes from '../App.module.css'
 import PropTypes from 'prop-types';
+import { IconInfo16 } from '@dhis2/ui-icons'; 
+
+
+import level4Guide from '../images/level4.png'
+
 
 const VerticalCategoryLevel2 = (props) => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [horizontalCategories, setHorizontalCategories] = useState([]);
   const filteredCategories = props.fileredVerticalCatComboLevel2 || [];
   const [disabled, setDisabled] = useState(false)
+
+  const [showGuide, setShowGuide] = useState(false);
+
+  const toggleGuide = () => {
+    setShowGuide(!showGuide);
+  };
 
 
   useEffect(() => {
@@ -59,19 +70,44 @@ const VerticalCategoryLevel2 = (props) => {
 
   return (
     <div className={classes.baseMargin}>
-      <SingleSelect
-        filterable
-        noMatchText="No categories found"
-        placeholder="Select category"
-        selected={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : ""}
-        value={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : ""}
-        onChange={({ selected }) => handleHorizontalCategoryChange(selected)}
-        disabled={disabled}
-      >
-        {horizontalCategories.map(category => (
-          <SingleSelectOption key={category.id} label={category.name} value={category.id} />
-        ))}
-      </SingleSelect>
+                {/* <h1>{dataElemntID} {dataElemntID} - {dataElemntID.length}</h1> */}
+            {(props.selectedDataElementId.length > 0) && (<div className={classes.customImageContainer}  style={{ cursor: 'pointer' }}
+                        onMouseEnter={toggleGuide}
+                        onMouseLeave={toggleGuide}>
+                                    {/* {showGuide && ( )}*/}
+                      <div>
+                      <IconInfo16 alt="Guide" />
+                       
+                      </div>
+                
+            </div>)}
+
+            <div style={{ position: 'relative', display: 'inline-block' }}>
+
+                {showGuide && (
+                  <div className={classes.guideContent}
+                  >
+                      <img src={level4Guide} alt="Guide" />
+                  </div>
+                )}
+            </div>
+            <div>
+                <SingleSelect
+                  filterable
+                  noMatchText="No categories found"
+                  placeholder="Select category"
+                  selected={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : ""}
+                  value={horizontalCategories.some(category => category.id === selectedCategory) ? selectedCategory : ""}
+                  onChange={({ selected }) => handleHorizontalCategoryChange(selected)}
+                  disabled={disabled}
+                >
+                  {horizontalCategories.map(category => (
+                    <SingleSelectOption key={category.id} label={category.name} value={category.id} />
+                  ))}
+                </SingleSelect>
+
+
+      </div>
     </div>
   );
 };

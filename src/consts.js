@@ -102,6 +102,6 @@ export const SideNavigationQuery = {
     }
   
     export const MainTitle = 'Form Forge'
-    const version = 'version v1.0.0 production 12-04-2024'
+    const version = 'Version v1.0.0 | Production 12-04-2024'
     export const footerText = `Copyright © FHI360 | EpiC | Business Solutions | 2024 | ${version}`
     export const project_description = 'This application is used to create custom DHIS2 DataEntry forms automatically to align DATIM design pattern' 

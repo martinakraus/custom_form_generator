@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { SingleSelect, SingleSelectOption } from '@dhis2-ui/select';
 import classes from '../App.module.css'
 import PropTypes from 'prop-types';
+import { IconInfo16 } from '@dhis2/ui-icons'; 
+import level3Guide from '../images/level3.png'
+
 
 const VerticalCategoryLevel1 = (props) => {
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -9,6 +12,11 @@ const VerticalCategoryLevel1 = (props) => {
   const filteredCategories = props.fileredVerticalCatComboLevel1 || [];
   const [disabled, setDisabled] = useState(false)
 
+  const [showGuide, setShowGuide] = useState(false);
+
+  const toggleGuide = () => {
+    setShowGuide(!showGuide);
+  };
 
   useEffect(() => {
     // Filter out the selected vertical category
@@ -52,6 +60,27 @@ const VerticalCategoryLevel1 = (props) => {
 
   return (
     <div className={classes.baseMargin}>
+                  {(props.selectedDataElementId.length > 0) && (<div className={classes.customImageContainer}  style={{ cursor: 'pointer' }}
+                        onMouseEnter={toggleGuide}
+                        onMouseLeave={toggleGuide}>
+                                    {/* {showGuide && ( )}*/}
+                      <div>
+                      <IconInfo16 alt="Guide" />
+                       
+                      </div>
+                
+            </div>)}
+
+            <div style={{ position: 'relative', display: 'inline-block' }}>
+
+                {showGuide && (
+                  <div className={classes.guideContent}
+               
+                  >
+                      <img src={level3Guide} alt="Guide" />
+                  </div>
+                )}
+            </div>
       <SingleSelect
         filterable
         noMatchText="No categories found"
