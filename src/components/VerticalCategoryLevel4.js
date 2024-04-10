@@ -80,18 +80,7 @@ useEffect(() => {
             <div style={{ position: 'relative', display: 'inline-block' }}>
 
                 {showGuide && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: '100%',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      backgroundColor: '#ffffff',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      padding: '10px',
-                      borderRadius: '4px',
-                      zIndex: 999,
-                    }}
+                  <div className={classes.guideContent}
                   >
                       <img src={level6Guide} alt="Guide" />
                   </div>

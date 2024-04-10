@@ -8,6 +8,7 @@ import cleaning from './Icons/cleaning.png'
 import arrowdown from './Icons/arrowdowncustom.png'
 import arrowup from './Icons/arrowupcustom.png'
 import post_to_dhis2 from './Icons/post_to_dhis2.png'
+import guide_icon from './Icons/guide_icon.png'
 import swap from './Icons/swap.png'
 import { Chip } from '@dhis2-ui/chip'
 import classes from './App.module.css'
@@ -54,6 +55,10 @@ export const customImage = (source, size='small') => {
 
   if (source.toLowerCase()  === 'post_to_dhis2'){
     return <img src={post_to_dhis2} className={iconClass}/>
+  }
+
+  if (source.toLowerCase()  === 'guide_icon'){
+    return <img src={guide_icon} className={iconClass}/>
   }
 }
 

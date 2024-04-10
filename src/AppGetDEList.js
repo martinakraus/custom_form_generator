@@ -51,6 +51,7 @@ const AppGetDEList = props => {
     const {loading: catLoading, error: cateEerror, data: catData, refetch: catRefetch } = useDataQuery(catComboQuery, {variables: {id: dataElemntID}})
     const {loading: selectedCat, error: selectedCatError, data: selectedCatData, refetch: selectedCatRefetch } = useDataQuery(query, {variables: {categoryCombo: selectedcategoryCombo}})
     
+    let loadedCombosName = props.loadedCombos?.name || ""
     useEffect(() => {
       if(selectedCatData){
         const name = selectedCatData?.categoryCombo?.categoryCombos[0]?.name || ''
@@ -197,7 +198,7 @@ const AppGetDEList = props => {
 
                         </SingleSelect>
                                   <h1></h1>
-              <span>{props.loadedCombos.name}</span>
+              <span>{loadedCombosName}</span>
 
        </div>
       

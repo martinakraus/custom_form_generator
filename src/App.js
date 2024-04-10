@@ -6,6 +6,8 @@ import { useDataEngine } from '@dhis2/app-runtime';
 import CreateProject from './components/CreateProject'
 import LoadProjects from './components/LoadProjects'
 import { footerText, MainTitle, project_description } from './consts';
+import {customImage} from './utils'
+import readme from './README.md'
 
 
 
@@ -16,23 +18,32 @@ const MyApp = () => {
 
     const [showModalCreateProject, setShowModalCreateProject] = useState(false);
     const [showModalLoadProjects, setShowModalLoadProjects] = useState(false);
+    const [fileContent, setFileContent] = useState('');
     // reloading and state does not matter
     const [reloadProjects, setReloadProjects] = useState(false);
 
-    
+    const openReadme = () => {
+        // Replace 'path_to_your_readme' with the actual path to your README file
+        window.open(readme, '_blank');
+      };
+
+
+
 
     return (
 
         <div className={classes.pageDiv}>
                 {/* Header */}
                 <h1 style={{ margin: '0' }}>{MainTitle}</h1>
+
+
                 <span style={{ margin: '0', fontSize: '0.7rem' }}>
                     {project_description}
                 </span>
 
 
             {/* Divider */}
-            <div className={classes.mainSection}>
+            <div className={classes.mainSection} style={{ textAlign: 'right' }}>
                 <div className={classes.fullpanel}>
                     <Divider />
                 </div>
@@ -87,9 +98,20 @@ const MyApp = () => {
             )}
 
 
-            <footer className={classes.footer}>
-                <p>{footerText}</p>
-            </footer>
+<footer className={classes.footer}>
+      <p style={{ fontSize: '0.7rem', margin: '0 auto' }}>{footerText}</p>
+      <span 
+        onClick={openReadme} 
+        style={{    
+                    fontSize: '0.7rem', 
+                    display: 'flex', 
+                    justifyContent: 'flex-end', 
+                    alignItems: 'center', 
+                    cursor: 'pointer' 
+                }}>
+        {customImage('guide_icon', 'small')} Developer Guide
+      </span>    
+    </footer>
     </div>
     )
 }

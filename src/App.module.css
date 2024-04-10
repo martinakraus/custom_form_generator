@@ -511,3 +511,15 @@ img.App_smallIcon__c-XWP {
   width: 16px; /* Set the width to 32 pixels */
   /* height: auto; Maintain the aspect ratio */
 }
+
+.guideContent {
+  position: absolute;
+  top: 100%;
+  left: '50%';
+  transform: translateX(-50%);
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  border-radius: 4px;
+  z-index: 999
+}

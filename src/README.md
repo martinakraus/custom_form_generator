@@ -1,10 +1,5 @@
 # Form Forge – DATIM Adaptation
 ---
-
-## Repo
-    [Forge Form](https://github.com/FHI360/custom_form_generator)
-
-
 ## Goal 
 Automatically generate DHIS2 custom forms to adapt DATIM UI layout. Data for Accountability Transparency and Impact (DATIM) is the PEPFAR-specific version of DHIS2 and is used to collect data
 
@@ -26,7 +21,7 @@ These server resources are essential for ensuring smooth performance and efficie
 
 ## Overview
 
-![Overview](docs/Overview.drawio.png)
+![Overview](./docs/Overview.drawio.png)
 ---
 
 ## Model Views and Processes 
@@ -96,7 +91,7 @@ CategoryOptionCombos are linked to DataElements for selection of Category at eac
 Attributes for each entity are derived from the fields listed in the various export const filters, and relationships are inferred from the description.
 
 
-![ERD](docs/ERD.drawio.png)
+![ERD](./docs/ERD.drawio.png)
 ### Process
 Below shows the sequence of interaction as displayed in the Activity diagram.
 ![Activity Diagram](<docs/Activity Diagram.drawio.png>)
