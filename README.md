@@ -2,8 +2,8 @@
 ---
 
 ## Repo
-    [Forge Form](https://github.com/FHI360/custom_form_generator)
 
+GitHub Repo - [Form Forge](https://github.com/FHI360/custom_form_generator)
 
 ## Goal 
 Automatically generate DHIS2 custom forms to adapt DATIM UI layout. Data for Accountability Transparency and Impact (DATIM) is the PEPFAR-specific version of DHIS2 and is used to collect data
