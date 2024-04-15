@@ -83,14 +83,14 @@ const LabelComponent = (props) => {
 
   const handleCustomImageClick = () => {
     setLoader(true);
-    console.log('processingCategory: ', processingCategory)
+    // console.log('processingCategory: ', processingCategory)
     catRefetch({categoryCombo: processingCategory})
 
     const extracted = catData?.categoryCombo?.categoryCombos[0]?.categories || [];
-    console.log('extracted: ',extracted)
+    // console.log('extracted: ',extracted)
 
-    console.log('selectedCategoryOption2', selectedCategoryOption2)
-    console.log('selectedCategoryOption3', selectedCategoryOption3)
+    // console.log('selectedCategoryOption2', selectedCategoryOption2)
+    // console.log('selectedCategoryOption3', selectedCategoryOption3)
 
     if (extracted.length > 0){
       setCategoryList(extracted)
@@ -226,7 +226,7 @@ const handleCloseLabelModal = () =>{
         // props.setLabelCategoryIDName([{id:catId, name:catName}])
         // setprocessingOption(catId);
 
-        console.log(selectedValue)
+        // console.log(selectedValue)
     
         }
   
@@ -322,6 +322,81 @@ const handleCloseLabelModal = () =>{
     
       },[categories3, categoryList, loader])
 
+      useEffect(() =>{
+
+        if (data) {
+          if (props.editLabelMode) {
+            if(!loadedLabel){
+              const selectedLabel = data.dataStore?.entries || [];
+              // console.log(selectedLabel)    
+              setComponentID(selectedLabel[0].id)  
+              props.setSelectedMetadataOption(selectedLabel[0].metadataType)
+              let labelLoadingDE = selectedLabel[0]?.labelDEIDName[0] || []
+              props.setLabelDEIDName([labelLoadingDE])
+              setLabelDE(`${labelLoadingDE.id}-val:-${labelLoadingDE.name}`)   
+              if  (selectedLabel[0].metadataType=== "DataElement"){
+                setShowCatCombo(false)
+                setShowDataElement(true)
+         
+              }else if(selectedLabel[0].metadataType === "CategoryOption"){  
+                  setShowCatCombo(true)
+                  setShowDataElement(false)
+                  let labelCategoryIDName = selectedLabel[0]?.labelCategoryIDName[0] || []
+                  let labelComboIDName = selectedLabel[0]?.labelComboIDName[0] || []
+                  let labelOptionIDName = selectedLabel[0]?.labelOptionIDName[0] || []
+    
+    
+                  let labelCategoryIDName2 = selectedLabel[0]?.labelInclusionCategoryIDName2[0] || []
+                  let labelOptionIDName2 = selectedLabel[0]?.labelInclusionOptionIDName2[0] || []
+    
+    
+                  let labelCategoryIDName3 = selectedLabel[0]?.labelInclusionCategoryIDName3[0] || []
+                  let labelOptionIDName3 = selectedLabel[0]?.labelInclusionOptionIDName3[0] || []
+    
+                  props.setLabelComboIDName([labelComboIDName])
+                  props.setLabelCategoryIDName([labelCategoryIDName])
+                  props.setLabelCategoryIDName2([labelCategoryIDName2])
+                  props.setLabelCategoryIDName3([labelCategoryIDName3])
+                  props.setLabelOptionIDName([labelOptionIDName]) 
+                  props.setLabelOptionIDName2([labelOptionIDName2]) 
+                  props.setLabelOptionIDName3([labelOptionIDName3]) 
+    
+    
+    
+                  setProcessingCategory(labelComboIDName.id);
+                  catRefetch({categoryCombo: labelComboIDName.id})
+    
+    
+                  setCatCombo(`${labelComboIDName.id}-val:-${labelComboIDName.name}`)
+                  setCategories(`${labelCategoryIDName.id}-val:-${labelCategoryIDName.name}`)
+                  setCategories2(`${labelCategoryIDName2.id}-val:-${labelCategoryIDName2.name}`)
+                  setCategories3(`${labelCategoryIDName3.id}-val:-${labelCategoryIDName3.name}`)
+    
+                  setprocessingOption(labelCategoryIDName.id)
+                  setprocessingOption2(labelCategoryIDName2.id)
+                  setprocessingOption3(labelCategoryIDName3.id)
+                  setSelectedCategoryOption(`${labelOptionIDName.id}-val:-${labelOptionIDName.name}`)
+                  setSelectedCategoryOption2(`${labelOptionIDName2.id}-val:-${labelOptionIDName2.name}`)
+                  setSelectedCategoryOption3(`${labelOptionIDName3.id}-val:-${labelOptionIDName3.name}`)
+    
+                  // console.log(labelOptionIDName)
+    
+    
+    
+              }
+            
+            props.setMetadataName(selectedLabel[0].name)
+            props.setLabelName(selectedLabel[0].labelName)
+            setLoadedLabel(true)
+            
+    
+              //id,key,name,projectID,labelName,metadataType,LabelLevel
+            }
+              // console.log(data)
+          }
+      }
+      },[data])
+
   if (error) {
       // if (error.status === 409) {
       //     return <span>Conflict: There was a conflict in the data retrieval process.</span>;
@@ -337,77 +412,7 @@ const handleCloseLabelModal = () =>{
 }
 
 
-  if (data) {
-      if (props.editLabelMode) {
-        if(!loadedLabel){
-          const selectedLabel = data.dataStore?.entries || [];
-          console.log(selectedLabel)    
-          setComponentID(selectedLabel[0].id)  
-          props.setSelectedMetadataOption(selectedLabel[0].metadataType)
-          let labelLoadingDE = selectedLabel[0]?.labelDEIDName[0] || []
-          props.setLabelDEIDName([labelLoadingDE])
-          setLabelDE(`${labelLoadingDE.id}-val:-${labelLoadingDE.name}`)   
-          if  (selectedLabel[0].metadataType=== "DataElement"){
-            setShowCatCombo(false)
-            setShowDataElement(true)
-     
-          }else if(selectedLabel[0].metadataType === "CategoryOption"){  
-              setShowCatCombo(true)
-              setShowDataElement(false)
-              let labelCategoryIDName = selectedLabel[0]?.labelCategoryIDName[0] || []
-              let labelComboIDName = selectedLabel[0]?.labelComboIDName[0] || []
-              let labelOptionIDName = selectedLabel[0]?.labelOptionIDName[0] || []
-
-
-              let labelCategoryIDName2 = selectedLabel[0]?.labelInclusionCategoryIDName2[0] || []
-              let labelOptionIDName2 = selectedLabel[0]?.labelInclusionOptionIDName2[0] || []
-
-
-              let labelCategoryIDName3 = selectedLabel[0]?.labelInclusionCategoryIDName3[0] || []
-              let labelOptionIDName3 = selectedLabel[0]?.labelInclusionOptionIDName3[0] || []
-
-              props.setLabelComboIDName([labelComboIDName])
-              props.setLabelCategoryIDName([labelCategoryIDName])
-              props.setLabelCategoryIDName2([labelCategoryIDName2])
-              props.setLabelCategoryIDName3([labelCategoryIDName3])
-              props.setLabelOptionIDName([labelOptionIDName]) 
-              props.setLabelOptionIDName2([labelOptionIDName2]) 
-              props.setLabelOptionIDName3([labelOptionIDName3]) 
-
-
-
-              setProcessingCategory(labelComboIDName.id);
-              catRefetch({categoryCombo: labelComboIDName.id})
-
-
-              setCatCombo(`${labelComboIDName.id}-val:-${labelComboIDName.name}`)
-              setCategories(`${labelCategoryIDName.id}-val:-${labelCategoryIDName.name}`)
-              setCategories2(`${labelCategoryIDName2.id}-val:-${labelCategoryIDName2.name}`)
-              setCategories3(`${labelCategoryIDName3.id}-val:-${labelCategoryIDName3.name}`)
-
-              setprocessingOption(labelCategoryIDName.id)
-              setprocessingOption2(labelCategoryIDName2.id)
-              setprocessingOption3(labelCategoryIDName3.id)
-              setSelectedCategoryOption(`${labelOptionIDName.id}-val:-${labelOptionIDName.name}`)
-              setSelectedCategoryOption2(`${labelOptionIDName2.id}-val:-${labelOptionIDName2.name}`)
-              setSelectedCategoryOption3(`${labelOptionIDName3.id}-val:-${labelOptionIDName3.name}`)
-
-              // console.log(labelOptionIDName)
-
-
-
-          }
-        
-        props.setMetadataName(selectedLabel[0].name)
-        props.setLabelName(selectedLabel[0].labelName)
-        setLoadedLabel(true)
-        
-
-          //id,key,name,projectID,labelName,metadataType,LabelLevel
-        }
-          // console.log(data)
-      }
-  }
+  
   
 
   return (

@@ -5,6 +5,9 @@ import classes from './App.module.css'
 import { SingleSelect, SingleSelectOption  } from '@dhis2-ui/select'
 import {customImage} from './utils'
 import PropTypes from 'prop-types'
+import { Chip } from '@dhis2-ui/chip'
+import { IconInfo16 } from '@dhis2/ui-icons'; 
+import level5Guide from './images/level5.png'
 
 const dataSets = {
     targetedEntity: {
@@ -32,7 +35,7 @@ const dataSets = {
       categoryCombo: {
         resource: 'categoryCombos',
         params: ({categoryCombo})=>({
-          fields: 'id,name',
+          fields: 'id,name,categories[id]',
           filter: `id:eq:${categoryCombo}`,
         }),
       },
@@ -44,14 +47,17 @@ const AppGetDEList = props => {
     const [disabled, setDisable] = useState(false)
     const [dataElemntID, setDataElement] = useState('xxxxx')
     const [updateCombos, setUpdateCombos] = useState(false)
+    const [catLoaded, setCatLoaded] = useState(false)
 
-    const [selectedcategoryCombo, setCategoryCombo] = useState('xxxx')
+    const selectedcategoryCombo = 'xxxx'
     
     const {loading: loading, error: error, data: data, refetch: refetch } = useDataQuery(dataSets, {variables: {dataSet: props.selectedDataSet}})
     const {loading: catLoading, error: cateEerror, data: catData, refetch: catRefetch } = useDataQuery(catComboQuery, {variables: {id: dataElemntID}})
     const {loading: selectedCat, error: selectedCatError, data: selectedCatData, refetch: selectedCatRefetch } = useDataQuery(query, {variables: {categoryCombo: selectedcategoryCombo}})
-    
-    let loadedCombosName = props.loadedCombos?.name || ""
+
+    let loadedCombosName =''
+
+
     useEffect(() => {
       if(selectedCatData){
         const name = selectedCatData?.categoryCombo?.categoryCombos[0]?.name || ''
@@ -59,7 +65,7 @@ const AppGetDEList = props => {
         props.setLoadedCombos({id: id, name:name})
       }
 
-    },[selectedCatData])
+    },[selectedCatData, props.selectedDataElementId])
     
     useEffect(() => {
         setDataElement(props.selectedDataElementId)
@@ -69,6 +75,12 @@ const AppGetDEList = props => {
           setDisable(!!props.selectedDataElementId);
         }        
     }, [props.selectedDataSet, props.selectedDataElementId,props.isHorizontalCategoryExpanded0, updateCombos]);
+    
+
+
+
+
+
 
     useEffect(() => {
       // console.log('catData: DataElement =>',catData)
@@ -88,13 +100,11 @@ const AppGetDEList = props => {
               const name = catData?.dataElement?.categoryCombo?.name || ''
               const id = catData?.dataElement?.categoryCombo?.id || ''
               props.setLoadedCombos({id: id, name:name})
-              // props.setLoadedCombos(catData?.dataElement?.categoryCombo?.name || '')            
               props.setOveridingCategory('xxxxx')
 
             }else{
 
               props.setLoadedCombos({id: '', name:''})
-              // props.setLoadedCombos(catData?.dataElement?.categoryCombo?.name || '')            
               props.setOveridingCategory('xxxxx')
 
             }
@@ -105,6 +115,51 @@ const AppGetDEList = props => {
       }
      
     }, [catData,props.isHorizontalCategoryExpanded0,updateCombos]);
+
+
+
+    useEffect(() => {
+      if (props.overidingCategory !== 'xxxxx'){
+        
+        selectedCatRefetch({categoryCombo: props.overidingCategory})
+
+      }
+      
+      if (props.overidingCategory === 'xxxxx'){
+
+        catRefetch({id: dataElemntID})
+      }
+      
+      
+  
+
+    
+    }, [ props.selectedDataElementId, updateCombos]);
+
+    let combos = ''
+
+    useEffect(() => {
+
+      // console.log('combos.length', combos.length)
+      props.setDataElementCatLenght(combos.length)
+      props.setloadedCombosName(loadedCombosName)
+    
+    }, [loadedCombosName, updateCombos, props.updateDataElementCatLenght]);
+
+    if (props.overidingCategory !== 'xxxxx'){
+      combos = selectedCatData?.categoryCombo?.categoryCombos[0]?.categories || ""
+      loadedCombosName = selectedCatData?.categoryCombo?.categoryCombos[0]?.name || ""
+
+
+    }
+
+
+    if (props.overidingCategory === 'xxxxx'){
+      combos = catData?.dataElement?.categoryCombo?.categories || ""
+      loadedCombosName = catData?.dataElement?.categoryCombo?.name || ''
+
+
+    }
 
 
     const handleDataElementChange = (selected) => {
@@ -159,9 +214,23 @@ const AppGetDEList = props => {
  
         <div className={classes.baseMargin}>
           {/* <h1>{dataElemntID} {dataElemntID} - {dataElemntID.length}</h1> */}
-                {(props.selectedDataElementId.length > 0) && (<div className={classes.customImageContainer} onClick={handleCustomImageClick}>
-                    {customImage('sync', 'large')}
-                </div>)}
+                {(props.selectedDataElementId.length > 0) && (<Chip
+                  className={classes.customImageContainer}
+                  icon={customImage('sync', 'large')}
+                  onClick={handleCustomImageClick}
+                  style={{ marginLeft: '10px' }} // Adjust margin as needed
+                >
+                  Show/Refresh CoC
+                </Chip>)}
+
+                {/* <Chip
+                  className={classes.customImageContainer}
+                  icon={customImage('sync', 'large')}
+                  onClick={handleCustomImageClick}
+                  style={{ marginLeft: '10px' }} // Adjust margin as needed
+                >
+                  Refresh
+                </Chip> */}
           
                     <SingleSelect
                             className="select"
@@ -198,7 +267,7 @@ const AppGetDEList = props => {
 
                         </SingleSelect>
                                   <h1></h1>
-              <span>{loadedCombosName}</span>
+              <span>{props.loadedCombosName}</span>
 
        </div>
       
@@ -207,9 +276,11 @@ const AppGetDEList = props => {
 
 AppGetDEList.propTypes = {
   selectedDataSet: PropTypes.string.isRequired,
+  loadedCombosName: PropTypes.string.isRequired,
   setSelectedDataElementId: PropTypes.func.isRequired,
   selectedDataElement: PropTypes.string.isRequired,
   selectedDataElementId: PropTypes.string.isRequired,
+  overidingCategory:PropTypes.string.isRequired,
   loadedCombos: PropTypes.object,
   setSelectedDataElement: PropTypes.func.isRequired,
   editMode: PropTypes.bool.isRequired,
@@ -218,7 +289,11 @@ AppGetDEList.propTypes = {
   setLoadedCombos: PropTypes.func.isRequired,
   loadedProject: PropTypes.object.isRequired,
   setOveridingCategory: PropTypes.func.isRequired,
+  setDataElementCatLenght: PropTypes.func.isRequired,
   isHorizontalCategoryExpanded0: PropTypes.bool.isRequired,
+  updateDataElementCatLenght: PropTypes.bool.isRequired,
+  setloadedCombosName:PropTypes.func.isRequired,
+
 };
 
 export default AppGetDEList

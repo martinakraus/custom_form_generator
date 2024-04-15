@@ -24,6 +24,11 @@ import { generateRandomId, modifiedDate,  alignLevels, customImage, updateDataSt
 import SideNavigation from './SideNavigationSelection';
 import FormComponentSelection from './FormComponentSelection';
 
+import { IconInfo16 } from '@dhis2/ui-icons'; 
+import level3Guide from '../images/level3.png'
+import level4Guide from '../images/level4.png'
+import level5Guide from '../images/level5.png'
+import level6Guide from '../images/level6.png'
 
 import { 
     Modal, 
@@ -94,35 +99,35 @@ const ConfigureMetadata = (props) => {
     // Define your data store query
     const SideNavigationQuery = {
         dataStore: {
-        resource: `dataStore/${config.dataStoreSideNavigations}?${sideNavigationFilter}`,
+        resource: `dataStore/${config.dataStoreSideNavigations}?${sideNavigationFilter}&paging=false`,
         },
     }
 
     // Define your data store query
     const FormComponentQuery = {
         dataStore: {
-        resource: `dataStore/${config.dataStoreFormComponents}?${formComponentFilter}`,
+        resource: `dataStore/${config.dataStoreFormComponents}?${formComponentFilter}&paging=false`,
         },
     }
 
     // Define your data store query
     const TemplateQuery = {
         dataStore: {
-        resource: `dataStore/${config.dataStoreTemplates}?${TemplateFilter}`,
+        resource: `dataStore/${config.dataStoreTemplates}?${TemplateFilter}&paging=false`,
         },
     }
 
     // Define your data store query
     const ConditionQuery = {
         dataStore: {
-        resource: `dataStore/${config.dataStoreConditions}?${exclusionRuleMore}`,
+        resource: `dataStore/${config.dataStoreConditions}?${exclusionRuleMore}&paging=false`,
         },
     }
     
 
     const LabelQuery = {
         dataStore: {
-            resource: `dataStore/${config.dataStoreLabelName}?${labelNameFilter}`,
+            resource: `dataStore/${config.dataStoreLabelName}?${labelNameFilter}&paging=false`,
             },
 
     }
@@ -135,6 +140,16 @@ const ConfigureMetadata = (props) => {
 
     // for help guide
     const [showGuide, setShowGuide] = useState(false);
+    const [updateDataElementCatLenght, setUpdateDataElementCatLenght] = useState(false);
+    const [dataElementCatLenght, setDataElementCatLenght] = useState(0);
+
+
+
+    const toggleGuide = () => {
+    
+      setShowGuide(!showGuide);
+      setUpdateDataElementCatLenght(!updateDataElementCatLenght)
+    };
 
     // for data control
     const [isAferProjectSave, AferProjectSave] = useState(false);
@@ -158,6 +173,8 @@ const ConfigureMetadata = (props) => {
     const [selectedDataElementsDict, setSelectedDataElementsDict] = useState(null);
     const [saveNow, setSaveNow] = useState(false);
     const [loadedCombos, setLoadedCombos] = useState(null)
+    const [loadedCombosName, setloadedCombosName] = useState('')
+
 
     
     // State to hold tabs state
@@ -195,7 +212,7 @@ const ConfigureMetadata = (props) => {
     // For Exclusion Rules
     const [showExclusionComponents, setExclusionComponents] = useState(false);
     const [conditionDE, setConditionDE] = useState('');
-    const [conditionDEIDName, setConditionDEIDName] = useState('');
+    const [conditionDEIDName, setConditionDEIDName] = useState([{"id": ""}]);
 
     const [conditionCoC, setConditionCoC] = useState('');
     const [conditionCoCIDName, setConditionCoCIDName] = useState([]);
@@ -329,8 +346,9 @@ const ConfigureMetadata = (props) => {
           // setProjects(data.dataStore ? [data.dataStore] : []);
     
               // Check if entries property exists in data.dataStore
-            const newExclusion = ConditionsQueryData.dataStore?.entries.filter(entry => entry.projectID === loadedProject.id) || [];
+            let newExclusion = ConditionsQueryData.dataStore?.entries.filter(entry => entry.projectID === loadedProject.id) || [];
             setLoadedRules(newExclusion);
+            newExclusion = []
         }
       }, [ConditionsQueryData, reloadExclusions, ]);
 
@@ -340,8 +358,11 @@ const ConfigureMetadata = (props) => {
           // setProjects(data.dataStore ? [data.dataStore] : []);
     
               // Check if entries property exists in data.dataStore
-            const newLabels = LabelQueryData.dataStore?.entries.filter(entry => entry.projectID === loadedProject.id) || [];
+            //   console.log('LabelQueryData: ', LabelQueryData)
+            let newLabels = LabelQueryData.dataStore?.entries.filter(entry => entry.projectID === loadedProject.id) || [];
+            // console.log('newLabels: ', newLabels)
             setLoadedLabels(newLabels);
+            newLabels = []
         }
       }, [LabelQueryData, reloadLabels, ]);
 
@@ -360,10 +381,10 @@ const ConfigureMetadata = (props) => {
         }        
     }, [dataAfterSave, isAferProjectSave]);
 
-    if (ErrorAfterSave){
+    // if (ErrorAfterSave){
 
-        console.log(ErrorAfterSave)
-    }
+    //     console.log(ErrorAfterSave)
+    // }
 
     const handleDataSetChange = event => {
         setselectedDataSet(event.selected);
@@ -393,6 +414,7 @@ const ConfigureMetadata = (props) => {
         setSelectedDataElementsDict(null)
         setSelectSideNavigation(null);
         setSelectFormComponents(null);
+        setloadedCombosName('')
 
         /**  New entries* */
 
@@ -444,6 +466,7 @@ const ConfigureMetadata = (props) => {
         setSelectSideNavigation(null);
         setSelectFormComponents(null);
         setCategoryComboNameID('');
+        setDataElementCatLenght(0)
 
     }
 
@@ -497,6 +520,7 @@ const ConfigureMetadata = (props) => {
 
         setSelectSideNavigation(null);
         setSelectFormComponents(null);
+      
 
 
     }
@@ -974,7 +998,7 @@ const ConfigureMetadata = (props) => {
                     }
                     AferProjectSave((prev) => !prev);
     
-    
+                    setDataElementCatLenght(0)
                     openDataElementList()
     
                     setDirectClickTabDE(1);
@@ -1189,7 +1213,7 @@ const ConfigureMetadata = (props) => {
         setConditionCoCIDName([]);
         setConditionCOIDName([]);
         setConditionCOIDName2([]);
-        setConditionDEIDName([]);
+        setConditionDEIDName([{"id": ""}]);
 
     };
 
@@ -1588,7 +1612,8 @@ const ConfigureMetadata = (props) => {
         props.setShowModalConfigureProject(false);
         setDirectClickTabDE(0);
         setEditMode(false);
-        setCategoryComboNameID('');      
+        setCategoryComboNameID(''); 
+        setDataElementCatLenght(0);     
 
     };
     
@@ -1736,6 +1761,7 @@ const ConfigureMetadata = (props) => {
 
     const handleEditDataElement = (dataElement) => {
         // testing
+        setloadedCombosName('')
         setfileredHorizontalCatComboLevel1([])
         // the selected dataElement with the specified ID
         const updatedDataElements = loadedProject.dataElements.filter(
@@ -1760,11 +1786,13 @@ const ConfigureMetadata = (props) => {
         setEditMode(false)
         setSelectSideNavigation(null);
         setSelectFormComponents(null);
+        setDataElementCatLenght(0);
 
     }
     const newDataElementLaunch = () =>{
 
         setSelectedTab('dataElemenent-configuration');
+        setDataElementCatLenght(0)
         setEditMode(false)
         setDirectClickTabDE(1);
         setSelectSideNavigation(null);
@@ -1805,10 +1833,6 @@ const ConfigureMetadata = (props) => {
         setFilterText(value);
       };
 
-
-    const toggleGuide = () => {
-    setShowGuide(!showGuide);
-    };
 
     const filteredDataElements = filterText
     ? dataElements.filter(
@@ -1865,6 +1889,7 @@ const ConfigureMetadata = (props) => {
             label="Configure Data Elements"
             selected={selectedTab === 'dataElemenent-configuration'}
             onClick={() => {
+                setloadedCombosName('')
                 newDataElementLaunch()
               }}
               disabled={saveNow}
@@ -2146,6 +2171,31 @@ const ConfigureMetadata = (props) => {
                           <Divider />
                       </div>
                   </div>
+
+                  {(selectedDataElementId.length > 0) && (<div className={classes.customImageContainer}  style={{ cursor: 'pointer' }}
+                        onMouseEnter={toggleGuide}
+                        onMouseLeave={toggleGuide}>
+                                    {/* {showGuide && ( )}*/}
+                      <div>
+                      <IconInfo16 alt="Guide" />
+                       
+                      </div>
+                
+                    </div>)}
+
+                    <div style={{ position: 'relative', display: 'inline-block', fontSize: '0.7rem' }}>
+
+                        {showGuide && (
+                        <div className={classes.guideContent}
+                    
+                        >{dataElementCatLenght} Levels
+                            	{(dataElementCatLenght === 3) && (<img src={level3Guide} alt="Guide" />)}
+                                {(dataElementCatLenght === 4) && (<img src={level4Guide} alt="Guide" />)}
+                                {(dataElementCatLenght === 5) && (<img src={level5Guide} alt="Guide" />)}
+                                {(dataElementCatLenght === 6) && (<img src={level6Guide} alt="Guide" />)}
+                        </div>
+                        )}
+                    </div>
                   {/* Select DataElement */}
                   <button className={classes.collapsible} onClick={() => 
                           {
@@ -2173,9 +2223,14 @@ const ConfigureMetadata = (props) => {
                               setSelectFormComponents={setSelectFormComponents}
                               loadedProject={loadedProject}
                               setOveridingCategory={setOveridingCategory}
+                              overidingCategory={overidingCategory}
                               isHorizontalCategoryExpanded0={isHorizontalCategoryExpanded0}
                               loadedCombos={loadedCombos}
                               setLoadedCombos={setLoadedCombos}
+                              setDataElementCatLenght={setDataElementCatLenght}
+                              loadedCombosName={loadedCombosName}
+                              setloadedCombosName={setloadedCombosName}
+                              updateDataElementCatLenght={updateDataElementCatLenght}
 
                                       />;
                               }
@@ -2242,7 +2297,11 @@ const ConfigureMetadata = (props) => {
 
                   {/* Select HorizontalCategory */}
 
-                  <button className={classes.collapsible} onClick={() => setIsHorizontalCategoryExpanded0((prev) => !prev)} disabled={selectedDataElementId.length <= 0}>
+                  <button className={classes.collapsible} onClick={() => setIsHorizontalCategoryExpanded0((prev) => !prev)} disabled={selectedDataElementId.length <= 0}
+                                   
+
+                        
+                  >
                       {isHorizontalCategoryExpanded0 ? '-' : '+'} Level 1
                   </button>
 
@@ -2276,6 +2335,8 @@ const ConfigureMetadata = (props) => {
                                           setSelectedVerticalCategoryIDLevel2={setSelectedVerticalCategoryIDLevel2}
                                           setCategoryComboNameID={setCategoryComboNameID}
                                           setCategoryChecker={setCategoryChecker}
+                                          setDataElementCatLenght={setDataElementCatLenght}
+
                                           
 
                                       />;
@@ -2756,38 +2817,60 @@ const ConfigureMetadata = (props) => {
                             <ButtonStrip>
                             <Button onClick={() => handleCloseModal()}>Close</Button>
                             <Button
-                            primary
-                            onClick={() => handleSaveToConfiguration('save')}
-                            disabled={
-                                (
-                                !isHorizontalCategoryExpanded0 ||
-                                !isHorizontalCategoryExpandedLevel1 ||
-                                !isVerticalCategoryExpandedlevel1 ||
-                                !isVerticalCategoryExpandedlevel2
-                                ) && (categoryChecker[1] === 'notExist')
-                                ||
-                                (categoryChecker[1] !== 'notExist' && !isVerticalCategoryExpandedlevel3)
-                                ||
-                                (categoryChecker[1] !== 'notExist' && !isVerticalCategoryExpandedlevel4)
-                            }
-                            >
-                            Save
-                            </Button>
+                                    primary
+                                    onClick={() => handleSaveToConfiguration('save')}
+                                    disabled={
+                                        (() => {
+                                            switch (dataElementCatLenght) {
+                                                case 0:
+                                                    return true;
+                                                case 1:
+                                                    return isHorizontalCategoryExpanded0 === false;
+                                                case 2:
+                                                    return isHorizontalCategoryExpandedLevel1 === false;
+                                                case 3:
+                                                    return isVerticalCategoryExpandedlevel1 === false;
+                                                case 4:
+                                                    return isVerticalCategoryExpandedlevel2 === false;
+                                                case 5:
+                                                    return isVerticalCategoryExpandedlevel3 === false;
+                                                case 6:
+                                                        return isVerticalCategoryExpandedlevel4 === false;
+                                                default:
+                                                    return true;
+                                            }
+                                        })()
+                                    }
+                                >
+
+                                    Save
+                                </Button>
+
 
                             <Button primary  onClick={() => handleSaveTemplate()}
                             
                             
                             disabled={
-                                (
-                                !isHorizontalCategoryExpanded0 ||
-                                !isHorizontalCategoryExpandedLevel1 ||
-                                !isVerticalCategoryExpandedlevel1 ||
-                                !isVerticalCategoryExpandedlevel2
-                                ) && (categoryChecker[1] === 'notExist')
-                                ||
-                                (categoryChecker[1] !== 'notExist' && !isVerticalCategoryExpandedlevel3)
-                                ||
-                                (categoryChecker[1] !== 'notExist' && !isVerticalCategoryExpandedlevel4)
+                                (() => {
+                                    switch (dataElementCatLenght) {
+                                        case 0:
+                                            return true;
+                                        case 1:
+                                            return isHorizontalCategoryExpanded0 === false;
+                                        case 2:
+                                            return isHorizontalCategoryExpandedLevel1 === false;
+                                        case 3:
+                                            return isVerticalCategoryExpandedlevel1 === false;
+                                        case 4:
+                                            return isVerticalCategoryExpandedlevel2 === false;
+                                        case 5:
+                                            return isVerticalCategoryExpandedlevel3 === false;
+                                        case 6:
+                                                return isVerticalCategoryExpandedlevel4 === false;
+                                        default:
+                                            return true;
+                                    }
+                                })()
                             }
                             >
                                 Save and Make CoC Template
@@ -2876,7 +2959,7 @@ const ConfigureMetadata = (props) => {
                     setCategoryExclusion2={setCategoryExclusion2}
                     categoryExclusion={categoryExclusion}
                     setCategoryExclusionToProcess={setCategoryExclusionToProcess}
-                    categoryExclusionToProcess={categoryExclusionToProcess}
+                    // categoryExclusionToProcess={categoryExclusionToProcess}
                     excludeToProcess={excludeToProcess}
                     setExclusionToProcess={setExclusionToProcess}
                     handleSelectedExclusionCategory={handleSelectedExclusionCategory}

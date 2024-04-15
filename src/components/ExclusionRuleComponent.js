@@ -717,7 +717,7 @@ ExclusionRuleComponent.propTypes = {
   setCategoryExclusion2: PropTypes.func.isRequired,
   categoryExclusion: PropTypes.string.isRequired,
   setCategoryExclusionToProcess: PropTypes.func.isRequired,
-  categoryExclusionToProcess: PropTypes.array.isRequired,
+  // categoryExclusionToProcess: PropTypes.array.isRequired,
   excludeToProcess: PropTypes.array.isRequired,
   setExclusionToProcess: PropTypes.func.isRequired,
   handleSelectedExclusionCategory: PropTypes.func.isRequired,

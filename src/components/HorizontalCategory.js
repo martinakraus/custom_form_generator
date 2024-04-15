@@ -131,12 +131,14 @@ const HorizontalCategory = (props) => {
             if (data && data?.categoryCombo?.categoryCombos[0]){
               categories1 = data?.categoryCombo?.categoryCombos[0]?.categories || [];
               props.setCategoryComboNameID({ id: data?.categoryCombo?.categoryCombos[0]?.id ?? '', name: data?.categoryCombo?.categoryCombos[0]?.name ?? '' });
+              props.setDataElementCatLenght(categories1.length)
               setCategories(categories1);
               
             }
             else{
               const { categoryCombo } = catData?.dataElement;
               categories1 = categoryCombo?.categories || [];
+              props.setDataElementCatLenght(categories1.length)
               props.setCategoryComboNameID({ id: categoryCombo?.id ?? '', name: categoryCombo?.name ?? '' })
               setCategories(categories1);
             }
@@ -150,7 +152,7 @@ const HorizontalCategory = (props) => {
               (element) => element.id === updatedDataElements[0].HorizontalLevel0.id
             ) || [];
     
-            const savedCategory = HorizontalCategoryObject[0].id
+            const savedCategory = HorizontalCategoryObject[0]?.id || ''
             props.setSelectedHorizontalCategoryID0(savedCategory);
             const updatedCategories = categories1.filter(category => category.id !== savedCategory);
             // Add logic to get the array of the select category
@@ -279,7 +281,7 @@ HorizontalCategory.propTypes = {
   setSelectedVerticalCategoryIDLevel1: PropTypes.func.isRequired,
   setHorizontalcategoryOptionsLevel1: PropTypes.func.isRequired,
   setVerticalCategoryOptionsLevel1: PropTypes.func.isRequired,
-  selectedHorizontalCategoryID0: PropTypes.any, // Adjust as per your requirements
+  selectedHorizontalCategoryID0: PropTypes.any, 
   loadedProject: PropTypes.object.isRequired,
   selectedDirectClickTabDE: PropTypes.number.isRequired,
   setdictfileredHorizontalCatComboLevel1: PropTypes.func.isRequired,
@@ -290,7 +292,8 @@ HorizontalCategory.propTypes = {
   setVerticalCategoryOptionsLevel2: PropTypes.func.isRequired,
   setSelectedVerticalCategoryIDLevel2: PropTypes.func.isRequired,
   setCategoryComboNameID: PropTypes.func.isRequired,
-  setCategoryChecker: PropTypes.func.isRequired
+  setCategoryChecker: PropTypes.func.isRequired,
+  setDataElementCatLenght:PropTypes.func.isRequired,
 };
 export default HorizontalCategory;
 

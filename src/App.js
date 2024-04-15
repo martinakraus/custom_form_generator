@@ -109,7 +109,7 @@ const MyApp = () => {
                     alignItems: 'center', 
                     cursor: 'pointer' 
                 }}>
-        {customImage('guide_icon', 'small')} Developer Guide
+        {customImage('guide_icon', 'small')} Developer - README.md
       </span>    
     </footer>
     </div>
