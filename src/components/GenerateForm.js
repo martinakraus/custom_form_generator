@@ -1325,7 +1325,7 @@ const GenerateForm = (props) => {
             name:`${trimNameToMax50Chars(DataEntryFormName)}-prev`,
             projectID:props.loadedProject.id,
             dataSet:props.loadedProject.dataSet.id,
-            htmlCode:publishedDataEntryFormHtml[0].dataEntryForm.htmlCode,
+            htmlCode:publishedDataEntryFormHtml[0]?.dataEntryForm?.htmlCode || 'Form Init -- New DataSet',
             active: false
         };
         let mode = ''
