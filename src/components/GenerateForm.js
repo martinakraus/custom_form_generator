@@ -1525,14 +1525,14 @@ const GenerateForm = (props) => {
                             </span>
                                 HTML Versions - Last 12 Entries Only
 
-                                <Chip
+                                {/* <Chip
                                         className={classes.customImageContainer}
                                         icon={customImage('sync', 'small')}
                                         onClick={() => updateDataStore("Form Forge")}
                                         style={{ marginLeft: '10px' }} 
                                 >
                                     Clear DataSet
-                                </Chip>
+                                </Chip> */}
 
                                 </TableCellHead>
 
