@@ -33,55 +33,55 @@ export    const exclusionLevels = ["Horizontal Level 2", "Vertical Level 1", "Ve
     // Define your data store query
 export const HTMLCodeQuery = {
       dataStore: {
-      resource: `dataStore/${config.dataStoreHTMLCodes}?${HTMLCodesFilter}`,
+      resource: `dataStore/${config.dataStoreHTMLCodes}?${HTMLCodesFilter}&paging=false`,
       },
   }
 
 export const SideNavigationQuery = {
     dataStore: {
-    resource: `dataStore/${config.dataStoreSideNavigations}?${sideNavigationFilter}`,
+    resource: `dataStore/${config.dataStoreSideNavigations}?${sideNavigationFilter}&paging=false`,
     },
   }
   
   // Define your data store query
   export const FormComponentQuery = {
     dataStore: {
-    resource: `dataStore/${config.dataStoreFormComponents}?${formComponentFilter}`,
+    resource: `dataStore/${config.dataStoreFormComponents}?${formComponentFilter}&paging=false`,
     },
   }
   
   // Define your data store query
   export const TemplateQuery = {
     dataStore: {
-    resource: `dataStore/${config.dataStoreTemplates}?${TemplateFilter}`,
+    resource: `dataStore/${config.dataStoreTemplates}?${TemplateFilter}&paging=false`,
     },
   }
 
     // Define your data store query
     export const TemplateQueryMore = {
         dataStore: {
-        resource: `dataStore/${config.dataStoreTemplates}?${TemplateNoFilter}`,
+        resource: `dataStore/${config.dataStoreTemplates}?${TemplateNoFilter}&paging=false`,
         },
       }
   
   // Define your data store query
   export const ConditionQuery = {
     dataStore: {
-    resource: `dataStore/${config.dataStoreConditions}?${exclusionRuleFilter}`,
+    resource: `dataStore/${config.dataStoreConditions}?${exclusionRuleFilter}&paging=false`,
     },
   }
 
     // Define your data store query
     export const ConditionQueryMore = {
         dataStore: {
-        resource: `dataStore/${config.dataStoreConditions}?${exclusionRuleMore}`,
+        resource: `dataStore/${config.dataStoreConditions}?${exclusionRuleMore}&paging=false`,
         },
       }
   
   
   export const LabelQuery = {
     dataStore: {
-        resource: `dataStore/${config.dataStoreLabelName}?${labelNameFilter}`,
+        resource: `dataStore/${config.dataStoreLabelName}?${labelNameFilter}&paging=false`,
         },
   
   }
@@ -89,7 +89,7 @@ export const SideNavigationQuery = {
     // Define your data store query
   export const dataStoreQuery = {
     dataStore: {
-    resource: `dataStore/${config.dataStoreName}?${ProjectsFilters}`,
+    resource: `dataStore/${config.dataStoreName}?${ProjectsFilters}&paging=false`,
     },
   }
 
@@ -97,7 +97,7 @@ export const SideNavigationQuery = {
     // Define your data store query
    export const dataStoreQueryMore = {
         dataStore: {
-          resource: `dataStore/${config.dataStoreName}?${ProjectsFiltersMore}`,
+          resource: `dataStore/${config.dataStoreName}?${ProjectsFiltersMore}&paging=false`,
         },
     }
   

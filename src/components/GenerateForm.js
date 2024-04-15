@@ -278,7 +278,7 @@ const GenerateForm = (props) => {
 
 
         setIsPosting(true)
-        console.log('Form Generation started')
+        // console.log('Form Generation started')
         let template = `
             <!-- Start Custom DHIS 2 Form -->
             <style type="text/css">
@@ -1303,7 +1303,7 @@ const GenerateForm = (props) => {
             };
             let mode = ''
             if (createOrUpdateDataStore(props.engine, presentVersionObject, config.dataStoreHTMLCodes, key,mode='create')){
-                console.log('Version Created')
+                // console.log('Version Created')
                 setDataEntryFormName('')                
                 
             }
@@ -1524,6 +1524,15 @@ const GenerateForm = (props) => {
                                     {customImage('sync', 'large')}
                             </span>
                                 HTML Versions - Last 12 Entries Only
+
+                                <Chip
+                                        className={classes.customImageContainer}
+                                        icon={customImage('sync', 'small')}
+                                        onClick={() => updateDataStore("Form Forge")}
+                                        style={{ marginLeft: '10px' }} 
+                                >
+                                    Clear DataSet
+                                </Chip>
 
                                 </TableCellHead>
 
