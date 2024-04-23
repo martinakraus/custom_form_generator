@@ -172,6 +172,7 @@ const ConfigureMetadata = (props) => {
     const [selectedDataElement, setSelectedDataElement] = useState('');
     const [selectedDataElementsDict, setSelectedDataElementsDict] = useState(null);
     const [saveNow, setSaveNow] = useState(false);
+    const [AddorEditModeActive, setAddorEditMode] = useState(false);
     const [loadedCombos, setLoadedCombos] = useState(null)
     const [loadedCombosName, setloadedCombosName] = useState('')
 
@@ -1762,6 +1763,7 @@ const ConfigureMetadata = (props) => {
     const handleEditDataElement = (dataElement) => {
         // testing
         setloadedCombosName('')
+
         setfileredHorizontalCatComboLevel1([])
         // the selected dataElement with the specified ID
         const updatedDataElements = loadedProject.dataElements.filter(
@@ -1866,6 +1868,7 @@ const ConfigureMetadata = (props) => {
             selected={selectedTab === 'dataElemenents-table'}
             onClick={() => {
                 openDataElementList()
+                setAddorEditMode(false)
                 setloadedCombosName('')
             }}
             disabled={saveNow}
@@ -1890,6 +1893,7 @@ const ConfigureMetadata = (props) => {
             label="Configure Data Elements"
             selected={selectedTab === 'dataElemenent-configuration'}
             onClick={() => {
+                setAddorEditMode(false)
                 setloadedCombosName('')
                 newDataElementLaunch()
               }}
@@ -2232,12 +2236,15 @@ const ConfigureMetadata = (props) => {
                               loadedCombosName={loadedCombosName}
                               setloadedCombosName={setloadedCombosName}
                               updateDataElementCatLenght={updateDataElementCatLenght}
+                              AddorEditModeActive={AddorEditModeActive}
+                              setAddorEditMode={setAddorEditMode}
 
                                       />;
                               }
                           })()}
                       </div>
                   </div>
+                  
                   {!editMode &&(<div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
                   <Button 
                         className={classes.loadTemplateButton} 
