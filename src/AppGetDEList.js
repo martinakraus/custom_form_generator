@@ -188,6 +188,7 @@ const AppGetDEList = props => {
 
       };
       const handleCustomImageClick = () => {
+          props.setAddorEditMode(true)
 
           setUpdateCombos((prev) => !prev)
 
@@ -267,7 +268,7 @@ const AppGetDEList = props => {
 
                         </SingleSelect>
                                   <h1></h1>
-              <span>{props.loadedCombosName}</span>
+              <span>{props.AddorEditModeActive && (props.loadedCombosName)}</span>
 
        </div>
       
@@ -292,6 +293,7 @@ AppGetDEList.propTypes = {
   setDataElementCatLenght: PropTypes.func.isRequired,
   isHorizontalCategoryExpanded0: PropTypes.bool.isRequired,
   updateDataElementCatLenght: PropTypes.bool.isRequired,
+  AddorEditModeActive: PropTypes.bool.isRequired,
   setloadedCombosName:PropTypes.func.isRequired,
 
 };
