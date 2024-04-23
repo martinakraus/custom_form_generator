@@ -1866,6 +1866,7 @@ const ConfigureMetadata = (props) => {
             selected={selectedTab === 'dataElemenents-table'}
             onClick={() => {
                 openDataElementList()
+                setloadedCombosName('')
             }}
             disabled={saveNow}
           >
