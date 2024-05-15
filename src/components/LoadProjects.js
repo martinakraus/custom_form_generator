@@ -31,7 +31,9 @@ const LoadProjects = ({ engine, reloadProjects, setReloadProjects }) => {
     ({ msg }) => msg,
     ({ type }) => ({ [type]: true })
   )
+
   const [projects, setProjects] = useState([]);
+  // const projects = []
   const [projectName, setProjectName] = useState('');
   const [selectedProject, setSelectedProject] = useState(null);
   const [existingProject, setExistingProjects] = useState(false);
@@ -74,7 +76,13 @@ const LoadProjects = ({ engine, reloadProjects, setReloadProjects }) => {
             // console.log(dataStoreData.dataStore.entries);
             const projectsArray = data.dataStore?.entries || [];
             const projectNameExists = (projectNameToCheck) => {
-              return projectsArray.some(project => project.projectName.toLowerCase() === projectNameToCheck.toLowerCase());
+
+              try {
+                return projectsArray.some(project => project.projectName.toLowerCase() === projectNameToCheck.toLowerCase());
+              } catch (error) {
+                return false; // or handle the error as needed
+              }
+
             };
 
             setExistingProjects(projectNameExists(projectName))
@@ -96,8 +104,11 @@ const LoadProjects = ({ engine, reloadProjects, setReloadProjects }) => {
       // setProjects(data.dataStore ? [data.dataStore] : []);
 
           // Check if entries property exists in data.dataStore
-        const newProjects = data.dataStore?.entries || [];
-        setProjects(newProjects);
+        const newProjects = data?.dataStore?.entries || [];
+        if (newProjects.length > 0){
+          setProjects(newProjects);
+        }
+
     }
   }, [data, reloadProjects, ]);
 
@@ -389,13 +400,13 @@ const LoadProjects = ({ engine, reloadProjects, setReloadProjects }) => {
                       <div className={classes.tableBodyWrapper}>
                         <Table className={classes.dataTable}>
                         <TableBody>
-                        {Array.isArray(filteredProjects) &&
+                        {filteredProjects.length > 0 && Array.isArray(filteredProjects) &&
                             filteredProjects.map((project) => (
-                              <TableRow className={classes.customTableRow} key={project.key}>
-                                <TableCell className={classes.customTableCell}>{project.projectName}</TableCell>
-                                <TableCell className={classes.customTableCell}>{project.id}</TableCell>
-                                <TableCell className={classes.customTableCell}>{project.dataSet.name}-{project.dataSet.id}</TableCell>
-                                <TableCell className={classes.customTableCell}>{project.modifiedDate}</TableCell>
+                              <TableRow className={classes.customTableRow} key={project?.key || ''}>
+                                <TableCell className={classes.customTableCell}>{project?.projectName || ''}</TableCell>
+                                <TableCell className={classes.customTableCell}>{project?.id || ''}</TableCell>
+                                <TableCell className={classes.customTableCell}>{project?.dataSet?.name || ''}-{project?.dataSet?.id || ''}</TableCell>
+                                <TableCell className={classes.customTableCell}>{project?.modifiedDate || ''}</TableCell>
                                 <TableCell className={`${classes.customTableCell}`}>
 
                                 <div style={{ display: 'flex', alignItems: 'center' }}>

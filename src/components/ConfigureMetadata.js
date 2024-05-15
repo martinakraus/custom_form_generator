@@ -406,6 +406,11 @@ const ConfigureMetadata = (props) => {
         }  
     }, [editMode, savingDataElement]);
 
+ /***
+ * 
+ * 
+ * 
+ */
     const clearConstants = () =>{
         
         setSelectedDataElement('');
