@@ -357,7 +357,7 @@ const ConfigureMetadata = (props) => {
             }
         }
 
-    },[])
+    },[SideNavigationQueryData])
 
     // useEffect(()=>{
 
@@ -400,7 +400,7 @@ const ConfigureMetadata = (props) => {
             }
         }
 
-    },[])
+    },[FormComponentQueryData])
 
     useEffect(() => {
         ConditionsQueryDataRefetch();
