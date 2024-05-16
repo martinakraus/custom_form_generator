@@ -1,7 +1,8 @@
 import { useDataQuery, useAlert } from '@dhis2/app-runtime'
 import React, { useEffect } from 'react';
-import {deleteObjects, } from '../utils'
+import {deleteObjects, transformData} from '../utils'
 import PropTypes from 'prop-types';
+
 
 import { config, dataStoreQuery,
     SideNavigationQuery, FormComponentQuery, TemplateQuery, ConditionQuery, LabelQuery, HTMLCodeQuery} from '../consts'
@@ -24,7 +25,13 @@ const CleaningServices = (props) => {
       )
 
 
-
+    let projectIds = [];
+    let filteredSideNavigations = [];
+    let filteredFormComponents = [];
+    let  filteredTemaplates = [];
+    let filteredConditions = [];
+    let filteredLabels = []
+    let filteredHtmlCodes = [];
 
     const { data: ProjectQueryData, refetch:ProjectQueryDataRefetch} = useDataQuery(dataStoreQuery); // Use separate hook for dataStoreQuery
     const { data: SideNavigationQueryData, refetch:SideNavigationQueryDataRefetch} = useDataQuery(SideNavigationQuery); // Use separate hook for dataStoreQuery
@@ -45,7 +52,7 @@ const CleaningServices = (props) => {
         LabelQueryDataRefetch()
         HTMLCodeQueryDataRefetch()
 
-
+        
 
       },[props.cleanToggle])
 
@@ -56,30 +63,87 @@ const CleaningServices = (props) => {
 
     }
 
+
+
     const handleDeleteUnusedProjectcomponents = async () =>{
-        props.setCleanerToggle((prev) => !prev)
-        const Projects = ProjectQueryData.dataStore?.entries || [];
-        const projectIds = Projects.map(entry => entry.id);
-        const SideNavigations = SideNavigationQueryData?.dataStore?.entries || [];
-        
-        const filteredSideNavigations = SideNavigations.filter(entry => !projectIds.includes(entry.projectID));
+        props.setCleanerToggle((prev) => !prev) 
+        if (ProjectQueryData?.dataStore) {
+            if (typeof ProjectQueryData.dataStore.entries === 'function') {
+              const AllObjs = Object.entries(ProjectQueryData.dataStore);
+              const Projects = transformData(AllObjs) || [];              
+              projectIds = Projects.map(entry => entry.id);              
+            } else {
+              const Projects = ProjectQueryData?.dataStore?.entries || [];
+              projectIds = Projects.map(entry => entry.id);
+            }
+        }
+        if (SideNavigationQueryData?.dataStore) {
+            if (typeof SideNavigationQueryData.dataStore.entries === 'function') {
+              const AllObjs = Object.entries(SideNavigationQueryData.dataStore);
+              const obj = transformData(AllObjs) || [];
+              console.log(obj)
+              filteredSideNavigations = obj.filter(entry => !projectIds.includes(entry.projectID));
+            } else {
+              const AllObjs = SideNavigationQueryData?.dataStore?.entries || [];
+              filteredSideNavigations = AllObjs.filter(entry => !projectIds.includes(entry.projectID));
+            }
+        }
 
-        const FormComponents = FormComponentQueryData?.dataStore?.entries || [];
-        const filteredFormComponents = FormComponents.filter(entry => !projectIds.includes(entry.projectID));
-        
-        const Templates = TemaplateQueryData?.dataStore?.entries || [];
-        const filteredTemaplates = Templates.filter(entry => !projectIds.includes(entry.projectID));
-        
-        const Conditions = ConditionsQueryData?.dataStore?.entries || [];
-        const filteredConditions = Conditions.filter(entry => !projectIds.includes(entry.projectID));
-        
-        const Labels = LabelQueryData?.dataStore?.entries || [];
-        const filteredLabels = Labels.filter(entry => !projectIds.includes(entry.projectID));
+        if (FormComponentQueryData?.dataStore) {
+            if (typeof FormComponentQueryData.dataStore.entries === 'function') {
+              const AllObjs = Object.entries(FormComponentQueryData.dataStore);
+              const obj = transformData(AllObjs) || [];
+              filteredFormComponents = obj.filter(entry => !projectIds.includes(entry.projectID));
+            } else {
+              const AllObjs = FormComponentQueryData?.dataStore?.entries || [];
+              filteredFormComponents = AllObjs.filter(entry => !projectIds.includes(entry.projectID));
+            }
+        }
 
-        const HtmlCodes = HTMLCodeQueryData?.dataStore?.entries || [];
-        const filteredHtmlCodes = HtmlCodes.filter(entry => !projectIds.includes(entry.projectID));
+        
+        if (TemaplateQueryData?.dataStore) {
+            if (typeof TemaplateQueryData.dataStore.entries === 'function') {
+              const AllObjs = Object.entries(TemaplateQueryData.dataStore);
+              const obj = transformData(AllObjs) || [];
+              filteredTemaplates = obj.filter(entry => !projectIds.includes(entry.projectID));
+            } else {
+              const AllObjs = TemaplateQueryData?.dataStore?.entries || [];
+              filteredTemaplates = AllObjs.filter(entry => !projectIds.includes(entry.projectID));
+            }
+        }
 
+        if (ConditionsQueryData?.dataStore) {
+            if (typeof ConditionsQueryData.dataStore.entries === 'function') {
+              const AllObjs = Object.entries(ConditionsQueryData.dataStore);
+              const obj = transformData(AllObjs) || [];
+              filteredConditions = obj.filter(entry => !projectIds.includes(entry.projectID));
+            } else {
+              const AllObjs = ConditionsQueryData?.dataStore?.entries || [];
+              filteredConditions = AllObjs.filter(entry => !projectIds.includes(entry.projectID));
+            }
+        }
 
+        if (LabelQueryData?.dataStore) {
+            if (typeof LabelQueryData.dataStore.entries === 'function') {
+              const AllObjs = Object.entries(LabelQueryData.dataStore);
+              const obj = transformData(AllObjs) || [];
+              filteredLabels = obj.filter(entry => !projectIds.includes(entry.projectID));
+            } else {
+              const AllObjs = LabelQueryData?.dataStore?.entries || [];
+              filteredLabels = AllObjs.filter(entry => !projectIds.includes(entry.projectID));
+            }
+        }
+
+        if (HTMLCodeQueryData?.dataStore) {
+            if (typeof HTMLCodeQueryData.dataStore.entries === 'function') {
+              const AllObjs = Object.entries(HTMLCodeQueryData.dataStore);
+              const obj = transformData(AllObjs) || [];
+              filteredHtmlCodes = obj.filter(entry => !projectIds.includes(entry.projectID));
+            } else {
+              const AllObjs = HTMLCodeQueryData?.dataStore?.entries || [];
+              filteredHtmlCodes = AllObjs.filter(entry => !projectIds.includes(entry.projectID));
+            }
+        }
         if (filteredHtmlCodes.length > 0){
             filteredHtmlCodes.forEach(HtmlCodes => {
 

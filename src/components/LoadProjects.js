@@ -4,7 +4,7 @@ import ConfigureMetadata from './ConfigureMetadata'
 import TooltipComponent from './TooltipComponent'
 import CreateProject from './CreateProject'
 import { Input } from '@dhis2-ui/input'
-import {updateDataStore, generateRandomId, createDataStore, customImage} from '../utils'
+import {updateDataStore, generateRandomId, createDataStore, customImage, transformData} from '../utils'
 import { Chip } from '@dhis2-ui/chip'
 import PropTypes from 'prop-types';
 
@@ -34,7 +34,7 @@ const LoadProjects = ({ engine, reloadProjects, setReloadProjects }) => {
 
   const [projects, setProjects] = useState([]);
   // const projects = []
-  const [projectName, setProjectName] = useState('');
+  const [projectName, setProjectName] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
   const [existingProject, setExistingProjects] = useState(false);
   const [showModalCreateProject, setShowModalCreateProject] = useState(false);
@@ -104,11 +104,21 @@ const LoadProjects = ({ engine, reloadProjects, setReloadProjects }) => {
       // setProjects(data.dataStore ? [data.dataStore] : []);
 
           // Check if entries property exists in data.dataStore
-        const newProjects = data?.dataStore?.entries || [];
-        if (newProjects.length > 0){
-          setProjects(newProjects);
-        }
+        // const newProjects = data?.dataStore ? Object.entries(data?.dataStore?.entries) : [];
 
+        // const newProjects = data?.dataStore ? Object.entries(data.dataStore) : [];
+
+        let newProjects = data?.dataStore?.entries || [];
+        if (data?.dataStore) {
+          if (typeof data.dataStore.entries === 'function') {
+            newProjects = Object.entries(data.dataStore);
+            setProjects(transformData(newProjects));  
+          } else {
+            newProjects = data?.dataStore?.entries || [];
+            setProjects(newProjects);  
+
+          }
+        }
     }
   }, [data, reloadProjects, ]);
 
@@ -126,6 +136,9 @@ const LoadProjects = ({ engine, reloadProjects, setReloadProjects }) => {
     : projects;
 
 
+
+
+    
   const handleEditProject = (project) => {
     setSelectedProject(project);
     setProjectName(project ? project.projectName : null)

@@ -1,6 +1,7 @@
 import {useState, useEffect } from 'react';
 import React from 'react'
 import { SingleSelect, SingleSelectOption  } from '@dhis2-ui/select'
+import {transformData} from '../utils'
 import PropTypes from 'prop-types';
 
 
@@ -10,6 +11,24 @@ const SideNavigation = props => {
 
     const [selectedSideNavigation, setSelectedSideNavigation] = useState('');
     const [disabled, setDisable] = useState(true);
+    const [sideNavigationList, setSideNavigationList] = useState([]);
+
+
+
+    useEffect(()=>{
+
+        if (props.SideNavigationQueryData?.dataStore) {
+            if (typeof props.SideNavigationQueryData.dataStore.entries === 'function') {
+              let newSeideNavigations = Object.entries(props.SideNavigationQueryData.dataStore);
+              setSideNavigationList(transformData(newSeideNavigations))
+            } else {
+              let newSeideNavigations = props.SideNavigationQueryData?.dataStore?.entries || [];
+              setSideNavigationList(newSeideNavigations)
+            }
+        }
+
+    },[])
+
 
     useEffect(() => {
         if (props.selectedDataElementId.length > 0) {
@@ -62,7 +81,7 @@ const SideNavigation = props => {
                     onChange={({ selected }) => handleSideNavigationSelectionChange(selected)}
                     disabled={disabled}
                 >
-                    {props.SideNavigationQueryData?.dataStore?.entries
+                    {sideNavigationList
                     .filter(({ projectID }) => projectID === props.loadedProject.id)
                     .map(({ key, sideNavName }) => (
                     <SingleSelectOption 
