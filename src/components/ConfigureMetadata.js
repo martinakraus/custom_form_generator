@@ -23,6 +23,8 @@ import { IconEdit16, IconDelete16, IconAddCircle24} from '@dhis2/ui-icons';
 import { generateRandomId, modifiedDate,  alignLevels, customImage, updateDataStore} from '../utils';
 import SideNavigation from './SideNavigationSelection';
 import FormComponentSelection from './FormComponentSelection';
+import {transformData} from '../utils'
+
 
 import { IconInfo16 } from '@dhis2/ui-icons'; 
 import level3Guide from '../images/level3.png'
@@ -142,6 +144,8 @@ const ConfigureMetadata = (props) => {
     const [showGuide, setShowGuide] = useState(false);
     const [updateDataElementCatLenght, setUpdateDataElementCatLenght] = useState(false);
     const [dataElementCatLenght, setDataElementCatLenght] = useState(0);
+
+
 
 
 
@@ -334,22 +338,94 @@ const ConfigureMetadata = (props) => {
     const { data: ConditionsQueryData, refetch:ConditionsQueryDataRefetch } = useDataQuery(ConditionQuery); // Use separate hook for dataStoreQuery
     const { data: LabelQueryData, refetch:LabelQueryDataRefetch } = useDataQuery(LabelQuery); // Use separate hook for dataStoreQuery
 
+    const [sideNavigationList, setSideNavigationList] = useState([]);
+    const [FormComponentList, setFormComponentList] = useState([])
+    const [TemplateList, setTemplateList] = useState([])
+    const [LabelsList, setLabelsListList] = useState([])
 
-    // useEffect(() => {
-    //     ConditionsQueryDataRefetch();
-    // }, [reloadExclusions, ConditionsQueryDataRefetch]);
 
+
+    useEffect(()=>{
+
+        if (SideNavigationQueryData?.dataStore) {
+            if (typeof SideNavigationQueryData.dataStore.entries === 'function') {
+              let newSeideNavigations = Object.entries(SideNavigationQueryData.dataStore);
+              setSideNavigationList(transformData(newSeideNavigations))
+            } else {
+              let newSeideNavigations = SideNavigationQueryData?.dataStore?.entries || [];
+              setSideNavigationList(newSeideNavigations)
+            }
+        }
+
+    },[])
+
+    // useEffect(()=>{
+
+    //     if (LabelQueryData?.dataStore) {
+    //         if (typeof LabelQueryData.dataStore.entries === 'function') {
+    //           let newLabels = Object.entries(LabelQueryData.dataStore);
+    //           setLabelsListList(transformData(newLabels))
+    //         } else {
+    //           let newLabels = LabelQueryData?.dataStore?.entries || [];
+    //           setLabelsListList(newLabels)
+    //         }
+    //     }
+
+    // },[])
+
+
+    useEffect(()=>{
+
+        if (TemaplateQueryData?.dataStore) {
+            if (typeof TemaplateQueryData.dataStore.entries === 'function') {
+              let newTemplates = Object.entries(TemaplateQueryData.dataStore);
+              setTemplateList(transformData(newTemplates))
+            } else {
+              let newTemplates = TemaplateQueryData?.dataStore?.entries || [];
+              setTemplateList(newTemplates)
+            }
+        }
+
+    },[TemaplateQueryData])
+
+    useEffect(()=>{
+
+        if (FormComponentQueryData?.dataStore) {
+            if (typeof FormComponentQueryData.dataStore.entries === 'function') {
+              let newSeideNavigations = Object.entries(FormComponentQueryData.dataStore);
+              setFormComponentList(transformData(newSeideNavigations))
+            } else {
+              let newSeideNavigations = FormComponentQueryData?.dataStore?.entries || [];
+              setFormComponentList(newSeideNavigations)
+            }
+        }
+
+    },[])
 
     useEffect(() => {
         ConditionsQueryDataRefetch();
         if (ConditionsQueryData) {
+
+            if (ConditionsQueryData?.dataStore) {
+                if (typeof ConditionsQueryData.dataStore.entries === 'function') {
+                  let newConditions = Object.entries(ConditionsQueryData.dataStore);
+                  setLoadedRules(transformData(newConditions).filter(entry => entry.projectID === loadedProject.id) || [])
+                } else {
+                  let newConditions = ConditionsQueryData?.dataStore?.entries || [];
+                  setLoadedRules(newConditions.filter(entry => entry.projectID === loadedProject.id) || [])
+                }
+            }
+
             // console.log("ConditionsQueryData: ", ConditionsQueryData)
+            // console.log("ConditionsQueryData Lenght ", ConditionsQueryData.length)
           // setProjects(data.dataStore ? [data.dataStore] : []);
     
               // Check if entries property exists in data.dataStore
-            let newExclusion = ConditionsQueryData.dataStore?.entries.filter(entry => entry.projectID === loadedProject.id) || [];
-            setLoadedRules(newExclusion);
-            newExclusion = []
+            // if (ConditionsQueryData.length > 0 && ConditionsQueryData !== undefined){
+            // let newExclusion = ConditionsQueryData.dataStore?.entries.filter(entry => entry.projectID === loadedProject.id) || [];
+            // setLoadedRules(newExclusion);
+            // newExclusion = []
+            // }
         }
       }, [ConditionsQueryData, reloadExclusions, ]);
 
@@ -360,10 +436,22 @@ const ConfigureMetadata = (props) => {
     
               // Check if entries property exists in data.dataStore
             //   console.log('LabelQueryData: ', LabelQueryData)
-            let newLabels = LabelQueryData.dataStore?.entries.filter(entry => entry.projectID === loadedProject.id) || [];
-            // console.log('newLabels: ', newLabels)
-            setLoadedLabels(newLabels);
-            newLabels = []
+
+            if (LabelQueryData?.dataStore) {
+                if (typeof LabelQueryData.dataStore.entries === 'function') {
+                  let newLabels = Object.entries(LabelQueryData.dataStore);
+                  setLoadedLabels(transformData(newLabels))
+                } else {
+                  let newLabels = LabelQueryData?.dataStore?.entries || [];
+                  setLoadedLabels(newLabels)
+                }
+            }
+            // if (LabelQueryData.length > 0 && LabelQueryData !== undefined){
+            // let newLabels = LabelQueryData.dataStore?.entries.filter(entry => entry.projectID === loadedProject.id) || [];
+            // // console.log('newLabels: ', newLabels)
+            // setLoadedLabels(newLabels);
+            // newLabels = []
+            // }
         }
       }, [LabelQueryData, reloadLabels, ]);
 
@@ -694,11 +782,15 @@ const ConfigureMetadata = (props) => {
     
                 const navigationExists = (navigationToCheck) => {
                     const sideNavigationNameArray = SideNavigationQueryData.dataStore?.entries || [];
+                    try {
+                        return sideNavigationNameArray.some(navigation => 
+                            navigation.sideNavName.toLowerCase() === navigationToCheck.toLowerCase() &&
+                            navigation.projectID.toLowerCase() === loadedProject.id.toLowerCase()
+                        );
                     
-                    return sideNavigationNameArray.some(navigation => 
-                        navigation.sideNavName.toLowerCase() === navigationToCheck.toLowerCase() &&
-                        navigation.projectID.toLowerCase() === loadedProject.id.toLowerCase()
-                    );
+                    } catch (error) {
+                        return false; // or handle the error as needed
+                    }                    
                 };
                 
                 setExistingSideNavigation(navigationExists(sideNavigationName))
@@ -719,11 +811,15 @@ const ConfigureMetadata = (props) => {
 
                     const formComponentExists = (FormComponentToCheck) => {
                         const formComponentNameArray = FormComponentQueryData.dataStore?.entries || [];
+                        try {
+                            return formComponentNameArray.some(form_component => 
+                                form_component.formComponentName.toLowerCase() === FormComponentToCheck.toLowerCase() &&
+                                form_component.projectID.toLowerCase() === loadedProject.id.toLowerCase()
+                            );
                         
-                        return formComponentNameArray.some(form_component => 
-                            form_component.formComponentName.toLowerCase() === FormComponentToCheck.toLowerCase() &&
-                            form_component.projectID.toLowerCase() === loadedProject.id.toLowerCase()
-                        );
+                        } catch (error) {
+                            return false; // or handle the error as needed
+                        }  
                     };
                     setExistingFormComponent(formComponentExists(formComponentName))
                   }
@@ -743,10 +839,17 @@ const ConfigureMetadata = (props) => {
               const conditionExists = (conditionNameToCheck) => {
                   const conditionNameArray = ConditionsQueryData.dataStore?.entries || [];
                   
-                  return conditionNameArray.some(condition => 
-                    condition.name.toLowerCase() === conditionNameToCheck.toLowerCase() &&
-                    condition.projectID.toLowerCase() === loadedProject.id.toLowerCase()
-                  );
+
+
+                  try {
+                    return conditionNameArray.some(condition => 
+                        condition.name.toLowerCase() === conditionNameToCheck.toLowerCase() &&
+                        condition.projectID.toLowerCase() === loadedProject.id.toLowerCase()
+                      );
+                
+                } catch (error) {
+                    return false; // or handle the error as needed
+                } 
               };
               setExistingConditionName(conditionExists(conditionName))
             }
@@ -769,11 +872,15 @@ const ConfigureMetadata = (props) => {
                     return false
                 }else{
                   const metadataNameArray = LabelQueryData.dataStore?.entries || [];
-                 
-                  return metadataNameArray.some(label => 
-                    label.name.toLowerCase() === labelNameToCheck.toLowerCase() &&
-                    label.projectID.toLowerCase() === loadedProject.id.toLowerCase()
-                  );
+                try {
+                    return metadataNameArray.some(label => 
+                        label.name.toLowerCase() === labelNameToCheck.toLowerCase() &&
+                        label.projectID.toLowerCase() === loadedProject.id.toLowerCase()
+                      );
+                
+                } catch (error) {
+                    return false; // or handle the error as needed
+                } 
                 }
               };
               setExistingMetadataName(labelExists(metadataName))
@@ -2070,8 +2177,8 @@ const ConfigureMetadata = (props) => {
                         </TableRowHead>
                         </TableHead>
                         <TableBody>
-                        {Array.isArray(SideNavigationQueryData?.dataStore?.entries || []) &&
-                            SideNavigationQueryData?.dataStore?.entries.map((navigation) => (
+                        {Array.isArray(sideNavigationList || []) &&
+                            sideNavigationList.map((navigation) => (
                                 // Check if navigation.dataSet is equal to selectedDataSet
                                 navigation.projectID === loadedProject.id && (
                                     <TableRow key={navigation.sideNavName} className={classes.customTableRow}>
@@ -2113,8 +2220,8 @@ const ConfigureMetadata = (props) => {
                         </TableRowHead>
                         </TableHead>
                         <TableBody>
-                        {Array.isArray(FormComponentQueryData?.dataStore?.entries || []) &&
-                            FormComponentQueryData?.dataStore?.entries.map((form_component) => (
+                        {Array.isArray(FormComponentList || []) &&
+                            FormComponentList.map((form_component) => (
                                 // Check if navigation.dataSet is equal to selectedDataSet
                                 form_component.projectID === loadedProject.id && (
                                 <TableRow key={form_component.key} className={classes.customTableRow}>
@@ -2644,8 +2751,8 @@ const ConfigureMetadata = (props) => {
                         </TableRowHead>
                         </TableHead>
                         <TableBody>
-                            {Array.isArray(TemaplateQueryData?.dataStore?.entries || []) &&
-                            TemaplateQueryData?.dataStore?.entries.map((template) => (
+                            {Array.isArray(TemplateList || []) &&
+                            TemplateList.map((template) => (
                                 // Check if navigation.dataSet is equal to selectedDataSet
                                 template.projectID === loadedProject.id && (
                                     <TableRow key={template.key} className={classes.customTableRow}>
@@ -2694,8 +2801,8 @@ const ConfigureMetadata = (props) => {
                             </TableRowHead>
                             </TableHead>
                             <TableBody>
-                            {Array.isArray(ConditionsQueryData?.dataStore?.entries || []) &&
-                                ConditionsQueryData?.dataStore?.entries.map((exclusion) => (
+                            {Array.isArray(loadedRules || []) &&
+                                loadedRules.map((exclusion) => (
                                     // Check if navigation.dataSet is equal to selectedDataSet
                                     exclusion.projectID === loadedProject.id && (
                                         <TableRow key={exclusion.key} className={classes.customTableRow}>
@@ -2752,8 +2859,8 @@ const ConfigureMetadata = (props) => {
                             </TableRowHead>
                             </TableHead>
                             <TableBody>
-                            {Array.isArray(LabelQueryData?.dataStore?.entries || []) &&
-                                LabelQueryData?.dataStore?.entries.map((label) => (
+                            {Array.isArray(loadedLabels || []) &&
+                                loadedLabels.map((label) => (
                                     // Check if navigation.dataSet is equal to selectedDataSet
                                     label.projectID === loadedProject.id && (
                                         <TableRow key={label.key} className={classes.customTableRow}>

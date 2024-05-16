@@ -2,11 +2,28 @@ import {useState, useEffect } from 'react';
 import React from 'react'
 import { SingleSelect, SingleSelectOption  } from '@dhis2-ui/select'
 import PropTypes from 'prop-types'; // Import PropTypes
+import {transformData} from '../utils'
 
 const FormComponentSelection = props => {  
 
     const [selectedFormComponents, setSelectFormComponents] = useState("");
     const [disabled, setDisable] = useState(true);
+    const [FormComponentList, setFormComponentList] = useState([]);
+
+    useEffect(()=>{
+
+        if (props.FormComponentQueryData?.dataStore) {
+            if (typeof props.FormComponentQueryData.dataStore.entries === 'function') {
+              let newFormComponent = Object.entries(props.FormComponentQueryData.dataStore);
+              setFormComponentList(transformData(newFormComponent))
+            } else {
+              let newFormComponent = props.FormComponentQueryData?.dataStore?.entries || [];
+              setFormComponentList(newFormComponent)
+            }
+        }
+
+    },[])
+
 
     useEffect(() => {
         if (props.selectedDataElementId.length > 0) {
@@ -55,7 +72,7 @@ const FormComponentSelection = props => {
                 disabled={disabled}
 
             >
-                {props.FormComponentQueryData.dataStore?.entries
+                {FormComponentList
                 .filter(({ projectID }) => projectID === props.loadedProject.id)
                 .map(({ key, formComponentName }) => (
                 <SingleSelectOption label={formComponentName} 

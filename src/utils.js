@@ -294,3 +294,8 @@ export const addCodeMutation = {
   partial: true,
   data: ({ code }) => (code),
 }
+
+
+export const transformData = (nestedArray) => {
+  return nestedArray.map(([, project]) => project);
+};
